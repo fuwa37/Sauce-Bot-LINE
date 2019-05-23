@@ -38,9 +38,10 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    m = hBot.processComment(event.message.text)
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=hBot.processComment(event.message.text)))
+        TextSendMessage(text=m))
 
-
+print(hBot.processComment("(177013)"))
 app.run()
