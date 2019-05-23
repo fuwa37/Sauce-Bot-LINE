@@ -1,4 +1,5 @@
 import nHentaiTagBot as hBot
+import os
 from flask import Flask, request, abort
 
 from linebot import (
@@ -12,8 +13,10 @@ from linebot.models import (
 )
 
 app = Flask(__name__)
+port = int(os.environ.get('PORT', 33507))
 
-line_bot_api = LineBotApi('Et/GenKz1+jjMORi4d0O3y7gbo6hAxu7QcDhzV2yt+UIEOwTS71OYn1ZaIGVl75mwUvmo0jUCBzGDcpZsNYIhU0JPVTSasQR85TY2lqZ9S1j9E2u+YzYIIWTFvvhrvzvo73PFli6RDLyPdXokUeLtwdB04t89/1O/w1cDnyilFU=')
+line_bot_api = LineBotApi(
+    'Et/GenKz1+jjMORi4d0O3y7gbo6hAxu7QcDhzV2yt+UIEOwTS71OYn1ZaIGVl75mwUvmo0jUCBzGDcpZsNYIhU0JPVTSasQR85TY2lqZ9S1j9E2u+YzYIIWTFvvhrvzvo73PFli6RDLyPdXokUeLtwdB04t89/1O/w1cDnyilFU=')
 handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
 
 
@@ -43,5 +46,5 @@ def handle_message(event):
         event.reply_token,
         TextSendMessage(text=m))
 
-print(hBot.processComment("(177013)"))
-app.run()
+
+app.run(host='0.0.0.0', port=port)
