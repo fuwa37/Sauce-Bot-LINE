@@ -47,11 +47,4 @@ def handle_message(event):
         TextSendMessage(text=m))
 
 
-@handler.add(JoinEvent)
-def handle_join(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text='Joined this ' + event.source.type))
-
-
 app.run(host='0.0.0.0', port=port)

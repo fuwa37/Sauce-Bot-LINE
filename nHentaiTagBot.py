@@ -118,10 +118,8 @@ def processComment(comment):
                 logString += hitomila.generateReplyString(
                     processedData, number)
     if replyString:
-        replyString += addFooter()
+        # replyString += addFooter()
         return replyString
-    return True
-
 
 def generateLinkString(numbersCombi):
     # generate the string that will be replied
