@@ -20,7 +20,7 @@ def additionalTagsString(entries, initialText, isNhentai=True):
 
 
 def generate450string(site):
-    return f"{site} returned 450 for this number. The gallery information is unavailable at this time [Tag(s) problem]."
+    return f"{site} returned 450 for this number. The gallery information is unavailable at this time."
 
 # taken from https://stackoverflow.com/questions/480214/how-do-you-remove-duplicates-from-a-list-whilst-preserving-order
 def removeDuplicates(seq):
