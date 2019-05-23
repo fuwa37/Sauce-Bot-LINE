@@ -9,7 +9,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,
+    MessageEvent, TextMessage, TextSendMessage, JoinEvent
 )
 
 app = Flask(__name__)
@@ -46,7 +46,13 @@ def handle_message(event):
     m = hBot.processComment(event.message.text)
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=m))
+        TextSendMessage(text=m+"\n"+s))
+
+@handler.add(JoinEvent)
+def handle_join(event):
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text='Joined this ' + event.source.type))
 
 
 app.run(host='0.0.0.0', port=port)
