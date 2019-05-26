@@ -51,7 +51,8 @@ def handle_message(event):
 
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_image(event):
-    print(event.message.originalContentUrl)
+    print(event.message.type)
+    print(event.message.contentProvider.type)
 
 
 app.run(host='0.0.0.0', port=port)
