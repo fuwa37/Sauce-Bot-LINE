@@ -38,6 +38,7 @@ def create_link_dictionary(soup):
 
         if re.search(r'/res/nhentai/', image_url):
             # nHentai Block
+            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
                 dic.update({'type': 'nhentai'})
             gallery_number = re.search(r'(?<=\/nhentai\/)\d+', image_url)
@@ -57,6 +58,7 @@ def create_link_dictionary(soup):
 
         if re.search(r'/frames/', image_url):
             # aniDB block
+            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
                 dic.update({'type': 'anidb'})
             title_candidate = result.find('div', class_='resulttitle')
@@ -85,6 +87,7 @@ def create_link_dictionary(soup):
 
         if re.search(r'/res/dA/', image_url):
             # DeviantArt block
+            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
                 dic.update({'type': 'da'})
             title = result.find('div', class_='resulttitle')
@@ -132,7 +135,7 @@ def create_link_dictionary(soup):
                 if char.find("<br/>"):
                     char = char.replace("<br/>", " | ")
                 if char1 and not dic.get('character'):
-                    dic.update({'character(s)': char})
+                    dic.update({'character': char})
 
             for link in result.find('div', class_='resultmiscinfo').find_all('a'):
                 link = link.get('href')
@@ -153,10 +156,14 @@ def create_link_dictionary(soup):
                     if not dic.get('yandere_link'):
                         dic.update({'yandere_link': link})
                         continue
+            if similarity_percentage>90:
+                dic.update(({'similarity': similarity_percentage}))
+                dic.update({'type': 'booru'})
             continue
 
         if re.search(r'/res/pixiv/', image_url):
             # Pixiv block
+            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
                 dic.update({'type': 'pixiv'})
             title = result.find('div', class_='resulttitle')
@@ -176,6 +183,7 @@ def create_link_dictionary(soup):
 
         if re.search(r'/res/fakku', image_url):
             # FAKKU block
+            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
                 dic.update({'type': 'fakku'})
             result_content = result.find('div', class_='resultcontent')
@@ -195,6 +203,7 @@ def create_link_dictionary(soup):
 
         if re.search(r'/res/mangadex', image_url):
             # Mangadex block
+            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
                 dic.update({'type': 'mangadex'})
 
@@ -260,11 +269,6 @@ if __name__ == "__main__":
     sauces = ["https://img2.gelbooru.com//images/7b/9f/7b9f93b720c8f4e559400d3100ad4c58.gif",
               "https://i.redd.it/p4oyfybedwr21.jpg", "https://i.imgur.com/MDKuBSQ.mp4",
               "https://i.imgur.com/MDKuBSQ.gif", "https://i.redd.it/nxlbtrgqvyq21.jpg"]
-    sauces = ["https://i.redd.it/qxebsanz9au21.jpg"]
     for sauce in sauces:
-        print(get_source_data(sauce))
+        print(build_comment(get_source_data(sauce)))
 '''
-
-r = get_source_data(
-    "https://danbooru.donmai.us/data/sample/__kurosawa_dia_love_live_sunshine_and_etc_drawn_by_sin_sin52y__sample-04f10b2689294d7d1c401e2558ce987e.jpg")
-print(r)

@@ -64,6 +64,8 @@ def build_comment(dic):
             output_comment += f"**Creator**: {dic.get('creator')}\n\n"
         if dic.get('material'):
             output_comment += f"**Material**: {dic.get('material')}\n\n"
+        if dic.get('character'):
+            output_comment += f"**Character(s)**: {dic.get('character')}\n\n"
         link_comment = generate_booru_links(dic)
         if link_comment:
             output_comment += f"**Links**: {link_comment}\n\n"
