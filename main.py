@@ -53,7 +53,7 @@ def handle_image(event):
     print(event.message.originalContentUrl)
 
 
-# app.run(host='0.0.0.0', port=port)
+app.run(host='0.0.0.0', port=port)
 
 
 # res = sauce.SauceNow.res(sauce.SauceNow.saucesaucenao("https://img-comment-fun.9cache.com/media/a44pBjA/adxenXgE_700w_0.jpg"))
@@ -63,4 +63,7 @@ def handle_image(event):
 # res = sauce.Trace.res("https://img-comment-fun.9cache.com/media/a44pBjA/adxenXgE_700w_0.jpg", mode='ext')
 # res = sauce.SauceNow.res("https://img-comment-fun.9cache.com/media/a44pBjA/adxenXgE_700w_0.jpg", mode='mini')
 # print(res)
+
+# m = hBot.processComment('(177013)')
+# print(m)
 

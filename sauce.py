@@ -18,7 +18,6 @@ def urltofile(url):
             f.write(url.read())
     return "temp"
 
-
 class Trace:
     @staticmethod
     def tob64(file):
@@ -36,22 +35,22 @@ class Trace:
         return json.loads(r.text)
 
     @staticmethod
-    def minires(res):
-        return {'Title': res['docs'][0]['title_native'],
-                'Romaji': res['docs'][0]['title_romaji'],
-                'English': res['docs'][0]['title_english'],
-                }
-
-    @staticmethod
-    def extres(res):
-        return {'Title': res['docs'][0]['title_native'],
-                'Romaji': res['docs'][0]['title_romaji'],
-                'English': res['docs'][0]['title_english'],
-                'Season': res['docs'][0]['season'],
-                'Episode': res['docs'][0]['episode'],
-                'Time': str(chop_microseconds(datetime.timedelta(seconds=res['docs'][0]['at']))),
-                "Similarity": "{:.0%}".format(res['docs'][0]['similarity']),
-                }
+    def res(url, mode=None):
+        r = Trace.saucetrace(url)
+        if mode is None:
+            return ReplyBuilder.reply({'Title': r['docs'][0]['title_native'],
+                                       'Romaji': r['docs'][0]['title_romaji'],
+                                       'English': r['docs'][0]['title_english'],
+                                       })
+        if mode == 'ext':
+            return ReplyBuilder.reply({'Title': r['docs'][0]['title_native'],
+                                        'Romaji': r['docs'][0]['title_romaji'],
+                                        'English': r['docs'][0]['title_english'],
+                                        'Season': r['docs'][0]['season'],
+                                        'Episode': r['docs'][0]['episode'],
+                                        'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))),
+                                        "Similarity": "{:.0%}".format(r['docs'][0]['similarity']),
+                                        })
 
 
 class SauceNow:
@@ -61,24 +60,49 @@ class SauceNow:
         return json.loads(r.text)
 
     @staticmethod
-    def result(res):
+    def result(url, c=65):
+        r = SauceNow.sauce(url)
         results = []
-        for i in res['results']:
-            if float(i['header']['similarity']) > 65:
+        for i in r['results']:
+            if float(i['header']['similarity']) > c:
                 results.append(i)
         return results
 
     @staticmethod
-    def extres(res):
-        r = SauceNow.result(res)
-        return {'Title': r[0]['data']['source'],
-                'Episode': r[0]['data']['part'],
-                'Time': r[0]['data']['est_time'],
-                'Similarity': r[0]['header']['similarity'],
-                }
+    def res(url, mode=None):
+        r = SauceNow.result(url)
+        if mode is None:
+            return ReplyBuilder.reply({'Title': r[0]['data']['source'],
+                                       'Episode': r[0]['data']['part'],
+                                       'Time': r[0]['data']['est_time'],
+                                       'Similarity': r[0]['header']['similarity'] + "%",
+                                       })
+        if mode == 'ext':
+            er = []
+            for i in r:
+                er.append({'Title': i['data']['source'],
+                           'Episode': i['data']['part'],
+                           'Time': i['data']['est_time'],
+                           'Similarity': i['header']['similarity'] + "%",
+                           })
+            return ReplyBuilder.reply2(er)
+        if mode == 'mini':
+            return ReplyBuilder.reply({'Title': r[0]['data']['source'],
+                                       })
+
+
+class ReplyBuilder:
+    @staticmethod
+    def reply(res):
+        rs = ""
+        for i in res:
+            rs += "\n" + i + "  :" + res[i] + "\n"
+        return rs
 
     @staticmethod
-    def minires(res):
-        r = SauceNow.result(res)
-        return {'Title': r[0]['data']['source'],
-                }
+    def reply2(res):
+        rs = ""
+        for i in res:
+            for j in i:
+                rs += "\n" + j + "  :" + i[j] + "\n"
+        return rs
