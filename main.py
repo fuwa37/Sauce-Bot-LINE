@@ -1,6 +1,8 @@
 import nHentaiTagBot.nHentaiTagBot as hBot
 import os
 from flask import Flask, request, abort
+import cloudinary.uploader
+import cloudinary.api
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -10,6 +12,12 @@ from linebot.exceptions import (
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageMessage
+)
+
+cloudinary.config(
+    cloud_name="fuwa",
+    api_key="461525941189854",
+    api_secret="2WH2cEgKQH4YOy5IDsJ2Y3xp3Gk"
 )
 
 app = Flask(__name__)
@@ -51,9 +59,12 @@ def handle_message(event):
 
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_image(event):
-    print(event.message.type)
-    print(event.message.id)
-    line_bot_api.get_message_content(event.message.id)
+    message_content = line_bot_api.get_message_content(event.message.id)
+    with open('temp', 'wb') as fd:
+        for chunk in message_content.iter_content():
+            fd.write(chunk)
+    res = cloudinary.uploader.upload('temp')
+    print(res['url'])
 
 
 app.run(host='0.0.0.0', port=port)

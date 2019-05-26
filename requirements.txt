@@ -6,6 +6,7 @@ beautifulsoup4==4.7.1
 certifi==2019.3.9
 chardet==3.0.4
 Click==7.0
+cloudinary==1.16.0
 cssselect==1.0.3
 Flask==1.0.3
 future==0.17.1
@@ -17,6 +18,7 @@ line-bot-sdk==1.8.0
 lxml==4.3.3
 MarkupSafe==1.1.1
 minoshiro==0.1.8
+mock==3.0.5
 multidict==4.5.2
 post==2019.4.13
 psycopg2==2.8.2
