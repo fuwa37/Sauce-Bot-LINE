@@ -52,7 +52,8 @@ def handle_message(event):
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_image(event):
     print(event.message.type)
-    print(event.message.contentProvider.type)
+    print(event.message.id)
+    line_bot_api.get_message_content(event.message.id)
 
 
 app.run(host='0.0.0.0', port=port)
