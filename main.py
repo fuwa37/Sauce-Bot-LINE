@@ -1,4 +1,4 @@
-import nHentaiTagBot as hBot
+import nHentaiTagBot.nHentaiTagBot as hBot
 import os
 from flask import Flask, request, abort
 
@@ -48,13 +48,13 @@ def handle_message(event):
         event.reply_token,
         TextSendMessage(text=m))
 
+
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_image(event):
     print(event.message.originalContentUrl)
 
 
 app.run(host='0.0.0.0', port=port)
-
 
 # res = sauce.SauceNow.res(sauce.SauceNow.saucesaucenao("https://img-comment-fun.9cache.com/media/a44pBjA/adxenXgE_700w_0.jpg"))
 # res = sauce.Trace.extres(sauce.Trace.saucetrace("https://img-comment-fun.9cache.com/media/a44pBjA/adxenXgE_700w_0.jpg"))
@@ -63,7 +63,3 @@ app.run(host='0.0.0.0', port=port)
 # res = sauce.Trace.res("https://img-comment-fun.9cache.com/media/a44pBjA/adxenXgE_700w_0.jpg", mode='ext')
 # res = sauce.SauceNow.res("https://img-comment-fun.9cache.com/media/a44pBjA/adxenXgE_700w_0.jpg", mode='mini')
 # print(res)
-
-# m = hBot.processComment('(177013)')
-# print(m)
-

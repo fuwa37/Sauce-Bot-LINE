@@ -1,7 +1,7 @@
-import nhentai
-import ehentai
-import tsumino
-import hitomila
+import nHentaiTagBot.nhentai as nhentai
+import nHentaiTagBot.ehentai as ehentai
+import nHentaiTagBot.tsumino as tsumino
+import nHentaiTagBot.hitomila as hitomila
 
 API_URL_NHENTAI = 'https://nhentai.net/api/gallery/'
 API_URL_TSUMINO = 'https://www.tsumino.com/Book/Info/'

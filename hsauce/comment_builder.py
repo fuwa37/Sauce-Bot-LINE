@@ -1,4 +1,4 @@
-import nhentai
+import nHentaiTagBot.nhentai as nhentai
 
 def build_comment(dic):
     output_comment = ''
