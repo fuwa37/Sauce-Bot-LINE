@@ -115,26 +115,28 @@ def create_link_dictionary(soup):
             # print(creator)
             res = result.find_all('div', class_='resultcontentcolumn')
             material = res[0]
-            char = res[1]
+            chars = res[1]
 
             if material:
                 material1 = re.search(r'(?<=Material: <\/strong>).*?(?=<br/><)', str(material))
-                mat = material1.group(0)
-                if mat.find("<br/>"):
-                    mat = mat.replace("<br/>", " | ")
-                if material1 and not dic.get('material'):
-                    dic.update({'material': mat})
-                material = re.search(r'(?<=Source: </strong>).*?(?=<)', str(material))
-                if material and not dic.get('material'):
-                    dic.update({'material': material.group(0)})
+                if material1 is not None:
+                    mat = material1.group(0)
+                    if mat.find("<br/>"):
+                        mat = mat.replace("<br/>", " | ")
+                    if material1 and not dic.get('material'):
+                        dic.update({'material': mat})
+                    material = re.search(r'(?<=Source: </strong>).*?(?=<)', str(material))
+                    if material and not dic.get('material'):
+                        dic.update({'material': material.group(0)})
 
-            if char:
-                char1 = re.search(r'(?<=Characters: <\/strong><br/>).*?(?=<br/><)', str(char))
-                char = char1.group(0)
-                if char.find("<br/>"):
-                    char = char.replace("<br/>", " | ")
-                if char1 and not dic.get('character'):
-                    dic.update({'character': char})
+            if chars:
+                char1 = re.search(r'(?<=Characters: <\/strong><br/>).*?(?=<br/><)', str(chars))
+                if char1 is not None:
+                    char = char1.group(0)
+                    if char.find("<br/>"):
+                        char = char.replace("<br/>", " | ")
+                    if char1 and not dic.get('character'):
+                        dic.update({'character': char})
 
             for link in result.find('div', class_='resultmiscinfo').find_all('a'):
                 link = link.get('href')
@@ -155,7 +157,7 @@ def create_link_dictionary(soup):
                     if not dic.get('yandere_link'):
                         dic.update({'yandere_link': link})
                         continue
-            if similarity_percentage>90:
+            if similarity_percentage > 90:
                 dic.update(({'similarity': similarity_percentage}))
                 dic.update({'type': 'booru'})
             continue
