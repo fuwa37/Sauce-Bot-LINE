@@ -112,5 +112,3 @@ class ReplyBuilder:
             for j in i:
                 rs += "\n" + j + "  :" + i[j] + "\n"
         return rs
-
-print(Trace.res("http://res.cloudinary.com/fuwa/image/upload/v1558957138/phpxoo9tbt5naqhf063g.jpg","ext"))
