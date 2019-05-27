@@ -18,6 +18,7 @@ def urltofile(url):
             f.write(url.read())
     return "temp"
 
+
 class Trace:
     @staticmethod
     def tob64(file):
@@ -36,7 +37,11 @@ class Trace:
 
     @staticmethod
     def res(url, mode=None):
+        if url == '':
+            return None
         r = Trace.saucetrace(url)
+        if r['docs'][0]['similarity'] < 0.65:
+            return None
         if mode is None:
             return ReplyBuilder.reply({'Title': r['docs'][0]['title_native'],
                                        'Romaji': r['docs'][0]['title_romaji'],
@@ -44,13 +49,12 @@ class Trace:
                                        })
         if mode == 'ext':
             return ReplyBuilder.reply({'Title': r['docs'][0]['title_native'],
-                                        'Romaji': r['docs'][0]['title_romaji'],
-                                        'English': r['docs'][0]['title_english'],
-                                        'Season': r['docs'][0]['season'],
-                                        'Episode': r['docs'][0]['episode'],
-                                        'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))),
-                                        "Similarity": "{:.0%}".format(r['docs'][0]['similarity']),
-                                        })
+                                       'Romaji': r['docs'][0]['title_romaji'],
+                                       'English': r['docs'][0]['title_english'],
+                                       'Season': r['docs'][0]['season'],
+                                       'Episode': r['docs'][0]['episode'],
+                                       'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))),
+                                       })
 
 
 class SauceNow:
@@ -94,6 +98,8 @@ class SauceNow:
 class ReplyBuilder:
     @staticmethod
     def reply(res):
+        if res is None:
+            return "Not Found"
         rs = ""
         for i in res:
             rs += "\n" + i + "  :" + res[i] + "\n"

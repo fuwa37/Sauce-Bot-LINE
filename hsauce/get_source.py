@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import requests, re
-from hsauce.comment_builder import build_comment
 
 MINIMUM_SIMILARITY_PERCENTAGE = 70
 MAX_DELTA = 20
