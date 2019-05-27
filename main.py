@@ -84,6 +84,7 @@ def handle_image(event):
             fd.write(chunk)
     res = cloudinary.uploader.upload('temp', tags="TEMP")
     TEMP = res['url']
+    print(TEMP)
 
 
 app.run(host='0.0.0.0', port=port)
