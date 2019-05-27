@@ -51,8 +51,8 @@ class Trace:
             return ReplyBuilder.reply({'Title': r['docs'][0]['title_native'],
                                        'Romaji': r['docs'][0]['title_romaji'],
                                        'English': r['docs'][0]['title_english'],
-                                       'Season': r['docs'][0]['season'],
-                                       'Episode': r['docs'][0]['episode'],
+                                       'Season': str(r['docs'][0]['season']),
+                                       'Episode': str(r['docs'][0]['episode']),
                                        'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))),
                                        })
 
@@ -112,3 +112,5 @@ class ReplyBuilder:
             for j in i:
                 rs += "\n" + j + "  :" + i[j] + "\n"
         return rs
+
+print(Trace.res("http://res.cloudinary.com/fuwa/image/upload/v1558957138/phpxoo9tbt5naqhf063g.jpg","ext"))
