@@ -77,20 +77,14 @@ def handle_message(event):
     if stype == 'room':
         iid = event.source.room_id
 
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text="https://res.cloudinary.com/fuwa/image/upload/" + iid))
-
-    line_bot_api.reply_message(
-        event.reply_token,
-        ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/" + iid,
-                         preview_image_url="https://res.cloudinary.com/fuwa/image/upload/" + iid))
     m = handle_command(event.message.text, iid)
 
     if m:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=m))
+            [ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/" + iid,
+                              preview_image_url="https://res.cloudinary.com/fuwa/image/upload/" + iid),
+             TextSendMessage(text=m)])
     else:
         line_bot_api.reply_message(
             event.reply_token,
