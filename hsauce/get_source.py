@@ -256,8 +256,6 @@ def create_link_dictionary(soup):
 
 
 def get_source_data(picture_url):
-    # print(picture_url)
-    print(picture_url)
     resp = requests.get('http://saucenao.com/search.php?db=999&url=' + picture_url)
     # Needs to be parsed as xml since html parser adds inconvenient closing tags (pip install lxml)
     soup = BeautifulSoup(resp.content, features='lxml')
@@ -267,5 +265,5 @@ def get_source_data(picture_url):
     return dic
 
 
-# print(get_source_data('https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/U42c8c14bf9f5bc869934ce753c7aef5f.jpg?alt=media'))
+# print(get_source_data('https://storage.googleapis.com/line-bot-6d8e8.appspot.com/U42c8c14bf9f5bc869934ce753c7aef5f.jpg'))
 

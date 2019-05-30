@@ -1,13 +1,12 @@
 import nHentaiTagBot.nHentaiTagBot as hBot
 import os
 from flask import Flask, request, abort
+import cloudinary.uploader
+import cloudinary.api
 from hsauce.comment_builder import build_comment
 from hsauce.get_source import get_source_data
 import sauce
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
-from google.cloud import storage
+import base64
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -16,16 +15,16 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, VideoSendMessage
+    MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage
 )
 
-storage_client = storage.Client.from_service_account_json('kunci.json')
-bucket = storage_client.get_bucket("line-bot-6d8e8.appspot.com")
-cred = credentials.Certificate('kunci.json')
-firebase_admin.initialize_app(cred)
-bucket_url = 'https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/'
+cloudinary.config(
+    cloud_name="fuwa",
+    api_key="461525941189854",
+    api_secret="2WH2cEgKQH4YOy5IDsJ2Y3xp3Gk"
+)
 
-db = firestore.client()
+versioning_dic = {}
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 33507))
@@ -38,15 +37,15 @@ handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
 
 
 def handle_command(text, iid):
-    url = bucket_url + iid + ".jpg?alt=media"
+    url = "https://res.cloudinary.com/fuwa/image/upload/v" + versioning_dic.get(str(iid)) + '/' + iid
     if text == "!sauce":
         return build_comment(get_source_data(url))
     if text == "!sauce-anime":
         return sauce.res(url)
     if text == "!sauce-anime-mini":
-        return sauce.res(url)
+        return sauce.res(url, "mini")
     if text == "!sauce-anime-raw":
-        return sauce.res(url)
+        return sauce.res(url, 'raw')
     m = hBot.processComment(text)
     if m:
         return ('hbot', m)
@@ -85,25 +84,15 @@ def handle_message(event):
     m = handle_command(event.message.text, iid)
 
     if m[1]:
-        if m[0] == 'trace':
-            line_bot_api.reply_message(
-                event.reply_token,
-                [
-                 TextSendMessage(text=m[1])])
-        if m[0] == 'saucenao':
-            line_bot_api.reply_message(
-                event.reply_token,
-                [
-                 TextSendMessage(text=m[1])])
-        if m[0] == 'hbot':
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text=m[1]))
-
+        line_bot_api.reply_message(
+            event.reply_token,
+            [
+                TextSendMessage(text=m[1])])
     else:
         line_bot_api.reply_message(
             event.reply_token,
             [
-             TextSendMessage(text="m(_ _)m")])
+                TextSendMessage(text="None")])
 
 
 @handler.add(MessageEvent, message=ImageMessage)
@@ -120,9 +109,9 @@ def handle_image(event):
     message_content = line_bot_api.get_message_content(event.message.id)
     for chunk in message_content.iter_content():
         r += chunk
-    blob = bucket.blob(iid + '.jpg')
-    blob.upload_from_string(r, 'image/jpg')
-    print(blob.public_url)
+    img = base64.b64encode(r).decode('utf-8')
+    res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid, tags="TEMP")
+    versioning_dic.update({str(iid): res['version']})
 
 
 app.run(host='0.0.0.0', port=port)
