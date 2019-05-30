@@ -15,7 +15,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, ImageMessage
+    MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage
 )
 
 cloudinary.config(
@@ -23,8 +23,6 @@ cloudinary.config(
     api_key="461525941189854",
     api_secret="2WH2cEgKQH4YOy5IDsJ2Y3xp3Gk"
 )
-
-TEMP = ''
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 33507))
@@ -37,12 +35,13 @@ handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
 
 
 def handle_command(text, iid):
+    print("http://res.cloudinary.com/fuwa/image/upload/" + iid)
     if text == "!sauce":
         return build_comment(get_source_data("http://res.cloudinary.com/fuwa/image/upload/" + iid))
     if text == "!sauce-anime-ext":
-        return Trace.res(TEMP, "ext")
+        return Trace.res("http://res.cloudinary.com/fuwa/image/upload/" + iid, "ext")
     if text == "!sauce-anime":
-        return Trace.res(TEMP)
+        return Trace.res("http://res.cloudinary.com/fuwa/image/upload/" + iid)
     m = hBot.processComment(text)
     if m:
         return m
@@ -82,7 +81,7 @@ def handle_message(event):
     if m:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=m))
+            [ImageSendMessage("http://res.cloudinary.com/fuwa/image/upload/" + iid), TextSendMessage(text=m)])
 
 
 @handler.add(MessageEvent, message=ImageMessage)
