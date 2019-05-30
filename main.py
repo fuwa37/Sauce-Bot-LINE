@@ -101,7 +101,7 @@ def handle_image(event):
     for chunk in message_content.iter_content():
         r += chunk
     img = base64.b64encode(r).decode('utf-8')
-    cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid, tags="TEMP")
+    cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid, tags="TEMP", invalidate=True)
 
 
 app.run(host='0.0.0.0', port=port)
