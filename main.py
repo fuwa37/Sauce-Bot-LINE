@@ -81,7 +81,10 @@ def handle_message(event):
     if m:
         line_bot_api.reply_message(
             event.reply_token,
-            [ImageSendMessage("https://res.cloudinary.com/fuwa/image/upload/" + iid), TextSendMessage(text=m)])
+            TextSendMessage(text=m))
+        line_bot_api.reply_message(
+            event.reply_token,
+            ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/" + iid))
 
 
 @handler.add(MessageEvent, message=ImageMessage)
