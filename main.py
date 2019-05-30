@@ -79,7 +79,6 @@ def handle_message(event):
     if type == 'room':
         id = event.message.source.room_id
 
-
     if m:
         line_bot_api.reply_message(
             event.reply_token,
@@ -89,15 +88,14 @@ def handle_message(event):
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_image(event):
     global TEMP
+    r = ''
     message_content = line_bot_api.get_message_content(event.message.id)
-    print('A', message_content.content)
-    print('C', message_content.iter_content)
-    print('D', message_content.iter_content())
-    print('E', message_content.response)
-    print('F', message_content.response())
     with open('temp', 'wb') as fd:
         for chunk in message_content.iter_content():
+            print(type(chunk))
+            r += chunk
             fd.write(chunk)
+    print(r)
     res = cloudinary.uploader.upload('temp', public_id='', tags="TEMP")
     TEMP = res['url']
     print(TEMP)
