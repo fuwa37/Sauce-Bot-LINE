@@ -3,6 +3,7 @@ import requests
 import json
 import urllib.request
 import datetime
+import urllib.parse as urlparse
 
 sauceurl = "https://saucenao.com/search.php?output_type=2&db=9998&url="
 traceurl = "https://trace.moe/api/search"
@@ -42,19 +43,25 @@ class Trace:
         r = Trace.saucetrace(url)
         if r['docs'][0]['similarity'] < 0.65:
             return None
+        url_prev = 'https://media.trace.moe/video/' + str(r['docs'][0]['anilist_id']) + '/' + urlparse.quote(
+            r['docs'][0]['filename']) + '?t=' + str(r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
         if mode is None:
-            return ReplyBuilder.reply({'Title': r['docs'][0]['title_native'],
-                                       'Romaji': r['docs'][0]['title_romaji'],
-                                       'English': r['docs'][0]['title_english'],
-                                       })
-        if mode == 'ext':
-            return ReplyBuilder.reply({'Title': r['docs'][0]['title_native'],
-                                       'Romaji': r['docs'][0]['title_romaji'],
-                                       'English': r['docs'][0]['title_english'],
-                                       'Season': str(r['docs'][0]['season']),
-                                       'Episode': str(r['docs'][0]['episode']),
-                                       'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))),
-                                       })
+            return {'trace', ReplyBuilder.reply({'Title': r['docs'][0]['title_native'],
+                                                 'Romaji': r['docs'][0]['title_romaji'],
+                                                 'English': r['docs'][0]['title_english'],
+                                                 'Season': str(r['docs'][0]['season']),
+                                                 'Episode': str(r['docs'][0]['episode']),
+                                                 'Time': str(
+                                                     chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))),
+                                                 }), url_prev}
+
+        if mode == 'mini':
+            return {'trace', ReplyBuilder.reply({'Title': r['docs'][0]['title_native'],
+                                                 'Romaji': r['docs'][0]['title_romaji'],
+                                                 'English': r['docs'][0]['title_english'],
+                                                 }), url_prev}
+        if mode == 'raw':
+            return {'trace', r['docs'][0], url_prev}
 
 
 class SauceNow:
@@ -113,3 +120,8 @@ class ReplyBuilder:
                 rs += "\n" + j + "  :" + i[j] + "\n"
         return rs
 
+
+r = Trace.res('https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/1231587823123.jpg?alt=media',
+              'raw')
+
+print(r)

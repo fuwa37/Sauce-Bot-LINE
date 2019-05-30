@@ -37,8 +37,9 @@ def create_link_dictionary(soup):
 
         if re.search(r'/res/nhentai/', image_url):
             # nHentai Block
-            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
+                dic.update(({'similarity': similarity_percentage}))
+                dic.update(({'image_url': image_url}))
                 dic.update({'type': 'nhentai'})
             gallery_number = re.search(r'(?<=\/nhentai\/)\d+', image_url)
             if gallery_number and not dic.get('gallery_number'):
@@ -57,8 +58,9 @@ def create_link_dictionary(soup):
 
         if re.search(r'/frames/', image_url):
             # aniDB block
-            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
+                dic.update(({'similarity': similarity_percentage}))
+                dic.update(({'image_url': image_url}))
                 dic.update({'type': 'anidb'})
             title_candidate = result.find('div', class_='resulttitle')
             # TODO fix supplemental info
@@ -86,8 +88,9 @@ def create_link_dictionary(soup):
 
         if re.search(r'/res/dA/', image_url):
             # DeviantArt block
-            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
+                dic.update(({'similarity': similarity_percentage}))
+                dic.update(({'image_url': image_url}))
                 dic.update({'type': 'da'})
             title = result.find('div', class_='resulttitle')
             if title and not dic.get('title'):
@@ -106,6 +109,8 @@ def create_link_dictionary(soup):
         if re.search(r'/booru/', image_url):
             # 'Booru block
             if not dic.get('type'):
+                dic.update(({'similarity': similarity_percentage}))
+                dic.update(({'image_url': image_url}))
                 dic.update({'type': 'booru'})
             creator = result.find('div', class_='resulttitle')
             if creator:
@@ -159,13 +164,15 @@ def create_link_dictionary(soup):
                         continue
             if similarity_percentage > 90:
                 dic.update(({'similarity': similarity_percentage}))
+                dic.update(({'image_url': image_url}))
                 dic.update({'type': 'booru'})
             continue
 
         if re.search(r'/res/pixiv/', image_url):
             # Pixiv block
-            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
+                dic.update(({'similarity': similarity_percentage}))
+                dic.update(({'image_url': image_url}))
                 dic.update({'type': 'pixiv'})
             title = result.find('div', class_='resulttitle')
             if title and not dic.get('title'):
@@ -184,8 +191,9 @@ def create_link_dictionary(soup):
 
         if re.search(r'/res/fakku', image_url):
             # FAKKU block
-            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
+                dic.update(({'similarity': similarity_percentage}))
+                dic.update(({'image_url': image_url}))
                 dic.update({'type': 'fakku'})
             result_content = result.find('div', class_='resultcontent')
             title = result_content.find('div', class_='resulttitle')
@@ -204,8 +212,9 @@ def create_link_dictionary(soup):
 
         if re.search(r'/res/mangadex', image_url):
             # Mangadex block
-            dic.update(({'similarity': similarity_percentage}))
             if not dic.get('type'):
+                dic.update(({'similarity': similarity_percentage}))
+                dic.update(({'image_url': image_url}))
                 dic.update({'type': 'mangadex'})
 
             page_number = re.search(r'\d+(?=\.jpg)', image_url)
@@ -273,3 +282,4 @@ if __name__ == "__main__":
     for sauce in sauces:
         print(build_comment(get_source_data(sauce)))
 '''
+
