@@ -25,6 +25,7 @@ def tob64(file):
 
 
 def saucetrace(url):
+    print(url)
     header = {'Content-Type': 'application/json'}
     body = json.dumps({'image': tob64(urltofile(url))})
 
@@ -67,3 +68,5 @@ def reply(res):
     for i in res:
         rs += "\n" + i + "  :" + res[i] + "\n"
     return rs
+
+# print(res('https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/U42c8c14bf9f5bc869934ce753c7aef5f.jpg?alt=media'))

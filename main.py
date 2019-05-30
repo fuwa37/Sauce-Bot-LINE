@@ -38,15 +38,15 @@ handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
 
 
 def handle_command(text, iid):
-    print(bucket_url + iid + ".jpg?alt=media")
+    url = bucket_url + iid + ".jpg?alt=media"
     if text == "!sauce":
-        return build_comment(get_source_data(bucket_url + iid + ".jpg?alt=media"))
+        return build_comment(get_source_data(url))
     if text == "!sauce-anime":
-        return sauce.res(bucket_url + iid + "?alt=media")
+        return sauce.res(url)
     if text == "!sauce-anime-mini":
-        return sauce.res(bucket_url + iid + "?alt=media", 'mini')
+        return sauce.res(url)
     if text == "!sauce-anime-raw":
-        return sauce.res(bucket_url + iid + "?alt=media", 'raw')
+        return sauce.res(url)
     m = hBot.processComment(text)
     if m:
         return ('hbot', m)
@@ -88,14 +88,12 @@ def handle_message(event):
         if m[0] == 'trace':
             line_bot_api.reply_message(
                 event.reply_token,
-                [VideoSendMessage(original_content_url=m[2] + iid,
-                                  preview_image_url=m[2] + iid),
+                [
                  TextSendMessage(text=m[1])])
         if m[0] == 'saucenao':
             line_bot_api.reply_message(
                 event.reply_token,
-                [ImageSendMessage(original_content_url=m[2] + iid,
-                                  preview_image_url=m[2] + iid),
+                [
                  TextSendMessage(text=m[1])])
         if m[0] == 'hbot':
             line_bot_api.reply_message(
@@ -104,8 +102,7 @@ def handle_message(event):
     else:
         line_bot_api.reply_message(
             event.reply_token,
-            [ImageSendMessage(original_content_url=bucket_url + iid + "?alt=media",
-                              preview_image_url=bucket_url + iid + "?alt=media"),
+            [
              TextSendMessage(text="m(_ _)m")])
 
 
@@ -125,6 +122,7 @@ def handle_image(event):
         r += chunk
     blob = bucket.blob(iid + '.jpg')
     blob.upload_from_string(r, 'image/jpg')
+    print(blob.public_url)
 
 
 app.run(host='0.0.0.0', port=port)
