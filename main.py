@@ -24,8 +24,6 @@ cloudinary.config(
     api_secret="2WH2cEgKQH4YOy5IDsJ2Y3xp3Gk"
 )
 
-TEMP = ''
-
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 33507))
 
@@ -87,17 +85,12 @@ def handle_message(event):
 
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_image(event):
-    global TEMP
     r = b''
     message_content = line_bot_api.get_message_content(event.message.id)
-    with open('temp', 'wb') as fd:
-        for chunk in message_content.iter_content():
-            r += chunk
-            fd.write(chunk)
-    print(base64.b64encode(r))
-    res = cloudinary.uploader.upload('temp', public_id='', tags="TEMP")
-    TEMP = res['url']
-    print(TEMP)
+    for chunk in message_content.iter_content():
+        r += chunk
+    img = base64.b64encode(r).decode('utf-8')
+    res = cloudinary.uploader.upload('data:image/jpg;base64,'+img, public_id='', tags="TEMP")
 
 
 app.run(host='0.0.0.0', port=port)
