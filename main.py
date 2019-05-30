@@ -23,7 +23,7 @@ storage_client = storage.Client.from_service_account_json('kunci.json')
 bucket = storage_client.get_bucket("line-bot-6d8e8.appspot.com")
 cred = credentials.Certificate('kunci.json')
 firebase_admin.initialize_app(cred)
-bucket_url = 'https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/temp/'
+bucket_url = 'https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/temp%2F'
 
 db = firestore.client()
 
