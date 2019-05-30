@@ -69,4 +69,5 @@ def reply(res):
         rs += "\n" + i + "  :" + res[i] + "\n"
     return rs
 
-# print(res('https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/U42c8c14bf9f5bc869934ce753c7aef5f.jpg?alt=media'))
+s = (res('https://res.cloudinary.com/fuwa/image/upload/v1559238387/C38b8b57e92a7403fd6fb5cfd6395ce1e.jpg'))
+print(s[2])
