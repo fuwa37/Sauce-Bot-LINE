@@ -86,6 +86,7 @@ def handle_message(event):
 
     if m[1]:
         if m[0] == 'trace':
+            print(m[2])
             line_bot_api.reply_message(
                 event.reply_token,
                 [VideoSendMessage(original_content_url=m[2],
