@@ -42,22 +42,22 @@ def res(url, mode=None):
     url_prev = 'https://media.trace.moe/video/' + str(r['docs'][0]['anilist_id']) + '/' + urlparse.quote(
         r['docs'][0]['filename']) + '?t=' + str(r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
     if mode is None:
-        return {'trace', reply({'Title': r['docs'][0]['title_native'],
+        return ('trace', reply({'Title': r['docs'][0]['title_native'],
                                 'Romaji': r['docs'][0]['title_romaji'],
                                 'English': r['docs'][0]['title_english'],
                                 'Season': str(r['docs'][0]['season']),
                                 'Episode': str(r['docs'][0]['episode']),
                                 'Time': str(
                                     chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))),
-                                }), url_prev}
+                                }), url_prev)
 
     if mode == 'mini':
-        return {'trace', reply({'Title': r['docs'][0]['title_native'],
+        return ('trace', reply({'Title': r['docs'][0]['title_native'],
                                 'Romaji': r['docs'][0]['title_romaji'],
                                 'English': r['docs'][0]['title_english'],
-                                }), url_prev}
+                                }), url_prev)
     if mode == 'raw':
-        return {'trace', r['docs'][0], url_prev}
+        return ('trace', r['docs'][0], url_prev)
 
 
 def reply(res):

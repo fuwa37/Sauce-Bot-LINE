@@ -48,7 +48,7 @@ def handle_command(text, iid):
         return sauce.res(bucket_url + iid + "?alt=media", 'raw')
     m = hBot.processComment(text)
     if m:
-        return {'hbot', m}
+        return ('hbot', m)
 
 
 @app.route("/callback", methods=['POST'])

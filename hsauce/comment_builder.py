@@ -125,7 +125,7 @@ def build_comment(dic):
 
     # output_comment += f"---\n^^[Full results]({dic.get('SauceNAO')}) | [How to SauceNao](https://www.reddit.com/r/HentaiSource/comments/b7h28o/guide_reverse_search_images_cropping_saucenao/) | [Questions?](https://www.reddit.com/message/compose/?to=thevexedgerman&subject=[SauceNAO-Bot]) | [Original Bot](https://www.reddit.com/user/HentaiSauce_Bot) | [Forked GitHub](https://github.com/TheVexedGerman/hsauce_bot) | Bad sauce? [Message the mods](https://www.reddit.com/message/compose?to=%2Fr%2FHentaiSource)".replace(' ', '&#32;')
 
-    return {'saucenao', output_comment, dic['image_url']}
+    return ('saucenao', output_comment, dic['image_url'])
 
 
 def generate_seperator_bar(link_comment):
