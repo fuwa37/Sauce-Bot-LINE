@@ -69,6 +69,16 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     m = handle_command(event.message.text)
+    type = event.message.source.type
+
+    if type == 'user':
+        id = event.message.source.user_id
+    if type == 'group':
+        id = event.message.source.group_id
+    if type == 'room':
+        id = event.message.source.room_id
+
+
     if m:
         line_bot_api.reply_message(
             event.reply_token,
@@ -79,10 +89,12 @@ def handle_message(event):
 def handle_image(event):
     global TEMP
     message_content = line_bot_api.get_message_content(event.message.id)
+    print(message_content)
     with open('temp', 'wb') as fd:
         for chunk in message_content.iter_content():
+            print(chunk)
             fd.write(chunk)
-    res = cloudinary.uploader.upload('temp', tags="TEMP")
+    res = cloudinary.uploader.upload('temp', public_id='', tags="TEMP")
     TEMP = res['url']
     print(TEMP)
 
