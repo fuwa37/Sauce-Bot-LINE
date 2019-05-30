@@ -82,6 +82,7 @@ def handle_message(event):
         iid = event.source.room_id
 
     m = handle_command(event.message.text, iid)
+    print(m)
 
     if m[1]:
         if m[0] == 'trace':
