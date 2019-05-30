@@ -24,6 +24,8 @@ cloudinary.config(
     api_secret="2WH2cEgKQH4YOy5IDsJ2Y3xp3Gk"
 )
 
+TEMP = ''
+
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 33507))
 
@@ -34,9 +36,9 @@ line_bot_api = LineBotApi(
 handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
 
 
-def handle_command(text):
+def handle_command(text, iid):
     if text == "!sauce":
-        return build_comment(get_source_data(TEMP))
+        return build_comment(get_source_data("http://res.cloudinary.com/fuwa/image/upload/" + iid))
     if text == "!sauce-anime-ext":
         return Trace.res(TEMP, "ext")
     if text == "!sauce-anime":
@@ -67,15 +69,15 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    m = handle_command(event.message.text)
-    type = event.message.source.type
-
-    if type == 'user':
-        id = event.message.source.user_id
-    if type == 'group':
-        id = event.message.source.group_id
-    if type == 'room':
-        id = event.message.source.room_id
+    stype = event.message.source.type
+    iid = ''
+    if stype == 'user':
+        iid = event.message.source.user_id
+    if stype == 'group':
+        iid = event.message.source.group_id
+    if stype == 'room':
+        iid = event.message.source.room_id
+    m = handle_command(event.message.text, iid)
 
     if m:
         line_bot_api.reply_message(
@@ -85,12 +87,21 @@ def handle_message(event):
 
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_image(event):
+    global TEMP
     r = b''
+    iid = ''
+    stype = event.message.source.type
+    if stype == 'user':
+        iid = event.message.source.user_id
+    if stype == 'group':
+        iid = event.message.source.group_id
+    if stype == 'room':
+        iid = event.message.source.room_id
     message_content = line_bot_api.get_message_content(event.message.id)
     for chunk in message_content.iter_content():
         r += chunk
     img = base64.b64encode(r).decode('utf-8')
-    res = cloudinary.uploader.upload('data:image/jpg;base64,'+img, public_id='', tags="TEMP")
+    cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid, tags="TEMP")
 
 
 app.run(host='0.0.0.0', port=port)
