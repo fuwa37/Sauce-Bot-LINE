@@ -69,14 +69,14 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    stype = event.message.source.type
+    stype = event.source.type
     iid = ''
     if stype == 'user':
-        iid = event.message.source.user_id
+        iid = event.source.user_id
     if stype == 'group':
-        iid = event.message.source.group_id
+        iid = event.source.group_id
     if stype == 'room':
-        iid = event.message.source.room_id
+        iid = event.source.room_id
     m = handle_command(event.message.text, iid)
 
     if m:
@@ -90,13 +90,13 @@ def handle_image(event):
     global TEMP
     r = b''
     iid = ''
-    stype = event.message.source.type
+    stype = event.source.type
     if stype == 'user':
-        iid = event.message.source.user_id
+        iid = event.source.user_id
     if stype == 'group':
-        iid = event.message.source.group_id
+        iid = event.source.group_id
     if stype == 'room':
-        iid = event.message.source.room_id
+        iid = event.source.room_id
     message_content = line_bot_api.get_message_content(event.message.id)
     for chunk in message_content.iter_content():
         r += chunk
