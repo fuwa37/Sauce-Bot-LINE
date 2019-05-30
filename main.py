@@ -89,14 +89,15 @@ def handle_message(event):
             print(m[2])
             line_bot_api.reply_message(
                 event.reply_token,
-                [TextSendMessage(text=m[2]), VideoSendMessage(original_content_url=m[2], preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
+                [VideoSendMessage(original_content_url=m[2],
+                                  preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
                  TextSendMessage(text=m[1])])
         if m[0] == 'saucenao':
             print(m[2])
             line_bot_api.reply_message(
                 event.reply_token,
                 [
-                 TextSendMessage(text=m[1])])
+                    TextSendMessage(text=m[1])])
         if m[0] == 'hbot':
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text=m[1]))

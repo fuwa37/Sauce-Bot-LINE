@@ -25,7 +25,6 @@ def tob64(file):
 
 
 def saucetrace(url):
-    print(url)
     header = {'Content-Type': 'application/json'}
     body = json.dumps({'image': tob64(urltofile(url))})
 
@@ -41,7 +40,10 @@ def res(url, mode=None):
     if r['docs'][0]['similarity'] < 0.65:
         return None
     url_prev = 'https://media.trace.moe/video/' + str(r['docs'][0]['anilist_id']) + '/' + urlparse.quote(
-        r['docs'][0]['filename']) + '?t=' + str(r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
+        r['docs'][0]['filename']) + '?t=' + str(r['docs'][0]['at'] - 30) + '&token=' + r['docs'][0]['tokenthumb']
+    url_prev2 = 'https://trace.moe/preview.php?anilist_id=' + str(
+        r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(
+        r['docs'][0]['at'] - 30) + '&token=' + r['docs'][0]['tokenthumb']
     if mode is None:
         return ('trace', reply({'Title': r['docs'][0]['title_native'],
                                 'Romaji': r['docs'][0]['title_romaji'],
@@ -50,13 +52,13 @@ def res(url, mode=None):
                                 'Episode': str(r['docs'][0]['episode']),
                                 'Time': str(
                                     chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))),
-                                }), url_prev)
+                                }), url_prev2)
 
     if mode == 'mini':
         return ('trace', reply({'Title': r['docs'][0]['title_native'],
                                 'Romaji': r['docs'][0]['title_romaji'],
                                 'English': r['docs'][0]['title_english'],
-                                }), url_prev)
+                                }), url_prev2)
     if mode == 'raw':
         return ('trace', r['docs'][0], url_prev)
 
@@ -68,6 +70,3 @@ def reply(res):
     for i in res:
         rs += "\n" + i + "  :" + res[i] + "\n"
     return rs
-
-s = (res('https://res.cloudinary.com/fuwa/image/upload/v1559238387/C38b8b57e92a7403fd6fb5cfd6395ce1e.jpg'))
-print(s[2])

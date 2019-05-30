@@ -263,7 +263,3 @@ def get_source_data(picture_url):
     dic.update({'SauceNAO': 'http://saucenao.com/search.php?db=999&url=' + picture_url})
 
     return dic
-
-
-# print(get_source_data('https://storage.googleapis.com/line-bot-6d8e8.appspot.com/U42c8c14bf9f5bc869934ce753c7aef5f.jpg'))
-
