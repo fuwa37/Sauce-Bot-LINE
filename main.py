@@ -39,7 +39,7 @@ handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
 
 def handle_command(text, iid):
     if text == "!sauce":
-        return build_comment(get_source_data(bucket_url + iid + "?alt=media"))
+        return build_comment(get_source_data(bucket_url + iid + ".jpg?alt=media"))
     if text == "!sauce-anime":
         return sauce.res(bucket_url + iid + "?alt=media")
     if text == "!sauce-anime-mini":
