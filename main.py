@@ -122,7 +122,7 @@ def handle_image(event):
     message_content = line_bot_api.get_message_content(event.message.id)
     for chunk in message_content.iter_content():
         r += chunk
-    blob = bucket.blob(id + '.jpg')
+    blob = bucket.blob(iid + '.jpg')
     blob.upload_from_string(r, 'image/jpg')
 
 
