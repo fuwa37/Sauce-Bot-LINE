@@ -15,113 +15,55 @@ def chop_microseconds(delta):
 
 def urltofile(url):
     with urllib.request.urlopen(url) as url:
-        with open('temp', 'wb') as f:
-            f.write(url.read())
-    return "temp"
+        temp = url.read()
+    return temp
 
 
-class Trace:
-    @staticmethod
-    def tob64(file):
-        with open(file, "rb") as image_file:
-            b64 = base64.b64encode(image_file.read())
-            return b64.decode('utf-8')
-
-    @staticmethod
-    def saucetrace(url):
-        header = {'Content-Type': 'application/json'}
-        body = json.dumps({'image': Trace.tob64(urltofile(url))})
-
-        r = requests.post(traceurl, headers=header, data=body)
-
-        return json.loads(r.text)
-
-    @staticmethod
-    def res(url, mode=None):
-        if url == '':
-            return None
-        r = Trace.saucetrace(url)
-        if r['docs'][0]['similarity'] < 0.65:
-            return None
-        url_prev = 'https://media.trace.moe/video/' + str(r['docs'][0]['anilist_id']) + '/' + urlparse.quote(
-            r['docs'][0]['filename']) + '?t=' + str(r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
-        if mode is None:
-            return {'trace', ReplyBuilder.reply({'Title': r['docs'][0]['title_native'],
-                                                 'Romaji': r['docs'][0]['title_romaji'],
-                                                 'English': r['docs'][0]['title_english'],
-                                                 'Season': str(r['docs'][0]['season']),
-                                                 'Episode': str(r['docs'][0]['episode']),
-                                                 'Time': str(
-                                                     chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))),
-                                                 }), url_prev}
-
-        if mode == 'mini':
-            return {'trace', ReplyBuilder.reply({'Title': r['docs'][0]['title_native'],
-                                                 'Romaji': r['docs'][0]['title_romaji'],
-                                                 'English': r['docs'][0]['title_english'],
-                                                 }), url_prev}
-        if mode == 'raw':
-            return {'trace', r['docs'][0], url_prev}
+def tob64(file):
+    b64 = base64.b64encode(file)
+    return b64.decode('utf-8')
 
 
-class SauceNow:
-    @staticmethod
-    def sauce(url):
-        r = requests.get(sauceurl + url)
-        return json.loads(r.text)
+def saucetrace(url):
+    header = {'Content-Type': 'application/json'}
+    body = json.dumps({'image': tob64(urltofile(url))})
 
-    @staticmethod
-    def result(url, c=65):
-        r = SauceNow.sauce(url)
-        results = []
-        for i in r['results']:
-            if float(i['header']['similarity']) > c:
-                results.append(i)
-        return results
+    r = requests.post(traceurl, headers=header, data=body)
 
-    @staticmethod
-    def res(url, mode=None):
-        r = SauceNow.result(url)
-        if mode is None:
-            return ReplyBuilder.reply({'Title': r[0]['data']['source'],
-                                       'Episode': r[0]['data']['part'],
-                                       'Time': r[0]['data']['est_time'],
-                                       'Similarity': r[0]['header']['similarity'] + "%",
-                                       })
-        if mode == 'ext':
-            er = []
-            for i in r:
-                er.append({'Title': i['data']['source'],
-                           'Episode': i['data']['part'],
-                           'Time': i['data']['est_time'],
-                           'Similarity': i['header']['similarity'] + "%",
-                           })
-            return ReplyBuilder.reply2(er)
-        if mode == 'mini':
-            return ReplyBuilder.reply({'Title': r[0]['data']['source'],
-                                       })
+    return json.loads(r.text)
 
 
-class ReplyBuilder:
-    @staticmethod
-    def reply(res):
-        if res is None:
-            return "Not Found"
-        rs = ""
-        for i in res:
-            rs += "\n" + i + "  :" + res[i] + "\n"
-        return rs
+def res(url, mode=None):
+    if url == '':
+        return None
+    r = saucetrace(url)
+    if r['docs'][0]['similarity'] < 0.65:
+        return None
+    url_prev = 'https://media.trace.moe/video/' + str(r['docs'][0]['anilist_id']) + '/' + urlparse.quote(
+        r['docs'][0]['filename']) + '?t=' + str(r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
+    if mode is None:
+        return {'trace', reply({'Title': r['docs'][0]['title_native'],
+                                'Romaji': r['docs'][0]['title_romaji'],
+                                'English': r['docs'][0]['title_english'],
+                                'Season': str(r['docs'][0]['season']),
+                                'Episode': str(r['docs'][0]['episode']),
+                                'Time': str(
+                                    chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))),
+                                }), url_prev}
 
-    @staticmethod
-    def reply2(res):
-        rs = ""
-        for i in res:
-            for j in i:
-                rs += "\n" + j + "  :" + i[j] + "\n"
-        return rs
+    if mode == 'mini':
+        return {'trace', reply({'Title': r['docs'][0]['title_native'],
+                                'Romaji': r['docs'][0]['title_romaji'],
+                                'English': r['docs'][0]['title_english'],
+                                }), url_prev}
+    if mode == 'raw':
+        return {'trace', r['docs'][0], url_prev}
 
 
-r = Trace.res('https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/1231587823123.jpg?alt=media',
-              'raw')
-
-print(r)
+def reply(res):
+    if res is None:
+        return "Not Found"
+    rs = ""
+    for i in res:
+        rs += "\n" + i + "  :" + res[i] + "\n"
+    return rs

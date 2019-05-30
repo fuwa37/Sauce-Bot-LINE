@@ -266,20 +266,4 @@ def get_source_data(picture_url):
     return dic
 
 
-'''
-if __name__ == "__main__":
-    # print("This is also a standalone program. You can put the image url in the line below.")
-    # sauce = get_source_data('https://i.imgur.com/GH0Dofm.jpg')
-    # print(sauce)
-    # Hits
-    # sauces = ["https://i.imgur.com/y1cJcOl.jpg", "https://i.imgur.com/Z13SC8H.png", "https://i.imgur.com/62IVnsr.png", "https://i.imgur.com/uHcgE42.jpg", "https://i.imgur.com/DHbGpl1.jpg"]
-    # Misses
-    # sauces = ["https://i.imgur.com/GH0Dofm.jpg", "https://i.imgur.com/h3VhC7x.jpg", "https://i.imgur.com/LKxb5tS.png", "https://i.imgur.com/i9rH5bq.jpg", "https://i.imgur.com/er8mMZj.jpg"]
-    # Crashes
-    sauces = ["https://img2.gelbooru.com//images/7b/9f/7b9f93b720c8f4e559400d3100ad4c58.gif",
-              "https://i.redd.it/p4oyfybedwr21.jpg", "https://i.imgur.com/MDKuBSQ.mp4",
-              "https://i.imgur.com/MDKuBSQ.gif", "https://i.redd.it/nxlbtrgqvyq21.jpg"]
-    for sauce in sauces:
-        print(build_comment(get_source_data(sauce)))
-'''
 

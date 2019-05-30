@@ -3,7 +3,7 @@ import os
 from flask import Flask, request, abort
 from hsauce.comment_builder import build_comment
 from hsauce.get_source import get_source_data
-from sauce import Trace
+import sauce
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
@@ -41,11 +41,11 @@ def handle_command(text, iid):
     if text == "!sauce":
         return build_comment(get_source_data(bucket_url + iid + "?alt=media"))
     if text == "!sauce-anime":
-        return Trace.res(bucket_url + iid + "?alt=media")
+        return sauce.res(bucket_url + iid + "?alt=media")
     if text == "!sauce-anime-mini":
-        return Trace.res(bucket_url + iid + "?alt=media", 'mini')
+        return sauce.res(bucket_url + iid + "?alt=media", 'mini')
     if text == "!sauce-anime-raw":
-        return Trace.res(bucket_url + iid + "?alt=media", 'raw')
+        return sauce.res(bucket_url + iid + "?alt=media", 'raw')
     m = hBot.processComment(text)
     if m:
         return 'hbot', m
