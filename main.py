@@ -6,6 +6,7 @@ import cloudinary.api
 from hsauce.comment_builder import build_comment
 from hsauce.get_source import get_source_data
 from sauce import Trace
+import base64
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -90,9 +91,9 @@ def handle_image(event):
     global TEMP
     message_content = line_bot_api.get_message_content(event.message.id)
     print(message_content)
+    print(base64.b64encode(message_content))
     with open('temp', 'wb') as fd:
         for chunk in message_content.iter_content():
-            print(chunk)
             fd.write(chunk)
     res = cloudinary.uploader.upload('temp', public_id='', tags="TEMP")
     TEMP = res['url']
