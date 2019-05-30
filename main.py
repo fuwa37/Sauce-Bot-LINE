@@ -15,7 +15,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage
+    MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, VideoSendMessage
 )
 
 cloudinary.config(
@@ -25,6 +25,7 @@ cloudinary.config(
 )
 
 versioning_dic = {}
+base_url = "https://res.cloudinary.com/fuwa/image/upload/v"
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 33507))
@@ -37,7 +38,7 @@ handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
 
 
 def handle_command(text, iid):
-    url = "https://res.cloudinary.com/fuwa/image/upload/v" + versioning_dic.get(str(iid)) + '/' + iid
+    url = base_url + versioning_dic.get(str(iid)) + '/' + iid
     if text == "!sauce":
         return build_comment(get_source_data(url))
     if text == "!sauce-anime":
@@ -84,15 +85,29 @@ def handle_message(event):
     m = handle_command(event.message.text, iid)
 
     if m[1]:
-        line_bot_api.reply_message(
-            event.reply_token,
-            [
-                TextSendMessage(text=m[1])])
+        if m[0] == 'trace':
+            line_bot_api.reply_message(
+                event.reply_token,
+                [VideoSendMessage(original_content_url=m[2],
+                                  preview_image_url=m[2]),
+                 TextSendMessage(text=m[1])])
+        if m[0] == 'saucenao':
+            print(m[2])
+            line_bot_api.reply_message(
+                event.reply_token,
+                [ImageSendMessage(original_content_url=m[2],
+                                  preview_image_url=m[2]),
+                 TextSendMessage(text=m[1])])
+        if m[0] == 'hbot':
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text=m[1]))
+
     else:
         line_bot_api.reply_message(
             event.reply_token,
-            [
-                TextSendMessage(text="None")])
+            [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
+                              preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
+             TextSendMessage(text="m(_ _)m")])
 
 
 @handler.add(MessageEvent, message=ImageMessage)
