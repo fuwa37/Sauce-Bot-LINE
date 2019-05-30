@@ -89,13 +89,16 @@ def handle_message(event):
 def handle_image(event):
     global TEMP
     r = ''
+    s = ''
     message_content = line_bot_api.get_message_content(event.message.id)
     with open('temp', 'wb') as fd:
         for chunk in message_content.iter_content():
             print(type(chunk))
-            r += chunk
+            r += chunk.decode('utf-8')
+            s += base64.decodebytes(chunk)
             fd.write(chunk)
-    print(r)
+    print('bb', r)
+    print('aa', s)
     res = cloudinary.uploader.upload('temp', public_id='', tags="TEMP")
     TEMP = res['url']
     print(TEMP)
