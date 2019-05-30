@@ -76,15 +76,20 @@ def handle_message(event):
         iid = event.source.group_id
     if stype == 'room':
         iid = event.source.room_id
+
+    line_bot_api.reply_message(
+        event.reply_token,
+        ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/" + iid))
     m = handle_command(event.message.text, iid)
 
     if m:
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=m))
+    else:
         line_bot_api.reply_message(
             event.reply_token,
-            ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/" + iid))
+            TextSendMessage(text="None"))
 
 
 @handler.add(MessageEvent, message=ImageMessage)
