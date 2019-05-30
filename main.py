@@ -90,8 +90,12 @@ def handle_message(event):
 def handle_image(event):
     global TEMP
     message_content = line_bot_api.get_message_content(event.message.id)
-    print(message_content)
-    print(base64.b64encode(message_content))
+    print('A', message_content.content)
+    print('B', message_content.content())
+    print('C', message_content.iter_content)
+    print('D', message_content.iter_content())
+    print('E', message_content.response)
+    print('F', message_content.response())
     with open('temp', 'wb') as fd:
         for chunk in message_content.iter_content():
             fd.write(chunk)
