@@ -40,10 +40,10 @@ def res(url, mode=None):
     if r['docs'][0]['similarity'] < 0.65:
         return None
     url_prev = 'https://media.trace.moe/video/' + str(r['docs'][0]['anilist_id']) + '/' + urlparse.quote(
-        r['docs'][0]['filename']) + '?t=' + str(r['docs'][0]['at'] - 30) + '&token=' + r['docs'][0]['tokenthumb']
+        r['docs'][0]['filename']) + '?t=' + str(r['docs'][0]['at']-30) + '&token=' + r['docs'][0]['tokenthumb']
     url_prev2 = 'https://trace.moe/preview.php?anilist_id=' + str(
         r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(
-        r['docs'][0]['at'] - 30) + '&token=' + r['docs'][0]['tokenthumb']
+        r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
     if mode is None:
         return ('trace', reply({'Title': r['docs'][0]['title_native'],
                                 'Romaji': r['docs'][0]['title_romaji'],
