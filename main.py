@@ -38,6 +38,9 @@ handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
 
 
 def handle_command(text, iid):
+    m = hBot.processComment(text)
+    if m:
+        return ('hbot', m)
     url = base_url + versioning_dic.get(str(iid)) + '/' + iid
     if text == "!sauce":
         return build_comment(get_source_data(url))
@@ -47,9 +50,6 @@ def handle_command(text, iid):
         return sauce.res(url, "mini")
     if text == "!sauce-anime-raw":
         return sauce.res(url, 'raw')
-    m = hBot.processComment(text)
-    if m:
-        return ('hbot', m)
 
 
 @app.route("/callback", methods=['POST'])
