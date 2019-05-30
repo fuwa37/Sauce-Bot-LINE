@@ -82,7 +82,6 @@ def handle_message(event):
         iid = event.source.room_id
 
     m = handle_command(event.message.text, iid)
-    print(m)
 
     if m[1]:
         if m[0] == 'trace':
@@ -123,7 +122,7 @@ def handle_image(event):
     message_content = line_bot_api.get_message_content(event.message.id)
     for chunk in message_content.iter_content():
         r += chunk
-    blob = bucket.blob(iid + '.jpg')
+    blob = bucket.blob('temp/' + iid + '.jpg')
     blob.upload_from_string(r, 'image/jpg')
 
 
