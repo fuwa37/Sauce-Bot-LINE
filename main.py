@@ -111,7 +111,7 @@ def handle_image(event):
         r += chunk
     img = base64.b64encode(r).decode('utf-8')
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid, tags="TEMP")
-    versioning_dic.update({str(iid): res['version']})
+    versioning_dic.update({str(iid): str(res['version'])})
 
 
 app.run(host='0.0.0.0', port=port)
