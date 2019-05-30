@@ -266,4 +266,5 @@ def get_source_data(picture_url):
     return dic
 
 
+print(get_source_data('https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/temp%2FU42c8c14bf9f5bc869934ce753c7aef5f.jpg?alt=media'))
 

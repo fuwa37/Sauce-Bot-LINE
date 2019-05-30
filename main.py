@@ -23,7 +23,7 @@ storage_client = storage.Client.from_service_account_json('kunci.json')
 bucket = storage_client.get_bucket("line-bot-6d8e8.appspot.com")
 cred = credentials.Certificate('kunci.json')
 firebase_admin.initialize_app(cred)
-bucket_url = 'https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/temp%2F'
+bucket_url = 'https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/'
 
 db = firestore.client()
 
@@ -122,7 +122,7 @@ def handle_image(event):
     message_content = line_bot_api.get_message_content(event.message.id)
     for chunk in message_content.iter_content():
         r += chunk
-    blob = bucket.blob('temp/' + iid + '.jpg')
+    blob = bucket.blob(id + '.jpg')
     blob.upload_from_string(r, 'image/jpg')
 
 

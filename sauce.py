@@ -67,3 +67,5 @@ def reply(res):
     for i in res:
         rs += "\n" + i + "  :" + res[i] + "\n"
     return rs
+
+print(saucetrace('https://firebasestorage.googleapis.com/v0/b/line-bot-6d8e8.appspot.com/o/temp%2FU42c8c14bf9f5bc869934ce753c7aef5f.jpg?alt=media'))
