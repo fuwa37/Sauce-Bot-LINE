@@ -35,13 +35,13 @@ handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
 
 
 def handle_command(text, iid):
-    print("http://res.cloudinary.com/fuwa/image/upload/" + iid)
+    print("https://res.cloudinary.com/fuwa/image/upload/" + iid)
     if text == "!sauce":
-        return build_comment(get_source_data("http://res.cloudinary.com/fuwa/image/upload/" + iid))
+        return build_comment(get_source_data("https://res.cloudinary.com/fuwa/image/upload/" + iid))
     if text == "!sauce-anime-ext":
-        return Trace.res("http://res.cloudinary.com/fuwa/image/upload/" + iid, "ext")
+        return Trace.res("https://res.cloudinary.com/fuwa/image/upload/" + iid, "ext")
     if text == "!sauce-anime":
-        return Trace.res("http://res.cloudinary.com/fuwa/image/upload/" + iid)
+        return Trace.res("https://res.cloudinary.com/fuwa/image/upload/" + iid)
     m = hBot.processComment(text)
     if m:
         return m
@@ -81,7 +81,7 @@ def handle_message(event):
     if m:
         line_bot_api.reply_message(
             event.reply_token,
-            [ImageSendMessage("http://res.cloudinary.com/fuwa/image/upload/" + iid), TextSendMessage(text=m)])
+            [ImageSendMessage("https://res.cloudinary.com/fuwa/image/upload/" + iid), TextSendMessage(text=m)])
 
 
 @handler.add(MessageEvent, message=ImageMessage)
