@@ -115,7 +115,7 @@ def handle_message(event):
 
     m = handle_command(event.message.text, iid)
 
-    if m['reply']:
+    if m.get('reply'):
         if m["source"] == 'trace':
             line_bot_api.reply_message(
                 event.reply_token,
