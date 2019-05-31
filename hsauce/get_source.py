@@ -258,8 +258,12 @@ def create_link_dictionary(soup):
 def get_source_data(picture_url):
     resp = requests.get('http://saucenao.com/search.php?db=999&url=' + picture_url)
     # Needs to be parsed as xml since html parser adds inconvenient closing tags (pip install lxml)
+    if resp.status_code == 429:
+        return 429
     soup = BeautifulSoup(resp.content, features='lxml')
     dic = create_link_dictionary(soup)
     dic.update({'SauceNAO': 'http://saucenao.com/search.php?db=999&url=' + picture_url})
 
     return dic
+
+get_source_data('https://i.nhentai.net/galleries/987560/2.jpg')

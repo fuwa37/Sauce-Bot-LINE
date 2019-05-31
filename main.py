@@ -7,6 +7,8 @@ from hsauce.comment_builder import build_comment
 from hsauce.get_source import get_source_data
 import sauce
 import base64
+import threading
+import time
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -25,6 +27,9 @@ cloudinary.config(
 )
 
 versioning_dic = {}
+is_sleep = False
+sleep_time = 20
+
 base_url = "https://res.cloudinary.com/fuwa/image/upload/v"
 
 app = Flask(__name__)
@@ -52,6 +57,24 @@ def handle_command(text, iid):
         return sauce.res(url, 'raw')
 
 
+def handle_sleep():
+    global is_sleep
+    is_sleep = True
+    time_t = threading.Thread(target=handle_sleeping)
+    time_t.start()
+    print("sleeping")
+
+
+def handle_sleeping():
+    global sleep_time
+    global is_sleep
+    for i in range(20, 0, -1):
+        time.sleep(1)
+        sleep_time -= 1
+    sleep_time = 60
+    is_sleep = False
+
+
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -73,41 +96,47 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    stype = event.source.type
-    iid = ''
-    if stype == 'user':
-        iid = event.source.user_id
-    if stype == 'group':
-        iid = event.source.group_id
-    if stype == 'room':
-        iid = event.source.room_id
+    print(is_sleep)
+    if not is_sleep:
+        stype = event.source.type
+        iid = ''
+        if stype == 'user':
+            iid = event.source.user_id
+        if stype == 'group':
+            iid = event.source.group_id
+        if stype == 'room':
+            iid = event.source.room_id
 
-    m = handle_command(event.message.text, iid)
+        m = handle_command(event.message.text, iid)
 
-    if m[1]:
-        if m[0] == 'trace':
-            print(m[2])
+        if m[1]:
+            if m[0] == 'trace':
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    [VideoSendMessage(original_content_url=m[2],
+                                      preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
+                     TextSendMessage(text=m[1])])
+                if m[3] == 8:
+                    handle_sleep()
+            if m[0] == 'saucenao':
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    [
+                        TextSendMessage(text=m[1])])
+            if m[0] == 'hbot':
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(text=m[1]))
+
+        else:
             line_bot_api.reply_message(
                 event.reply_token,
-                [VideoSendMessage(original_content_url=m[2],
+                [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
                                   preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-                 TextSendMessage(text=m[1])])
-        if m[0] == 'saucenao':
-            print(m[2])
-            line_bot_api.reply_message(
-                event.reply_token,
-                [
-                    TextSendMessage(text=m[1])])
-        if m[0] == 'hbot':
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text=m[1]))
-
+                 TextSendMessage(text="m(_ _)m")])
     else:
-        line_bot_api.reply_message(
-            event.reply_token,
-            [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
-                              preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-             TextSendMessage(text="m(_ _)m")])
+        print(is_sleep)
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(
+            text="(-_-) zzz Bot is exhausted\n\nPlease wait for" + str(sleep_time) + "second"))
 
 
 @handler.add(MessageEvent, message=ImageMessage)
