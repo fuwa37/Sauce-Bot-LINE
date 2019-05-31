@@ -119,19 +119,19 @@ def handle_message(event):
         if m["source"] == 'trace':
             line_bot_api.reply_message(
                 event.reply_token,
-                [VideoSendMessage(original_content_url=m[2],
+                [VideoSendMessage(original_content_url=m["url"],
                                   preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-                 TextSendMessage(text=m[1])])
+                 TextSendMessage(text=m["reply"])])
             if m['limit'] < 8:
                 handle_sleep("limit_ttl")
         if m["source"] == 'saucenao':
             line_bot_api.reply_message(
                 event.reply_token,
                 [
-                    TextSendMessage(text=m[1])])
+                    TextSendMessage(text=m["reply"])])
         if m["source"] == 'hbot':
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text=m[1]))
+                event.reply_token, TextSendMessage(text=m["reply"]))
 
     else:
         line_bot_api.reply_message(
