@@ -62,7 +62,7 @@ def handle_command(text, iid):
         if text == "!sauce-anime-raw":
             return sauce.res(url, 'raw')
     else:
-        return {'m': "(-_-) zzz Bot is exhausted\n\nPlease wait for " + str(sleep_time) + " second"}
+        return {'m': "(-_-) zzz\nBot is exhausted\n\nPlease wait for " + str(sleep_time) + " second"}
 
 
 def handle_sleep(t):
@@ -75,6 +75,7 @@ def handle_sleeping(t):
     global is_sleep
     is_sleep = True
     temp = t
+    sleep_time = t
     for i in range(t, 0, -1):
         time.sleep(1)
         sleep_time -= 1
