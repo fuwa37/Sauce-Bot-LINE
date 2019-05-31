@@ -66,8 +66,6 @@ def handle_command(text, iid):
 
 
 def handle_sleep(t):
-    global is_sleep
-    is_sleep = True
     time_t = threading.Thread(target=handle_sleeping, args=(t,))
     time_t.start()
 
@@ -75,7 +73,7 @@ def handle_sleep(t):
 def handle_sleeping(t):
     global sleep_time
     global is_sleep
-    t = int(t)
+    is_sleep = True
     temp = t
     for i in range(t, 0, -1):
         time.sleep(1)
@@ -124,7 +122,7 @@ def handle_message(event):
                                   preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
                  TextSendMessage(text=m["reply"])])
             if m['limit'] < 9:
-                handle_sleep("limit_ttl")
+                handle_sleep(m["limit_ttl"])
         if m["source"] == 'saucenao':
             line_bot_api.reply_message(
                 event.reply_token,
