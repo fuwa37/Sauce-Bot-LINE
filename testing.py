@@ -5,7 +5,7 @@ from hsauce.comment_builder import build_comment
 from hsauce.get_source import get_source_data
 import time
 
-is_sleep = True
+is_sleep = False
 sleep_time = 20
 
 
@@ -37,7 +37,22 @@ def handle_command(text):
             print(m[1])
 
 
-if not is_sleep:
-    print('b')
-else:
-    print('c')
+def handle_sleep(t):
+    global is_sleep
+    is_sleep = True
+    time_t = threading.Thread(target=handle_sleeping, args=(t,))
+    time_t.start()
+
+
+def handle_sleeping(t):
+    global sleep_time
+    global is_sleep
+    temp = t
+    for i in range(t, 0, -1):
+        time.sleep(1)
+        sleep_time -= 1
+    sleep_time = temp
+    is_sleep = False
+
+
+handle_sleep(5)

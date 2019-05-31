@@ -62,13 +62,13 @@ def handle_command(text, iid):
         if text == "!sauce-anime-raw":
             return sauce.res(url, 'raw')
     else:
-        return "(-_-) zzz Bot is exhausted\n\nPlease wait for " + str(sleep_time) + " second"
+        return {'m': "(-_-) zzz Bot is exhausted\n\nPlease wait for " + str(sleep_time) + " second"}
 
 
 def handle_sleep(t):
     global is_sleep
     is_sleep = True
-    time_t = threading.Thread(target=handle_sleeping, args=t)
+    time_t = threading.Thread(target=handle_sleeping, args=(t,))
     time_t.start()
 
 
@@ -122,7 +122,7 @@ def handle_message(event):
                 [VideoSendMessage(original_content_url=m["url"],
                                   preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
                  TextSendMessage(text=m["reply"])])
-            if m['limit'] < 8:
+            if m['limit'] < 9:
                 handle_sleep("limit_ttl")
         if m["source"] == 'saucenao':
             line_bot_api.reply_message(
@@ -138,7 +138,7 @@ def handle_message(event):
             event.reply_token,
             [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
                               preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-             TextSendMessage(text="m(_ _)m\n" + m)])
+             TextSendMessage(text="m(_ _)m\n" + m['m'])])
 
 
 @handler.add(MessageEvent, message=ImageMessage)
