@@ -265,5 +265,3 @@ def get_source_data(picture_url):
     dic.update({'SauceNAO': 'http://saucenao.com/search.php?db=999&url=' + picture_url})
 
     return dic
-
-get_source_data('https://i.nhentai.net/galleries/987560/2.jpg')
