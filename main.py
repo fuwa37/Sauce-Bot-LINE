@@ -75,6 +75,7 @@ def handle_sleep(t):
 def handle_sleeping(t):
     global sleep_time
     global is_sleep
+    t = int(t)
     temp = t
     for i in range(t, 0, -1):
         time.sleep(1)
