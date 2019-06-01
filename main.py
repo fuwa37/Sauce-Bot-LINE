@@ -187,13 +187,20 @@ def handle_message(event):
 
     if m is not None:
         if event.message.text in trace_commands:
+            if is_sleep['trace'] or is_dead['trace']:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
+                                      preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
+                     TextSendMessage(text=m['status'])])
+                return
+
             if m.get('reply'):
                 line_bot_api.reply_message(
                     event.reply_token,
                     [VideoSendMessage(original_content_url=m["url"],
                                       preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
                      TextSendMessage(text=m["comment"])])
-                return
 
             if m['quota'] < 150:
                 handle_death(m["quota_ttl"], 'trace')
@@ -203,34 +210,24 @@ def handle_message(event):
                 handle_sleep(m["limit_ttl"], 'trace')
                 return
 
-            if is_sleep['trace'] or is_dead['trace']:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
-                                      preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-                     TextSendMessage(text=m['status'])])
-                return
-
         if event.message.text == '!sauce':
-            if m == 429:
-                sn_counter += 1
-                handle_sleep(30, 'sauce')
-                return
-
-            if sn_counter > 2:
-                handle_death(86400, 'sauce')
-                return
-
-            if m.get('reply'):
-                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=m["reply"]))
-                return
-
             if is_sleep['sauce'] or is_dead['sauce']:
                 line_bot_api.reply_message(
                     event.reply_token,
                     [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
                                       preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
                      TextSendMessage(text=m['status'])])
+                return
+            if m == 429:
+                sn_counter += 1
+                if sn_counter > 2:
+                    handle_death(86400, 'sauce')
+                    return
+                handle_sleep(30, 'sauce')
+                return
+
+            if m.get('reply'):
+                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=m["reply"]))
                 return
 
         if event.message.text[:2] == '!(':
