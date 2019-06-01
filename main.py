@@ -42,6 +42,8 @@ sleep_time = {'trace': 0,
               'sauce': 0}
 death_time = {'trace': 0,
               'sauce': 0}
+status = {'trace': 1,
+          'sauce': 1}
 
 base_url = "https://res.cloudinary.com/fuwa/image/upload/v"
 
@@ -58,6 +60,7 @@ handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
 def handle_command(text, iid):
     global sleep_time
     global is_sleep
+    global status
 
     if text[:1] == '!':
         m = hBot.processComment(text)
@@ -156,12 +159,12 @@ def handle_message(event):
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text=m["reply"]))
 
-    elif m.get('status'):
+    elif is_sleep['trace'] or is_dead['trace']:
         line_bot_api.reply_message(
             event.reply_token,
             [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
                               preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-             TextSendMessage(text=m['m'])])
+             TextSendMessage(text=m['status'])])
 
 
 @handler.add(MessageEvent, message=ImageMessage)
