@@ -123,6 +123,7 @@ def handle_command(text, iid):
                     return trace.reply(trace.res(url, 'raw'))
 
         if is_sukebei(str(iid)):
+            print(text[1:])
             m = hBot.processComment(text[1:])
             if m:
                 return {'source': 'hbot',
