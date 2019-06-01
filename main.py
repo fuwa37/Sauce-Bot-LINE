@@ -123,7 +123,7 @@ def handle_command(text, iid):
                     return trace.reply(trace.res(url, 'raw'))
 
         if is_sukebei(str(iid)):
-            print(text[1:])
+            # print(text[1:])
             m = hBot.processComment(text[1:])
             if m:
                 return {'source': 'hbot',
@@ -174,6 +174,9 @@ def handle_dead(t, source):
 
 
 def is_sukebei(iid):
+    if str(iid) not in sukebei_dic:
+        sukebei_dic.update({str(iid): False})
+
     return sukebei_dic[str(iid)]
 
 
