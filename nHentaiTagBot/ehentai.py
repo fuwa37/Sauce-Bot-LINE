@@ -138,7 +138,7 @@ def generateReplyString(processedData, galleryNumberAndToken, censorshipLevel=0,
             if censorshipLevel > 0:
                 replyString += ">E-Hentai: [REDACTED]\n\n"
             else:
-                replyString += f">E-Hentai: {galleryNumberAndToken[0]}/{galleryNumberAndToken[1]}&#32;\n\n"
+                replyString += f">E-Hentai: {galleryNumberAndToken[0]}/{galleryNumberAndToken[1]}\n\n"
                 if useError:
                     replyString += f"{commentpy.generate450string('E-Hentai')}\n\n"
                     return replyString
@@ -147,12 +147,12 @@ def generateReplyString(processedData, galleryNumberAndToken, censorshipLevel=0,
         else:
             replyString += ">E-Hentai: " + str(galleryNumberAndToken[0]) + "/" + str(galleryNumberAndToken[1]) + "\n\n"
         if processedData[title]:
-            replyString += "**Title**: " + processedData[title] + "\n\n"
-        replyString += "**Number of pages**: " + str(processedData[numberOfPages]) + "\n\n"
+            replyString += "Title: " + processedData[title] + "\n\n"
+        replyString += "Number of pages: " + str(processedData[numberOfPages]) + "\n\n"
         if processedData[rating]:
-            replyString += "**Rating**: " + str(processedData[rating]) + "\n\n"
+            replyString += "Rating: " + str(processedData[rating]) + "\n\n"
         if processedData[category]:
-            replyString += "**Category**: " + processedData[category] + "\n\n"
+            replyString += "Category: " + processedData[category] + "\n\n"
 
         if processedData[language]:
             replyString += commentpy.additionalTagsString(processedData[language], "Language", False) + "\n\n"

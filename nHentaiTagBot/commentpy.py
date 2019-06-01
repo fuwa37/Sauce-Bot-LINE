@@ -5,14 +5,14 @@ def additionalTagsString(entries, initialText, isNhentai=True):
     if isNhentai:
         for entry in entries:
             if first:
-                replyString += "**" + initialText + "**: " + entry[0] + " (" + format(entry[1], ',d') + ")"
+                replyString += "" + initialText + ": " + entry[0] + " (" + format(entry[1], ',d') + ")"
                 first = False
             else:
                 replyString += ", " + entry[0] + " (" + format(entry[1], ',d') + ")"
     else:
         for entry in entries:
             if first:
-                replyString += "**" + initialText + "**: " + entry
+                replyString += "" + initialText + ": " + entry
                 first = False
             else:
                 replyString += ", " + entry

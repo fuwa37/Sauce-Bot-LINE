@@ -9,15 +9,15 @@ def build_comment(dic):
     # Skip anidb for special handling.
     if not (dic.get('type') == 'anidb' or dic.get('type') == 'fakku'):
         if dic.get('title'):
-            output_comment += f"**Title**: {dic.get('title')}\n\n"
+            output_comment += f"Title: {dic.get('title')}\n\n"
 
     if dic.get('type') == 'nhentai':
         if dic.get('creator'):
-            output_comment += f"**Creator(s)**: {dic.get('creator')}\n\n"
+            output_comment += f"Creator(s): {dic.get('creator')}\n\n"
         if dic.get('gallery_number'):
             gallery_number = dic.get('gallery_number')
             tags = nhentai.analyseNumber(gallery_number)
-            output_comment += "**Gallery Number**: "
+            output_comment += "Gallery Number: "
             if len(tags) > 1 and tags[-1]:
                 is_redacted = True
             if not is_redacted:
@@ -27,7 +27,7 @@ def build_comment(dic):
             output_comment += "\n\n"
             if dic.get('page_number'):
                 page_number = dic.get('page_number')
-                output_comment += "**Page Number**: "
+                output_comment += "Page Number: "
                 if not is_redacted:
                     output_comment += f"[{page_number}](https://nhentai.net/g/{gallery_number}/{page_number})"
                 else:
@@ -37,63 +37,63 @@ def build_comment(dic):
     if dic.get('type') == 'anidb':
         if dic.get('title'):
             if dic.get('anidb_link'):
-                output_comment += f"**Title**: [{dic.get('title')}]({dic.get('anidb_link')})\n\n"
+                output_comment += f"Title: [{dic.get('title')}]({dic.get('anidb_link')})\n\n"
             else:
-                output_comment += f"**Title**: {dic.get('title')}\n\n"
+                output_comment += f"Title: {dic.get('title')}\n\n"
         if dic.get('supplemental_info'):
-            output_comment += f"**Details**: {dic.get('supplemental_info')}\n\n"
+            output_comment += f"Details: {dic.get('supplemental_info')}\n\n"
         if dic.get('japanese_title'):
-            output_comment += f"**JP Title**: {dic.get('japanese_title')}\n\n"
+            output_comment += f"JP Title: {dic.get('japanese_title')}\n\n"
         if dic.get('episode'):
-            output_comment += f"**EP Name**: {dic.get('episode')}\n\n"
+            output_comment += f"EP Name: {dic.get('episode')}\n\n"
         if dic.get('time_code'):
-            output_comment += f"**Est. Time**: {dic.get('time_code')}\n\n"
+            output_comment += f"Est. Time: {dic.get('time_code')}\n\n"
 
     if dic.get('type') == 'da':
         if dic.get('da_id'):
-            output_comment += f"**dA ID**: [{dic.get('da_id')}]({dic.get('da_link')})\n\n"
+            output_comment += f"dA ID: [{dic.get('da_id')}]({dic.get('da_link')})\n\n"
         if dic.get('author'):
-            output_comment += f"**Author**: [{dic.get('author')}]({dic.get('author_link')})\n\n"
+            output_comment += f"Author: [{dic.get('author')}]({dic.get('author_link')})\n\n"
 
     if dic.get('type') == 'pixiv':
         if dic.get('pixiv_id'):
-            output_comment += f"**Pixiv ID**: [{dic.get('pixiv_id')}]({dic.get('pixiv_link')})\n\n"
+            output_comment += f"Pixiv ID: [{dic.get('pixiv_id')}]({dic.get('pixiv_link')})\n\n"
         if dic.get('member'):
-            output_comment += f"**Member**: [{dic.get('member')}]({dic.get('member_link')})\n\n"
+            output_comment += f"Member: [{dic.get('member')}]({dic.get('member_link')})\n\n"
 
     if dic.get('type') == 'booru':
         if dic.get('creator'):
-            output_comment += f"**Creator**: {dic.get('creator')}\n\n"
+            output_comment += f"Creator: {dic.get('creator')}\n\n"
         if dic.get('material'):
-            output_comment += f"**Material**: {dic.get('material')}\n\n"
+            output_comment += f"Material: {dic.get('material')}\n\n"
         if dic.get('character'):
-            output_comment += f"**Character(s)**: {dic.get('character')}\n\n"
+            output_comment += f"Character(s): {dic.get('character')}\n\n"
         link_comment = generate_booru_links(dic)
         if link_comment:
-            output_comment += f"**Links**: {link_comment}\n\n"
+            output_comment += f"Links: {link_comment}\n\n"
 
     if dic.get('type') == 'fakku':
         if dic.get('title'):
             if dic.get('fakku_link'):
-                output_comment += f"**Title**: [{dic.get('title')}]({dic.get('fakku_link')})\n\n"
+                output_comment += f"Title: [{dic.get('title')}]({dic.get('fakku_link')})\n\n"
             else:
-                output_comment += f"**Title**: {dic.get('title')}\n\n"
+                output_comment += f"Title: {dic.get('title')}\n\n"
         if dic.get('artist'):
             if dic.get('artist_link'):
-                output_comment += f"**Artist**: [{dic.get('artist')}]({dic.get('artist_link')})\n\n"
+                output_comment += f"Artist: [{dic.get('artist')}]({dic.get('artist_link')})\n\n"
             else:
-                output_comment += f"**Artist**: {dic.get('artist')}\n\n"
+                output_comment += f"Artist: {dic.get('artist')}\n\n"
 
     if dic.get('type') == 'mangadex':
         if dic.get('artist'):
-            output_comment += f"**Artist**: {dic.get('artist')}\n\n"
+            output_comment += f"Artist: {dic.get('artist')}\n\n"
         if dic.get('author'):
-            output_comment += f"**Author**: {dic.get('author')}\n\n"
+            output_comment += f"Author: {dic.get('author')}\n\n"
         link_comment = generate_mangadex_links(dic)
         if link_comment:
-            output_comment += f"**Links**: {link_comment}\n\n"
+            output_comment += f"Links: {link_comment}\n\n"
         if dic.get('mangadex_link') and dic.get('mangadex_page_number'):
-            output_comment += f"**Mangadex Page**: [{dic.get('mangadex_page_number')}]({dic.get('mangadex_link')}/{dic.get('mangadex_page_number')})\n\n"
+            output_comment += f"Mangadex Page: [{dic.get('mangadex_page_number')}]({dic.get('mangadex_link')}/{dic.get('mangadex_page_number')})\n\n"
 
     # Add remaining links:
     lesser_links = ''
@@ -119,7 +119,7 @@ def build_comment(dic):
             lesser_links += f"{generate_seperator_bar(lesser_links)}{link_comment} "
 
     if lesser_links:
-        output_comment += f"**Additional results**: {lesser_links}\n"
+        output_comment += f"Additional results: {lesser_links}\n"
 
     # Handle no results
     if not output_comment:

@@ -174,7 +174,7 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
             if censorshipLevel > 0:
                 replyString += ">Tsumino: [REDACTED]\n\n"
             else:
-                replyString += f">Tsumino: {str(galleryNumber).zfill(5)}&#32;\n\n"
+                replyString += f">Tsumino: {str(galleryNumber).zfill(5)}\n\n"
                 if useError:
                     replyString += f"{commentpy.generate450string('Tsumino')}\n\n"
                     return replyString
@@ -183,10 +183,10 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
         else:
             replyString += ">Tsumino: " + str(galleryNumber).zfill(5) + "\n\n"
         if processedData[title]:
-            replyString += "**Title**: " + processedData[title] + "\n\n"
-        replyString += "**Number of pages**: " + str(processedData[pages]) + "\n\n"
+            replyString += "Title: " + processedData[title] + "\n\n"
+        replyString += "Number of pages: " + str(processedData[pages]) + "\n\n"
         if processedData[rating]:
-            replyString += "**Rating**: " + processedData[rating] + "\n\n"
+            replyString += "Rating: " + processedData[rating] + "\n\n"
 
         if processedData[category]:
             replyString += commentpy.additionalTagsString(processedData[category], "Category", False) + "\n\n"

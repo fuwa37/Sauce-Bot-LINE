@@ -126,7 +126,7 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
             if censorshipLevel > 0:
                 replyString += ">[REDACTED]\n\n"
             else:
-                replyString += f">{str(galleryNumber).zfill(5)}&#32;\n\n"
+                replyString += f">{str(galleryNumber).zfill(5)}\n\n"
                 if useError:
                     replyString += f"{commentpy.generate450string('nHentai')}\n\n"
                     return replyString
@@ -135,8 +135,8 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
         else:
             replyString += ">" + str(galleryNumber).zfill(5) + "\n\n"
 
-        replyString += "**Title**: " + processedData[title] + "\n\n"
-        replyString += "**Number of pages**: " + str(processedData[numberOfPages]) + "\n\n"
+        replyString += "Title: " + processedData[title] + "\n\n"
+        replyString += "Number of pages: " + str(processedData[numberOfPages]) + "\n\n"
         
         if processedData[characters]:
             replyString += commentpy.additionalTagsString(processedData[characters], "Characters") + "\n\n"

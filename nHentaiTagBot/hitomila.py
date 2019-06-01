@@ -156,7 +156,7 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
             if censorshipLevel > 0:
                 replyString += ">Hitomi.la: [REDACTED]\n\n"
             else:
-                replyString += f">Hitomi.la: {str(galleryNumber).zfill(5)}&#32;\n\n"
+                replyString += f">Hitomi.la: {str(galleryNumber).zfill(5)}\n\n"
                 if useError:
                     replyString += f"{commentpy.generate450string('Hitomi.la')}\n\n"
                     return replyString
@@ -166,11 +166,11 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
             replyString += ">Hitomi.la: " + str(galleryNumber).zfill(5) + "\n\n"
 
         if processedData[title]:
-            replyString += "**Title**: " + processedData[title] + "\n\n"
+            replyString += "Title: " + processedData[title] + "\n\n"
         if processedData[pages] > 0:
-            replyString += "**Number of pages**: " + str(processedData[pages]) + "\n\n"
+            replyString += "Number of pages: " + str(processedData[pages]) + "\n\n"
         if processedData[artist]:
-            replyString += "**Artist**: " + processedData[artist] + "\n\n"
+            replyString += "Artist: " + processedData[artist] + "\n\n"
         
         if processedData[group]:
             replyString += commentpy.additionalTagsString(processedData[group], "Group", False) + "\n\n"

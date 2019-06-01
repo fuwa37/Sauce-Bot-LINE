@@ -17,7 +17,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, VideoSendMessage
+    MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, VideoSendMessage, FollowEvent, JoinEvent
 )
 
 config = json.loads(os.environ.get('cloudinary_config', None))
@@ -27,7 +27,6 @@ cloudinary.config(
     api_key=config['key'],
     api_secret=config['secret']
 )
-print(config)
 
 versioning_dic = {}
 sukebei_dic = {}
@@ -57,11 +56,22 @@ sn_counter = 0
 help_reply = "Steps:\n" \
              "1. Send image\n" \
              "2. Type command:\n" \
-             "'!sauce' - general sauce\n" \
-             "'!sauce-anime' - anime sauce\n" \
-             "'!sauce-anime-mini' - minimal info\n" \
-             "'!sauce-anime-ext' - extended info\n" \
-             "'!sauce-anime-ext+' - extended+ info"
+             "'- !sauce' - general sauce\n" \
+             "'- !sauce-anime' - anime sauce\n" \
+             "'- !sauce-anime-mini' - minimal info\n" \
+             "'- !sauce-anime-ext' - extended info\n" \
+             "'- !sauce-anime-ext+' - extended+ info"
+
+help_sukebei = "Commands:\n" \
+               "- !(<numbers>) - nHentai\n" \
+               "example: !(123456) or !(00001)\n\n" \
+               "- !)<numbers>( - Tsumino\n" \
+               "example: !)12345( or !)00002("
+
+hel_sukebei_ext = "For nHentai galleries you need to put the gallery number in parentheses, " \
+                  "while padding it with leading zeroes to have at least 5 digits. For example: (123456) or (00001)\n" \
+                  "For Tsumino galleries you need to put the gallery number in inverted parentheses, " \
+                  "while padding it with leading zeroes to have at least 5 digits. For example: )12345( or )00002("
 
 base_url = "https://res.cloudinary.com/fuwa/image/upload/v"
 
@@ -73,19 +83,12 @@ config = json.loads(os.environ.get('line_config', None))
 line_bot_api = LineBotApi(config['token'])
 handler = WebhookHandler(config['secret'])
 
-print(config)
-
-
 
 def handle_command(text, iid):
     global sleep_time
     global is_sleep
 
     if text[:1] == '!':
-        m = hBot.processComment(text[1:])
-        if m:
-            return {'source': 'hbot',
-                    'reply': m}
         if '!sauce' in text:
             url = base_url + versioning_dic.get(str(iid)) + '/' + iid
 
@@ -118,6 +121,15 @@ def handle_command(text, iid):
                     return trace.reply(trace.res(url, 'mini'))
                 if text == "!sauce-anime-raw":
                     return trace.reply(trace.res(url, 'raw'))
+
+        if is_sukebei(str(iid)):
+            m = hBot.processComment(text[1:])
+            if m:
+                return {'source': 'hbot',
+                        'reply': m}
+        else:
+            return {'source': 'hbot',
+                    'reply': "Please turn on Sukebei mode\n !sukebei-switch"}
     else:
         return None
 
@@ -160,6 +172,14 @@ def handle_dead(t, source):
     is_dead[source] = False
 
 
+def is_sukebei(iid):
+    return sukebei_dic[str(iid)]
+
+
+def handle_sukebei(iid):
+    return sukebei_dic.update({str(iid): not is_sukebei(iid)})
+
+
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -192,8 +212,20 @@ def handle_message(event):
         iid = event.source.room_id
 
     if event.message.text == '!help':
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=help_reply))
+        reply = help_reply
+        if is_sukebei(str(iid)):
+            reply += '\n' + help_sukebei
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
         return
+
+    if event.message.text == '!sukebei-switch':
+        handle_sukebei(str(iid))
+        if is_sukebei(str(iid)):
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode ON\n" + help_sukebei))
+            return
+        if not is_sukebei(str(iid)):
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF\n" + help_sukebei))
+            return
 
     m = handle_command(event.message.text, iid)
 
@@ -264,6 +296,34 @@ def handle_image(event):
     img = base64.b64encode(r).decode('utf-8')
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid, tags="TEMP")
     versioning_dic.update({str(iid): str(res['version'])})
+
+
+@handler.add(FollowEvent)
+def handle_follow(event):
+    iid = ''
+    stype = event.source.type
+    if stype == 'user':
+        iid = event.source.user_id
+    if stype == 'group':
+        iid = event.source.group_id
+    if stype == 'room':
+        iid = event.source.room_id
+
+    sukebei_dic.update({str(iid): False})
+
+
+@handler.add(JoinEvent)
+def handle_join(event):
+    iid = ''
+    stype = event.source.type
+    if stype == 'user':
+        iid = event.source.user_id
+    if stype == 'group':
+        iid = event.source.group_id
+    if stype == 'room':
+        iid = event.source.room_id
+
+    sukebei_dic.update({str(iid): False})
 
 
 app.run(host='0.0.0.0', port=port)
