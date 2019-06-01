@@ -5,7 +5,6 @@ bot_commands = {'!sauce',
                 '!sauce-anime-ext+',
                 '!sauce-anime-mini'}
 
-p = '!efefefsef'
+p = '!(efefefsef)'
 
-if p[:1] == '!':
-    print(p[:1])
+print(p[1:])

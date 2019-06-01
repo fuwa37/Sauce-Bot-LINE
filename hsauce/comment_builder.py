@@ -3,6 +3,8 @@ import nHentaiTagBot.nhentai as nhentai
 def build_comment(dic):
     output_comment = ''
     is_redacted = False
+    if dic == 429:
+        return 429
 
     # Skip anidb for special handling.
     if not (dic.get('type') == 'anidb' or dic.get('type') == 'fakku'):
