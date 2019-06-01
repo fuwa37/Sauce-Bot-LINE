@@ -144,7 +144,7 @@ def handle_message(event):
                 event.reply_token,
                 [VideoSendMessage(original_content_url=m["url"],
                                   preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-                 TextSendMessage(text=m["reply"])])
+                 TextSendMessage(text=m["comment"])])
             if m['limit'] < 9:
                 handle_sleep(m["limit_ttl"], m['souce'])
         if m["source"] == 'saucenao':
