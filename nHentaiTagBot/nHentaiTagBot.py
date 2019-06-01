@@ -161,3 +161,4 @@ def generateLinks(number, key):
     elif key == hitomilaKey:
         linkString = hitomila.API_URL_HITOMILA + str(number) + ".html"
     return linkString
+

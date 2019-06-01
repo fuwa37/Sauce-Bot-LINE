@@ -1,10 +1,3 @@
-bot_commands = {'!sauce',
-                '!sauce-anime',
-                '!sauce-anime-raw',
-                '!sauce-anime-ext',
-                '!sauce-anime-ext+',
-                '!sauce-anime-mini'}
+import nHentaiTagBot.nHentaiTagBot as hBot
 
-p = '!(efefefsef)'
-
-print(p[:2])
+print(hBot.processComment('!04321!'))

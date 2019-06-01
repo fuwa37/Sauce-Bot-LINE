@@ -27,6 +27,8 @@ cloudinary.config(
 )
 
 versioning_dic = {}
+sukebei_dic = {}
+
 is_sleep = {'trace': False,
             'sauce': False}
 is_dead = {'trace': False,
