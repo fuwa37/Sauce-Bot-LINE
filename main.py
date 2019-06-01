@@ -55,11 +55,12 @@ sn_counter = 0
 
 help_reply = "1. Send image\n" \
              "2. Type command:\n" \
-             "'- !sauce' - general sauce\n" \
-             "'- !sauce-anime' - anime sauce\n" \
-             "'- !sauce-anime-mini' - minimal info\n" \
-             "'- !sauce-anime-ext' - extended info\n" \
-             "'- !sauce-anime-ext+' - extended+ info"
+             "- !sauce - general sauce\n" \
+             "- !sauce-anime - anime sauce\n" \
+             "- !sauce-anime-mini - minimal info\n" \
+             "- !sauce-anime-ext - extended info\n" \
+             "- !sauce-anime-ext+ - extended+ info\n\n" \
+             "- !sukebei-switch - NSFW"
 
 help_sukebei = "Sukebei Commands:\n" \
                "- !(<numbers>) - nHentai\n" \
@@ -325,6 +326,12 @@ def handle_join(event):
         iid = event.source.group_id
     if stype == 'room':
         iid = event.source.room_id
+
+    line_bot_api.reply_message(
+        event.reply_token,
+        [ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg",
+                          preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
+         TextSendMessage(text="[Sauce Bot]\n\nType '!help' for bot's commands")])
 
     sukebei_dic.update({str(iid): False})
 
