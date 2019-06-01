@@ -37,6 +37,11 @@ trace_commands = {'!sauce-anime',
                   '!sauce-anime-ext',
                   '!sauce-anime-ext+',
                   '!sauce-anime-mini'}
+hbot_commands = {'!(',
+                 '!)',
+                 '!}',
+                 '!!', }
+
 sleep_time = {'trace': 0,
               'sauce': 0}
 death_time = {'trace': 0,
@@ -202,11 +207,11 @@ def handle_message(event):
                                       preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
                      TextSendMessage(text=m["comment"])])
 
-            if m['quota'] < 150:
+            if m['quota'] < 1:
                 handle_death(m["quota_ttl"], 'trace')
                 return
 
-            if m['limit'] < 9:
+            if m['limit'] < 1:
                 handle_sleep(m["limit_ttl"], 'trace')
                 return
 
@@ -230,7 +235,7 @@ def handle_message(event):
                 line_bot_api.reply_message(event.reply_token, TextSendMessage(text=m["reply"]))
                 return
 
-        if event.message.text[:2] == '!(':
+        if event.message.text[:2] in hbot_commands:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=m["reply"]))
             return
 
