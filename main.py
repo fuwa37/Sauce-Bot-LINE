@@ -53,8 +53,7 @@ death_time = {'trace': 0,
 
 sn_counter = 0
 
-help_reply = "Steps:\n" \
-             "1. Send image\n" \
+help_reply = "1. Send image\n" \
              "2. Type command:\n" \
              "'- !sauce' - general sauce\n" \
              "'- !sauce-anime' - anime sauce\n" \
@@ -62,7 +61,7 @@ help_reply = "Steps:\n" \
              "'- !sauce-anime-ext' - extended info\n" \
              "'- !sauce-anime-ext+' - extended+ info"
 
-help_sukebei = "Commands:\n" \
+help_sukebei = "Sukebei Commands:\n" \
                "- !(<numbers>) - nHentai\n" \
                "example: !(123456) or !(00001)\n\n" \
                "- !)<numbers>( - Tsumino\n" \
@@ -218,17 +217,17 @@ def handle_message(event):
     if event.message.text == '!help':
         reply = help_reply
         if is_sukebei(str(iid)):
-            reply += '\n' + help_sukebei
+            reply += '\n\n' + help_sukebei
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
         return
 
     if event.message.text == '!sukebei-switch':
         handle_sukebei(str(iid))
         if is_sukebei(str(iid)):
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode ON\n" + help_sukebei))
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode ON\n\n" + help_sukebei))
             return
         if not is_sukebei(str(iid)):
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF\n" + help_sukebei))
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF"))
             return
 
     m = handle_command(event.message.text, iid)
