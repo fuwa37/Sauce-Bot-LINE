@@ -212,8 +212,14 @@ def handle_message(event):
         iid = event.source.user_id
     if stype == 'group':
         iid = event.source.group_id
+        if event.message.text == '!kikku':
+            line_bot_api.leave_group(str(iid))
+            return
     if stype == 'room':
         iid = event.source.room_id
+        if event.message.text == '!kikku':
+            line_bot_api.leave_group(str(iid))
+            return
 
     if event.message.text == '!help':
         reply = help_reply
