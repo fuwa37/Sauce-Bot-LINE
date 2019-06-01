@@ -5,7 +5,7 @@ import cloudinary.uploader
 import cloudinary.api
 from hsauce.comment_builder import build_comment
 from hsauce.get_source import get_source_data
-import sauce
+import trace
 import base64
 import threading
 import time
@@ -83,7 +83,7 @@ def handle_command(text, iid):
                         'status': "(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
                             sleep_time['sauce']) + " seconds"}
                 if is_dead["sauce"]:
-                    return {'status': "(-_-) zzz\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
+                    return {'status': "(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
                         death_time['sauce']) + " seconds"}
 
                 return build_comment(get_source_data(url))
@@ -94,18 +94,18 @@ def handle_command(text, iid):
                         'status': "(-_-) zzz\n!sauce-anime Bot is exhausted\n\nPlease wait for " + str(
                             sleep_time['trace']) + " seconds"}
                 if is_dead["trace"]:
-                    return {'status': "(-_-) zzz\n!sauce-anime Bot is dead\n\nPlease wait for resurrection in " + str(
+                    return {'status': "(✖╭╮✖)\n!sauce-anime Bot is dead\n\nPlease wait for resurrection in " + str(
                         death_time['trace']) + " seconds"}
                 if text == "!sauce-anime":
-                    return sauce.reply(sauce.res(url))
+                    return trace.reply(trace.res(url))
                 if text == "!sauce-anime-ext":
-                    return sauce.reply(sauce.res(url, 'ext'))
+                    return trace.reply(trace.res(url, 'ext'))
                 if text == "!sauce-anime-ext+":
-                    return sauce.reply(sauce.res(url, 'ext+'))
+                    return trace.reply(trace.res(url, 'ext+'))
                 if text == "!sauce-anime-mini":
-                    return sauce.reply(sauce.res(url, 'mini'))
+                    return trace.reply(trace.res(url, 'mini'))
                 if text == "!sauce-anime-raw":
-                    return sauce.reply(sauce.res(url, 'raw'))
+                    return trace.reply(trace.res(url, 'raw'))
     else:
         return None
 
@@ -179,6 +179,10 @@ def handle_message(event):
     if stype == 'room':
         iid = event.source.room_id
 
+    if event.message.text == '!help':
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=help_reply))
+        return
+
     m = handle_command(event.message.text, iid)
 
     if m is not None:
@@ -189,8 +193,15 @@ def handle_message(event):
                     [VideoSendMessage(original_content_url=m["url"],
                                       preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
                      TextSendMessage(text=m["comment"])])
-                if m['limit'] < 9:
-                    handle_sleep(m["limit_ttl"], 'trace')
+                return
+
+            if m['quota'] < 150:
+                handle_death(m["quota_ttl"], 'trace')
+                return
+
+            if m['limit'] < 9:
+                handle_sleep(m["limit_ttl"], 'trace')
+                return
 
             if is_sleep['trace'] or is_dead['trace']:
                 line_bot_api.reply_message(
@@ -198,17 +209,21 @@ def handle_message(event):
                     [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
                                       preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
                      TextSendMessage(text=m['status'])])
+                return
 
         if event.message.text == '!sauce':
             if m == 429:
                 sn_counter += 1
                 handle_sleep(30, 'sauce')
+                return
 
             if sn_counter > 2:
-                handle_dead(86400, 'sauce')
+                handle_death(86400, 'sauce')
+                return
 
             if m.get('reply'):
                 line_bot_api.reply_message(event.reply_token, TextSendMessage(text=m["reply"]))
+                return
 
             if is_sleep['sauce'] or is_dead['sauce']:
                 line_bot_api.reply_message(
@@ -216,9 +231,11 @@ def handle_message(event):
                     [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
                                       preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
                      TextSendMessage(text=m['status'])])
+                return
 
-        if m["source"] == 'hbot':
+        if event.message.text[:2] == '!(':
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=m["reply"]))
+            return
 
 
 @handler.add(MessageEvent, message=ImageMessage)

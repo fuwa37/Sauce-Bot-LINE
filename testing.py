@@ -7,4 +7,4 @@ bot_commands = {'!sauce',
 
 p = '!(efefefsef)'
 
-print(p[1:])
+print(p[:2])
