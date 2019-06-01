@@ -22,12 +22,15 @@ import json
 import socket
 import time
 import traceback
+import os
 
 cache = {'get': []}
 cachetime = 720  # cache stuff for 12 minutes
 
-username = 'irs37'
-password = 'hJ8WxZ8Bp4ECZFH'
+config = json.loads(os.environ.get('vndb_config', None))
+
+username = config['user']
+password = config['pass']
 
 client_name = 'SauceLineBot'
 client_version = '0.1'

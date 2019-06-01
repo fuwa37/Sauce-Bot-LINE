@@ -1,5 +1,5 @@
 import nHentaiTagBot.nHentaiTagBot as hBot
-import os
+import os, json
 from flask import Flask, request, abort
 import cloudinary.uploader
 import cloudinary.api
@@ -20,11 +20,14 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, VideoSendMessage
 )
 
+config = json.loads(os.environ.get('cloudinary_config', None))
+
 cloudinary.config(
-    cloud_name="fuwa",
-    api_key="461525941189854",
-    api_secret="2WH2cEgKQH4YOy5IDsJ2Y3xp3Gk"
+    cloud_name=config['name'],
+    api_key=config['key'],
+    api_secret=config['secret']
 )
+print(config)
 
 versioning_dic = {}
 sukebei_dic = {}
@@ -65,11 +68,13 @@ base_url = "https://res.cloudinary.com/fuwa/image/upload/v"
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 33507))
 
-line_bot_api = LineBotApi(
-    'Et/GenKz1+jjMORi4d0O3y7gbo6hAxu7QcDhzV2yt+UIEOwTS71OYn1ZaIG'
-    'Vl75mwUvmo0jUCBzGDcpZsNYIhU0JPVTSasQR85TY2lqZ9S1j9E2u+Yz'
-    'YIIWTFvvhrvzvo73PFli6RDLyPdXokUeLtwdB04t89/1O/w1cDnyilFU=')
-handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
+config = json.loads(os.environ.get('line_config', None))
+
+line_bot_api = LineBotApi(config['token'])
+handler = WebhookHandler(config['secret'])
+
+print(config)
+
 
 
 def handle_command(text, iid):
