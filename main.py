@@ -60,6 +60,7 @@ help_reply = "1. Send image\n" \
              "- !sauce-anime-mini - minimal info\n" \
              "- !sauce-anime-ext - extended info\n" \
              "- !sauce-anime-ext+ - extended+ info\n\n" \
+             "- !kikku - leave\n\n" \
              "- !sukebei-switch - NSFW"
 
 help_sukebei = "Sukebei Commands:\n" \
