@@ -27,10 +27,21 @@ cloudinary.config(
 )
 
 versioning_dic = {}
-is_sleep = False
-is_dead = False
-sleep_time = 0
-death_time = 0
+is_sleep = {'trace': False,
+            'sauce': False}
+is_dead = {'trace': False,
+           'sauce': False}
+
+bot_commands = {'!sauce',
+                '!sauce-anime',
+                '!sauce-anime-raw',
+                '!sauce-anime-ext',
+                '!sauce-anime-ext+',
+                '!sauce-anime-mini'}
+sleep_time = {'trace': 0,
+              'sauce': 0}
+death_time = {'trace': 0,
+              'sauce': 0}
 
 base_url = "https://res.cloudinary.com/fuwa/image/upload/v"
 
@@ -47,40 +58,52 @@ handler = WebhookHandler('cf4b093ef93814e87584e46d305357ac')
 def handle_command(text, iid):
     global sleep_time
     global is_sleep
-    if not is_sleep and not is_dead:
+
+    if text[:1] == '!':
         m = hBot.processComment(text)
         if m:
             return {'source': 'hbot',
                     'reply': m}
-        url = base_url + versioning_dic.get(str(iid)) + '/' + iid
-        if text == "!sauce":
-            return build_comment(get_source_data(url))
-        if text == "!sauce-anime":
-            return sauce.res(url)
-        if text == "!sauce-anime-mini":
-            return sauce.res(url, "mini")
-        if text == "!sauce-anime-raw":
-            return sauce.res(url, 'raw')
-    else:
-        return {'m': "(-_-) zzz\nBot is exhausted\n\nPlease wait for " + str(sleep_time) + " second"}
+        if text in bot_commands:
+            url = base_url + versioning_dic.get(str(iid)) + '/' + iid
+
+            if text == "!sauce":
+                return build_comment(get_source_data(url))
+
+            if is_sleep["trace"]:
+                return {
+                    'status': "(-_-) zzz\nBot is exhausted\n\nPlease wait for " + str(sleep_time['trace']) + " second"}
+            if is_dead["trace"]:
+                return {'status': "(-_-) zzz\nBot is dead\n\nPlease wait for resurrection in " + str(
+                    death_time['trace']) + " second"}
+            if text == "!sauce-anime":
+                return sauce.reply(sauce.res(url))
+            if text == "!sauce-anime-ext":
+                return sauce.reply(sauce.res(url, 'ext'))
+            if text == "!sauce-anime-ext+":
+                return sauce.reply(sauce.res(url, 'ext+'))
+            if text == "!sauce-anime-mini":
+                return sauce.reply(sauce.res(url, 'mini'))
+            if text == "!sauce-anime-raw":
+                return sauce.reply(sauce.res(url, 'raw'))
 
 
-def handle_sleep(t):
-    time_t = threading.Thread(target=handle_sleeping, args=(t,))
+def handle_sleep(t, sauce):
+    time_t = threading.Thread(target=handle_sleeping, args=(t, sauce))
     time_t.start()
 
 
-def handle_sleeping(t):
+def handle_sleeping(t, sauce):
     global sleep_time
     global is_sleep
-    is_sleep = True
+    is_sleep[sauce] = True
     temp = t
-    sleep_time = t
+    sleep_time[sauce] = t
     for i in range(t, 0, -1):
         time.sleep(1)
-        sleep_time -= 1
-    sleep_time = temp
-    is_sleep = False
+        sleep_time[sauce] -= 1
+    sleep_time[sauce] = temp
+    is_sleep[sauce] = False
 
 
 @app.route("/callback", methods=['POST'])
@@ -123,7 +146,7 @@ def handle_message(event):
                                   preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
                  TextSendMessage(text=m["reply"])])
             if m['limit'] < 9:
-                handle_sleep(m["limit_ttl"])
+                handle_sleep(m["limit_ttl"], m['souce'])
         if m["source"] == 'saucenao':
             line_bot_api.reply_message(
                 event.reply_token,
@@ -133,12 +156,12 @@ def handle_message(event):
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text=m["reply"]))
 
-    else:
+    elif m.get('status'):
         line_bot_api.reply_message(
             event.reply_token,
             [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
                               preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-             TextSendMessage(text="m(_ _)m\n" + m['m'])])
+             TextSendMessage(text=m['m'])])
 
 
 @handler.add(MessageEvent, message=ImageMessage)

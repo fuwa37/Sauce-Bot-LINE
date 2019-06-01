@@ -4,6 +4,7 @@ import json
 import urllib.request
 import datetime
 import urllib.parse as urlparse
+import Roboragi.AnimeBot as abot
 
 traceurl = "https://trace.moe/api/search"
 
@@ -35,18 +36,49 @@ def saucetrace(url):
 def res(url, mode=None):
     r = saucetrace(url)
     if r['docs'][0]['similarity'] < 0.85:
-        return reply(None)
+        return None
     url_prev2 = 'https://trace.moe/preview.php?anilist_id=' + str(
         r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(
         r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
     if mode is None:
         return {'source': 'trace',
-                'reply': reply({'Title': r['docs'][0]['title_native'],
-                                'Romaji': r['docs'][0]['title_romaji'],
-                                'English': r['docs'][0]['title_english'],
-                                'Season': str(r['docs'][0]['season']),
-                                'Episode': str(r['docs'][0]['episode']),
-                                'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at'])))}),
+                'reply': {'Title': r['docs'][0]['title_native'],
+                          'Romaji': r['docs'][0]['title_romaji'],
+                          'English': r['docs'][0]['title_english'],
+                          'Season': str(r['docs'][0]['season']),
+                          'Episode': str(r['docs'][0]['episode']),
+                          'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at'])))},
+                'url': url_prev2,
+                'limit': r['limit'],
+                'limit_ttl': r['limit_ttl'],
+                'quota': r['quota'],
+                'quota_ttl': r['quota_ttl']}
+
+    if mode == 'ext':
+        return {'source': 'trace',
+                'reply': {'Title': r['docs'][0]['title_native'],
+                          'Romaji': r['docs'][0]['title_romaji'],
+                          'English': r['docs'][0]['title_english'],
+                          'Season': str(r['docs'][0]['season']),
+                          'Episode': str(r['docs'][0]['episode']),
+                          'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))) + '\n',
+                          'Info': '\n' + abot.process_comment('{' + r['docs'][0]['title_romaji'] + '}')},
+                'url': url_prev2,
+                'limit': r['limit'],
+                'limit_ttl': r['limit_ttl'],
+                'quota': r['quota'],
+                'quota_ttl': r['quota_ttl']}
+
+    if mode == 'ext+':
+        return {'source': 'trace',
+                'reply': {'Title': r['docs'][0]['title_native'],
+                          'Romaji': r['docs'][0]['title_romaji'],
+                          'English': r['docs'][0]['title_english'],
+                          'Season': str(r['docs'][0]['season']),
+                          'Episode': str(r['docs'][0]['episode']),
+                          'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))) + '\n',
+                          'Info': '\n' + abot.process_comment('{' + r['docs'][0]['title_romaji'] + '}',
+                                                              is_expanded=True)},
                 'url': url_prev2,
                 'limit': r['limit'],
                 'limit_ttl': r['limit_ttl'],
@@ -55,10 +87,10 @@ def res(url, mode=None):
 
     if mode == 'mini':
         return {'source': 'trace',
-                'reply': reply({'Title': r['docs'][0]['title_native'],
-                                'Romaji': r['docs'][0]['title_romaji'],
-                                'English': r['docs'][0]['title_english'],
-                                }),
+                'reply': {'Title': r['docs'][0]['title_native'],
+                          'Romaji': r['docs'][0]['title_romaji'],
+                          'English': r['docs'][0]['title_english'],
+                          },
                 'url': url_prev2,
                 'limit': r['limit'],
                 'limit_ttl': r['limit_ttl'],
@@ -79,6 +111,8 @@ def reply(res):
     if res is None:
         return "Not Found"
     rs = ""
-    for i in res:
-        rs += "\n" + i + "  :" + res[i] + "\n"
-    return rs
+    for i in res['reply']:
+        rs += i + ": " + res['reply'][i] + "\n"
+
+    res.update({'comment': rs})
+    return res
