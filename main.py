@@ -334,8 +334,8 @@ def handle_video(event):
     pil_img = Image.fromarray(frame)
     buff = BytesIO()
     pil_img.save(buff, format="JPEG")
-    b64 = base64.b64encode(buff.getvalue()).decode("utf-8")
-    res = cloudinary.uploader.upload('data:image/jpg;base64,' + b64, public_id=iid, tags="TEMP")
+    b64file = base64.b64encode(buff.getvalue()).decode("utf-8")
+    res = cloudinary.uploader.upload('data:image/jpg;base64,' + b64file, public_id=iid, tags="TEMP")
     versioning_dic.update({str(iid): str(res['version'])})
     os.remove(iid)
 
