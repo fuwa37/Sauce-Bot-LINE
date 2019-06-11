@@ -17,7 +17,8 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, VideoSendMessage, FollowEvent, JoinEvent
+    MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, VideoSendMessage, FollowEvent,
+    JoinEvent, VideoMessage
 )
 
 config = json.loads(os.environ.get('cloudinary_config', None))
@@ -309,6 +310,25 @@ def handle_image(event):
     versioning_dic.update({str(iid): str(res['version'])})
 
 
+@handler.add(MessageEvent, message=VideoMessage)
+def handle_video(event):
+    r = b''
+    iid = ''
+    stype = event.source.type
+    if stype == 'user':
+        iid = event.source.user_id
+    if stype == 'group':
+        iid = event.source.group_id
+    if stype == 'room':
+        iid = event.source.room_id
+    message_content = line_bot_api.get_message_content(event.message.id)
+    for chunk in message_content.iter_content():
+        r += chunk
+
+    print(r)
+    print(type(r))
+
+
 @handler.add(FollowEvent)
 def handle_follow(event):
     iid = ''
@@ -319,6 +339,12 @@ def handle_follow(event):
         iid = event.source.group_id
     if stype == 'room':
         iid = event.source.room_id
+
+    line_bot_api.reply_message(
+        event.reply_token,
+        [ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg",
+                          preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
+         TextSendMessage(text="[Sauce Bot]\n\nPlease look at HOME\nor\nType '!help' for help")])
 
     sukebei_dic.update({str(iid): False})
 
@@ -338,7 +364,7 @@ def handle_join(event):
         event.reply_token,
         [ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg",
                           preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
-         TextSendMessage(text="[Sauce Bot]\n\nType '!help' for bot's commands")])
+         TextSendMessage(text="[Sauce Bot]\n\nPlease look at HOME\nor\nType '!help' for help")])
 
     sukebei_dic.update({str(iid): False})
 
