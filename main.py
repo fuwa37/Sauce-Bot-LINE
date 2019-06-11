@@ -64,8 +64,7 @@ help_reply = "1. Send image\n" \
              "- !sauce-anime-mini - minimal info\n" \
              "- !sauce-anime-ext - extended info\n" \
              "- !sauce-anime-ext+ - extended+ info\n\n" \
-             "- !kikku - leave group/room\n\n" \
-             "- !sukebei-switch - NSFW"
+             "- !kikku - leave group/room"
 
 help_sukebei = "Sukebei Commands:\n" \
                "- !(<numbers>) - nHentai\n" \
@@ -355,7 +354,7 @@ def handle_follow(event):
         event.reply_token,
         [ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg",
                           preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
-         TextSendMessage(text="[Sauce Bot]\n\nPlease look at HOME\nor\nType '!help' for help")])
+         TextSendMessage(text="[Sauce Bot]\n\nRefer to TIMELINE\nor\nType '!help' for help")])
 
     sukebei_dic.update({str(iid): False})
 
@@ -375,7 +374,7 @@ def handle_join(event):
         event.reply_token,
         [ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg",
                           preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
-         TextSendMessage(text="[Sauce Bot]\n\nPlease look at HOME\nor\nType '!help' for help")])
+         TextSendMessage(text="[Sauce Bot]\n\nRefer to TIMELINE\nor\nType '!help' for help")])
 
     sukebei_dic.update({str(iid): False})
 
