@@ -9,6 +9,9 @@ import trace
 import base64
 import threading
 import time
+import moviepy.editor as mpe
+from PIL import Image
+from io import BytesIO
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -312,7 +315,6 @@ def handle_image(event):
 
 @handler.add(MessageEvent, message=VideoMessage)
 def handle_video(event):
-    r = b''
     iid = ''
     stype = event.source.type
     if stype == 'user':
@@ -322,11 +324,20 @@ def handle_video(event):
     if stype == 'room':
         iid = event.source.room_id
     message_content = line_bot_api.get_message_content(event.message.id)
-    for chunk in message_content.iter_content():
-        r += chunk
+    with open(iid, 'wb') as fd:
+        for chunk in message_content.iter_content():
+            fd.write(chunk)
 
-    print(r)
-    print(type(r))
+    video = mpe.VideoFileClip(iid)
+    frame = video.get_frame(1)
+
+    pil_img = Image.fromarray(frame)
+    buff = BytesIO()
+    pil_img.save(buff, format="JPEG")
+    b64 = base64.b64encode(buff.getvalue()).decode("utf-8")
+    res = cloudinary.uploader.upload('data:image/jpg;base64,' + b64, public_id=iid, tags="TEMP")
+    versioning_dic.update({str(iid): str(res['version'])})
+    os.remove(iid)
 
 
 @handler.add(FollowEvent)
