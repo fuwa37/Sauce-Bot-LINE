@@ -329,8 +329,7 @@ def handle_video(event):
             fd.write(chunk)
 
     video = mpe.VideoFileClip(iid)
-    fps = video.fps
-    frame = video.get_frame(5 * fps)
+    frame = video.get_frame(5 * 1/video.fps)
 
     pil_img = Image.fromarray(frame)
     buff = BytesIO()
