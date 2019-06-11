@@ -10,6 +10,7 @@ chardet==3.0.4
 Click==7.0
 cloudinary==1.16.0
 cssselect==1.0.3
+decorator==4.4.0
 firebase-admin==2.17.0
 Flask==1.0.3
 flickr-api==0.7.3
@@ -27,6 +28,8 @@ googleapis-common-protos==1.6.0
 grpcio==1.21.1
 httplib2==0.12.3
 idna==2.8
+imageio==2.5.0
+imageio-ffmpeg==0.3.0
 imgurpython==1.1.7
 itsdangerous==1.1.0
 Jinja2==2.10.1
@@ -35,10 +38,14 @@ lxml==4.3.3
 MarkupSafe==1.1.1
 minoshiro==0.1.8
 mock==3.0.5
+moviepy==1.0.0
 msgpack==0.6.1
 multidict==4.5.2
+numpy==1.16.4
 oauth2==1.9.0.post1
+Pillow==6.0.0
 post==2019.4.13
+proglog==0.1.9
 protobuf==3.8.0
 psycopg2==2.8.2
 psycopg2-binary==2.8.2
@@ -54,6 +61,7 @@ requests==2.22.0
 rsa==4.0
 six==1.12.0
 soupsieve==1.9.1
+tqdm==4.32.1
 uritemplate==3.0.0
 urllib3==1.25.2
 Werkzeug==0.15.4
