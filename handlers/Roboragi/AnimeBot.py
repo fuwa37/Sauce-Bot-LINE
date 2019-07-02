@@ -21,8 +21,8 @@ Acts as the "main" file and ties all the other functionality together.
 import re
 import traceback
 
-import Roboragi.Search as Search
-from Roboragi.patterns import find_requests
+import handlers.Roboragi.Search as Search
+from handlers.Roboragi.patterns import find_requests
 
 
 def process_comment(comment, is_edit=True, is_expanded=False):

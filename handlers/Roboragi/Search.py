@@ -19,17 +19,16 @@ term.
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import json
 import traceback
 
-import Roboragi.Anilist as Anilist
-import Roboragi.AnimePlanet as AniP
-import Roboragi.CommentBuilder as CommentBuilder
-import Roboragi.Kitsu as Kitsu
-import Roboragi.LNDB as LNDB
-import Roboragi.MU as MU
-import Roboragi.NU as NU
-from Roboragi.VNDB import VNDB
+import handlers.Roboragi.Anilist as Anilist
+import handlers.Roboragi.AnimePlanet as AniP
+import handlers.Roboragi.CommentBuilder as CommentBuilder
+import handlers.Roboragi.Kitsu as Kitsu
+import handlers.Roboragi.LNDB as LNDB
+import handlers.Roboragi.MU as MU
+import handlers.Roboragi.NU as NU
+from handlers.Roboragi.VNDB import VNDB
 
 
 def buildMangaReply(searchText, isExpanded):

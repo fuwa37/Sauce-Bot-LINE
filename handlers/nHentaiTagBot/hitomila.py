@@ -1,6 +1,6 @@
 # from https://stackoverflow.com/questions/16981921/relative-imports-in-python-3 to make the imports work when imported as submodule
 import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-import nHentaiTagBot.commentpy as commentpy
+import handlers.nHentaiTagBot.commentpy as commentpy
 import requests
 import json
 import re

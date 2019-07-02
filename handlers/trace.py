@@ -4,7 +4,7 @@ import json
 import urllib.request
 import datetime
 import urllib.parse as urlparse
-import Roboragi.AnimeBot as abot
+import handlers.Roboragi.AnimeBot as abot
 
 traceurl = "https://trace.moe/api/search"
 
