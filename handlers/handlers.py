@@ -1,6 +1,6 @@
 import time
 import threading
-import trace
+import handlers.trace as trace
 import handlers.nHentaiTagBot.nHentaiTagBot as hBot
 from handlers.strings import *
 from handlers.hsauce.comment_builder import build_comment
