@@ -30,21 +30,11 @@ def _all_patterns(patterns, flags=re.M):
     return re.compile(pattern=patterns, flags=flags)
 
 
-USERNAME_PATTERN = re.compile(
-    pattern=r'[uU]\/([A-Za-z0-9_-]+?)(>|}|$)',
-    flags=re.S
-)
-
-SUBREDDIT_PATTERN = re.compile(
-    pattern=r'[rR]\/([A-Za-z0-9_]+?)(>|}|$)',
-    flags=re.S
-)
-
 TAG_CHARACTERS = {
     'anime': ('{', '}'),
     'manga': ('<', '>'),
     'light_novel': (']', '['),
-    'visual_novel': ('|', '|'),
+    'visual_novel': ('[', ']'),
 }
 REGULAR_PATTERNS = _patterns(TAG_CHARACTERS)
 REGULAR_PATTERNS['all'] = _all_patterns(REGULAR_PATTERNS.values())

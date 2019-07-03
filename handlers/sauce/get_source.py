@@ -1,11 +1,13 @@
 from bs4 import BeautifulSoup
 import requests, re
+import handlers.sauce.trace as trace2
+from handlers.retry import requests_retry_session
 
-MINIMUM_SIMILARITY_PERCENTAGE = 70
+MINIMUM_SIMILARITY_PERCENTAGE = 65
 MAX_DELTA = 20
 
 
-def create_link_dictionary(soup):
+def create_link_dictionary(soup, trace):
     dic = {}
     first = True
     top_similarity_percentage = 0.0
@@ -62,25 +64,27 @@ def create_link_dictionary(soup):
                 dic.update(({'similarity': similarity_percentage}))
                 dic.update(({'image_url': image_url}))
                 dic.update({'type': 'anidb'})
-            title_candidate = result.find('div', class_='resulttitle')
-            # TODO fix supplemental info
-            title = title_candidate.strong.text
-            if title and not dic.get('title'):
-                dic.update({'title': title})
-            supplemental_info = re.sub(r'\<strong\>.*?\<\/strong\>', '',
-                                       title_candidate.text.replace('<small>', '').replace('</small>', ''))
-            if supplemental_info and not dic.get('supplemental_info'):
-                dic.update({'supplemental_info': supplemental_info})
 
-            japanese_title = re.search(r'(?<=<strong>Title: </strong>).*?(?=<)', str(result))
-            if japanese_title and not dic.get('japanese_title'):
-                dic.update({'japanese_title': japanese_title.group(0)})
+            if not trace:
+                title_candidate = result.find('div', class_='resulttitle')
+                # TODO fix supplemental info
+                title = title_candidate.strong.text
+                if title and not dic.get('title'):
+                    dic.update({'title': title})
+                supplemental_info = re.sub(r'\<strong\>.*?\<\/strong\>', '',
+                                           title_candidate.text.replace('<small>', '').replace('</small>', ''))
+                if supplemental_info and not dic.get('supplemental_info'):
+                    dic.update({'supplemental_info': supplemental_info})
+
+                japanese_title = re.search(r'(?<=<strong>Title: </strong>).*?(?=<)', str(result))
+                if japanese_title and not dic.get('japanese_title'):
+                    dic.update({'japanese_title': japanese_title.group(0)})
+                time_code = re.search(r'(?<=<strong>Est Time: </strong>).*?(?=<)', str(result))
+                if time_code and not dic.get('time_code'):
+                    dic.update({'time_code': time_code.group(0)})
             episode = re.search(r'(?<=<strong>Name: </strong>).*?(?=<)', str(result))
             if episode and not dic.get('episode'):
                 dic.update({'episode': episode.group(0)})
-            time_code = re.search(r'(?<=<strong>Est Time: </strong>).*?(?=<)', str(result))
-            if time_code and not dic.get('time_code'):
-                dic.update({'time_code': time_code.group(0)})
             anidb_link = result.find('div', class_='resultmiscinfo').a.get('href')
             if anidb_link and not dic.get('anidb_link'):
                 dic.update({'anidb_link': anidb_link})
@@ -162,7 +166,7 @@ def create_link_dictionary(soup):
                     if not dic.get('yandere_link'):
                         dic.update({'yandere_link': link})
                         continue
-            if similarity_percentage > 90:
+            if similarity_percentage > 80:
                 dic.update(({'similarity': similarity_percentage}))
                 dic.update(({'image_url': image_url}))
                 dic.update({'type': 'booru'})
@@ -255,13 +259,25 @@ def create_link_dictionary(soup):
     return dic
 
 
-def get_source_data(picture_url):
-    resp = requests.get('http://saucenao.com/search.php?db=999&url=' + picture_url)
-    # Needs to be parsed as xml since html parser adds inconvenient closing tags (pip install lxml)
-    if resp.status_code == 429:
-        return 429
-    soup = BeautifulSoup(resp.content, features='lxml')
-    dic = create_link_dictionary(soup)
-    dic.update({'SauceNAO': 'http://saucenao.com/search.php?db=999&url=' + picture_url})
+def get_source_data(picture_url, trace=False):
+    dic = {}
+    try:
+        resp = requests_retry_session(retries=3).get('http://saucenao.com/search.php?db=999&url=' + picture_url, timeout=20)
+    except Exception as x:
+        print(x)
+        if trace:
+            dic.update(trace2.res(picture_url))
+        return dic
+    else:
+        if resp.status_code == 429:
+            return 429
+        # Needs to be parsed as xml since html parser adds inconvenient closing tags (pip install lxml)
+        soup = BeautifulSoup(resp.content, features='lxml')
+        dic.update(create_link_dictionary(soup, trace))
+        if dic.get('type') == 'anidb':
+            print('aaaa')
+            if trace:
+                dic.update(trace2.res(picture_url))
+        return dic
 
-    return dic
+# print(get_source_data('https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg'))

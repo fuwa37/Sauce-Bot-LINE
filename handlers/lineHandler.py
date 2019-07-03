@@ -1,7 +1,7 @@
 import os
 import json
 import base64
-from handlers.handlers import *
+from handlers.handler import *
 from flask import request, abort, Blueprint, current_app
 import cloudinary.uploader
 import cloudinary.api
@@ -204,7 +204,7 @@ def handle_follow(event):
         event.reply_token,
         [ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg",
                           preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
-         TextSendMessage(text="[Sauce Bot]\n\nRefer to TIMELINE\nor\nType '!help' for help")])
+         TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
     sukebei_dic.update({str(iid): False})
 
@@ -224,6 +224,6 @@ def handle_join(event):
         event.reply_token,
         [ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg",
                           preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
-         TextSendMessage(text="[Sauce Bot]\n\nRefer to TIMELINE\nor\nType '!help' for help")])
+         TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
     sukebei_dic.update({str(iid): False})

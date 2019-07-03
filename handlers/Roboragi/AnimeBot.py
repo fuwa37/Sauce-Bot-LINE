@@ -25,7 +25,7 @@ import handlers.Roboragi.Search as Search
 from handlers.Roboragi.patterns import find_requests
 
 
-def process_comment(comment, is_edit=True, is_expanded=False):
+def process_comment(comment, is_edit=True, is_expanded=False, trace=False):
     """ process dat comment """
     # Anime/Manga requests that are found go into separate arrays
     animeArray = []
@@ -73,7 +73,7 @@ def process_comment(comment, is_edit=True, is_expanded=False):
     # Anime
     for match in find_requests('anime', comment):
         if num_so_far < 30:
-            reply = Search.buildAnimeReply(match, isExpanded)
+            reply = Search.buildAnimeReply(match, isExpanded, trace)
 
             if (reply is not None):
                 num_so_far = num_so_far + 1
@@ -175,7 +175,8 @@ def process_comment(comment, is_edit=True, is_expanded=False):
                                                           total_expected)
 
         if is_edit:
-            return commentReply
+            return {'source': 'abot',
+                    'reply': commentReply}
     else:
         try:
             if is_edit:

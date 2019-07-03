@@ -129,7 +129,7 @@ def buildMangaReply(searchText, isExpanded):
         return None
 
 
-def buildAnimeReply(searchText, isExpanded):
+def buildAnimeReply(searchText, isExpanded, trace):
     """ Builds an anime reply from multiple sources """
     try:
         kit = {'search_function': Kitsu.search_anime,
@@ -196,7 +196,8 @@ def buildAnimeReply(searchText, isExpanded):
                 isExpanded=isExpanded,
                 ani=ani['result'],
                 ap=ap['result'],
-                kit=kit['result']
+                kit=kit['result'],
+                trace=trace
             )
         else:
             print('No result found for ' + searchText)

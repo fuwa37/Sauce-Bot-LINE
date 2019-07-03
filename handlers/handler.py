@@ -1,10 +1,11 @@
 import time
 import threading
-import handlers.trace as trace
+import handlers.sauce.trace as trace
 import handlers.nHentaiTagBot.nHentaiTagBot as hBot
+import handlers.Roboragi.AnimeBot as aBot
 from handlers.strings import *
-from handlers.hsauce.comment_builder import build_comment
-from handlers.hsauce.get_source import get_source_data
+from handlers.sauce.comment_builder import build_comment
+from handlers.sauce.get_source import get_source_data
 
 versioning_dic = {}
 sukebei_dic = {}
@@ -13,16 +14,6 @@ is_sleep = {'trace': False,
             'sauce': False}
 is_dead = {'trace': False,
            'sauce': False}
-
-trace_commands = {'!sauce-anime',
-                  '!sauce-anime-raw',
-                  '!sauce-anime-ext',
-                  '!sauce-anime-ext+',
-                  '!sauce-anime-mini'}
-hbot_commands = {'!(',
-                 '!)',
-                 '!}',
-                 '!!', }
 
 sleep_time = {'trace': 0,
               'sauce': 0}
@@ -47,9 +38,9 @@ def handle_command(text, iid):
                     return {'status': "(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
                         death_time['sauce']) + " seconds"}
 
-                return build_comment(get_source_data(url))
+                return build_comment(get_source_data(url))  # return None
 
-            if '!sauce-anime' in text:
+            if '!sauce-anime' in text:  # return None
                 if is_sleep["trace"]:
                     return {
                         'status': "(-_-) zzz\n!sauce-anime Bot is exhausted\n\nPlease wait for " + str(
@@ -68,17 +59,19 @@ def handle_command(text, iid):
                 if text == "!sauce-anime-raw":
                     return trace.reply(trace.res(url, 'raw'))
 
-        if is_sukebei(str(iid)):
-            # print(text[1:])
-            m = hBot.processComment(text[1:])
-            if m:
+        if text[:2] in robo_commands:
+            return aBot.process_comment(text[1:])  # return None
+
+        if text[:2] in h_commands:
+            if is_sukebei(str(iid)):
+                m = hBot.processComment(text[1:])  # return string
                 return {'source': 'hbot',
                         'reply': m}
-        else:
-            return {'source': 'hbot',
-                    'reply': "Please turn on Sukebei mode\n !sukebei-switch"}
+            else:
+                return {'source': 'hbot',
+                        'reply': "Please turn on Sukebei mode\n !sukebei-switch"}
     else:
-        return None
+        return False
 
 
 def handle_sleep(t, source):

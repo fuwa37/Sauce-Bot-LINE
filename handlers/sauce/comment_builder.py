@@ -1,10 +1,36 @@
 import handlers.nHentaiTagBot.nhentai as nhentai
 
+
 def build_comment(dic):
     output_comment = ''
+    vid_url = ''
+    info = {}
     is_redacted = False
     if dic == 429:
         return 429
+
+    if dic.get('reply'):
+        r = dic.get('reply')
+        output_comment += f"{r['Title']}\n{r['Romaji']}\n{r['English']}\n\n"
+        output_comment += f"Season: {r['Season']}\n\n"
+        output_comment += f"Episode: {r['Episode']}\n\n"
+        if dic.get('episode'):
+            output_comment += f"EP Name: {dic.get('episode')}\n\n"
+        output_comment += f"Est. Time: {r['Time']}\n"
+        output_comment += f"Info:"
+        output_comment += f"{r['Info']}"
+        if dic.get('anidb_link'):
+            output_comment += f"[AniDB]({dic.get('anidb_link')})"
+        vid_url = dic.get('url')
+        info.update({
+            'limit': dic.get('limit'),
+            'limit_ttl': dic.get('limit_ttl'),
+            'quota': dic.get('quota'),
+            'quota_ttl': dic.get('quota_ttl'),
+        })
+        return {'reply': output_comment,
+                'vid_url': vid_url,
+                'info': info}
 
     # Skip anidb for special handling.
     if not (dic.get('type') == 'anidb' or dic.get('type') == 'fakku'):
@@ -36,10 +62,7 @@ def build_comment(dic):
 
     if dic.get('type') == 'anidb':
         if dic.get('title'):
-            if dic.get('anidb_link'):
-                output_comment += f"Title: [{dic.get('title')}]({dic.get('anidb_link')})\n\n"
-            else:
-                output_comment += f"Title: {dic.get('title')}\n\n"
+            output_comment += f"Title: {dic.get('title')}\n\n"
         if dic.get('supplemental_info'):
             output_comment += f"Details: {dic.get('supplemental_info')}\n\n"
         if dic.get('japanese_title'):
@@ -48,6 +71,8 @@ def build_comment(dic):
             output_comment += f"EP Name: {dic.get('episode')}\n\n"
         if dic.get('time_code'):
             output_comment += f"Est. Time: {dic.get('time_code')}\n\n"
+        if dic.get('anidb_link'):
+            output_comment += f"Link: {dic.get('anidb_link')}\n\n"
 
     if dic.get('type') == 'da':
         if dic.get('da_id'):
@@ -123,13 +148,12 @@ def build_comment(dic):
 
     # Handle no results
     if not output_comment:
-        return False
+        return None
 
-    # output_comment += f"---\n^^[Full results]({dic.get('SauceNAO')}) | [How to SauceNao](https://www.reddit.com/r/HentaiSource/comments/b7h28o/guide_reverse_search_images_cropping_saucenao/) | [Questions?](https://www.reddit.com/message/compose/?to=thevexedgerman&subject=[SauceNAO-Bot]) | [Original Bot](https://www.reddit.com/user/HentaiSauce_Bot) | [Forked GitHub](https://github.com/TheVexedGerman/hsauce_bot) | Bad sauce? [Message the mods](https://www.reddit.com/message/compose?to=%2Fr%2FHentaiSource)".replace(' ', '&#32;')
-
-    return {'source': 'saucenao',
-            'reply': output_comment,
-            'url': dic['image_url']}
+    return {'reply': output_comment,
+            'pic_url': dic['image_url'],
+            'vid_url': vid_url,
+            'info': info}
 
 
 def generate_seperator_bar(link_comment):

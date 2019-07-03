@@ -27,7 +27,7 @@ from os import linesep
 # Removes the (Source: MAL) or (Written by X) bits from the decriptions in the databases
 def cleanupDescription(desc):
     for match in re.finditer("([\[\<\(](.*?)[\]\>\)])", desc, re.S):
-        if 'ource' in match.group(1).lower():
+        if 'Source' in match.group(1).lower():
             desc = desc.replace(match.group(1), '')
         if 'MAL' in match.group(1):
             desc = desc.replace(match.group(1), '')
@@ -53,7 +53,7 @@ def cleanupDescription(desc):
 
 
 # Builds an anime comment from the various data sources
-def buildAnimeComment(isExpanded, ani, ap, kit):
+def buildAnimeComment(isExpanded, ani, ap, kit, trace):
     try:
         comment = ''
 
@@ -134,37 +134,18 @@ def buildAnimeComment(isExpanded, ani, ap, kit):
 
         # ---------- BUILDING THE COMMENT ----------#
 
-        # ----- TITLE -----#
-        comment += title.strip() + '\n'
+        if not trace:
+            # ----- TITLE -----#
+            comment += title.strip() + '\n'
 
-
-        # ----- JAPANESE TITLE -----#
-        if (isExpanded):
-            if jTitle is not None:
-                splitJTitle = jTitle.split()
-                for i, word in enumerate(splitJTitle):
-                    if not (i == 0):
-                        comment += ' '
-                    comment += word + '\n'
-
-        # ----- LINKS -----#
-        urlComments = []
-
-        if ani is not None:
-            urlComments.append('[AL](' + sanitise_url_for_markdown(aniURL) + ')')
-        if apURL is not None:
-            urlComments.append('[A-P](' + sanitise_url_for_markdown(apURL) + ')')
-        if kit is not None:
-            urlComments.append('[KIT](' + sanitise_url_for_markdown(kitURL) + ')')
-        if malURL:
-            urlComments.append('[MAL](' + sanitise_url_for_markdown(malURL) + ')')
-
-        for i, link in enumerate(urlComments):
-            if i is not 0:
-                comment += '\n'
-            comment += link
-
-        comment += ')'
+            # ----- JAPANESE TITLE -----#
+            if (isExpanded):
+                if jTitle is not None:
+                    splitJTitle = jTitle.split()
+                    for i, word in enumerate(splitJTitle):
+                        if not (i == 0):
+                            comment += ' '
+                        comment += word + '\n'
 
         # ----- INFO LINE -----#
         if (isExpanded):
@@ -231,10 +212,26 @@ def buildAnimeComment(isExpanded, ani, ap, kit):
                 minutes) + '&#32;minutes](https://www.timeanddate.com/worldclock/fixedtime.html?iso=' + formatted_time + ')'
         '''
 
-
         # ----- DESCRIPTION -----#
         if (isExpanded):
-            comment += '\n\n' + cleanupDescription(desc)
+            comment += '\n\n' + cleanupDescription(desc) + '\n'
+
+        # ----- LINKS -----#
+        urlComments = []
+
+        if ani is not None:
+            urlComments.append('[AL](' + sanitise_url_for_markdown(aniURL) + ')')
+        if apURL is not None:
+            urlComments.append('[A-P](' + sanitise_url_for_markdown(apURL) + ')')
+        if kit is not None:
+            urlComments.append('[KIT](' + sanitise_url_for_markdown(kitURL) + ')')
+        if malURL:
+            urlComments.append('[MAL](' + sanitise_url_for_markdown(malURL) + ')')
+
+        for i, link in enumerate(urlComments):
+            if i is not 0:
+                comment += '\n'
+            comment += link
 
         # ----- END -----#
         receipt = '(A) Request successful: ' + title + ' - '
@@ -655,7 +652,7 @@ def buildVisualNovelComment(isExpanded, vndb):
 
             comment = formatted
         else:
-            template = '{title} - {links}\n\n({type}{released}{length}){stats}\n\n{desc}'
+            template = '{title} - {links}\n\n({type}{released}{length})\n\n{desc}'
             formatted = template.format(title=vndb['title'],
                                         links='({})'.format(formatted_links),
                                         type='VN',
