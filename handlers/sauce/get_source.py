@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
-import requests, re
+import re
 import handlers.sauce.trace as trace2
-from handlers.retry import requests_retry_session
+from proxy_requests import ProxyRequests
 
 MINIMUM_SIMILARITY_PERCENTAGE = 65
 MAX_DELTA = 20
@@ -166,7 +166,7 @@ def create_link_dictionary(soup, trace):
                     if not dic.get('yandere_link'):
                         dic.update({'yandere_link': link})
                         continue
-            if similarity_percentage > 80:
+            if similarity_percentage > 90:
                 dic.update(({'similarity': similarity_percentage}))
                 dic.update(({'image_url': image_url}))
                 dic.update({'type': 'booru'})
@@ -261,23 +261,21 @@ def create_link_dictionary(soup, trace):
 
 def get_source_data(picture_url, trace=False):
     dic = {}
-    try:
-        resp = requests_retry_session(retries=3).get('http://saucenao.com/search.php?db=999&url=' + picture_url, timeout=20)
-    except Exception as x:
-        print(x)
-        if trace:
-            dic.update(trace2.res(picture_url))
-        return dic
-    else:
-        if resp.status_code == 429:
-            return 429
-        # Needs to be parsed as xml since html parser adds inconvenient closing tags (pip install lxml)
-        soup = BeautifulSoup(resp.content, features='lxml')
-        dic.update(create_link_dictionary(soup, trace))
-        if dic.get('type') == 'anidb':
-            print('aaaa')
+    for i in range(1, 4):
+        try:
+            resp = ProxyRequests('http://saucenao.com/search.php?db=999&url=' + picture_url)
+            resp.get()
+            if resp.get_status_code() == 429:
+                return dic.update({'code': 429})
+            soup = BeautifulSoup(resp.get_raw(), features='lxml')
+            dic.update(create_link_dictionary(soup, trace))
+        except Exception as x:
+            print(x)
             if trace:
                 dic.update(trace2.res(picture_url))
-        return dic
-
-# print(get_source_data('https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg'))
+            return dic
+        else:
+            if dic.get('type') == 'anidb':
+                if trace:
+                    dic.update(trace2.res(picture_url, resp.get_proxy_used()))
+            return dic

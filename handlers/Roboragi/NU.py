@@ -39,14 +39,13 @@ def getLightNovelURL(searchText):
 
         lnList = []
 
-        for thing in nu.find('.w-blog-entry'):
-            title = pq(thing).find('.w-blog-entry-title').text()
-            url = pq(thing).find('.w-blog-entry-link').attr('href')
+        title = nu('.search_title').text()
+        url = nu('.search_title > a').attr('href')
 
-            if title:
-                data = {'title': title,
-                        'url': url}
-                lnList.append(data)
+        if title:
+            data = {'title': title,
+                    'url': url}
+            lnList.append(data)
 
         closest = findClosestLightNovel(searchText, lnList)
         return closest['url']

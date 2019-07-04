@@ -27,6 +27,10 @@ MANGA_GET_FILTER = 'manga?filter[slug]='
 ENGLISH_LANGUAGE_CODES = ['en', 'en_us']
 ROMAJI_LANGUAGE_CODES = ['en_jp']
 JAPANESE_LANGUAGE_CODES = ['ja_jp']
+KOREAN_LANGUAGE_CODES = ['ko_kr']
+ROMAJA__LANGUAGE_CODES = ['en_kr']
+CHINESE_LANGUAGE_CODE = ['zh_cn']
+PINYIN__LANGUAGE_CODES = ['en_cn']
 
 session = requests.Session()
 session.headers = {
@@ -37,7 +41,7 @@ session.headers = {
 
 def search(endpoint, search_term, parser, use_first_result=False):
     try:
-        response = session.get(BASE_URL + endpoint + search_term, timeout=4)
+        response = session.get(BASE_URL + endpoint + search_term, timeout=5)
         response.raise_for_status()
 
         results = parser(response.json()['data'])
@@ -50,7 +54,8 @@ def search(endpoint, search_term, parser, use_first_result=False):
         else:
             closest_result = get_closest(results, search_term)
             return closest_result
-    except Exception:
+    except Exception as e:
+        print(e)
         return None
     finally:
         session.close()
@@ -74,11 +79,18 @@ def get_closest(results, search_term):
     closest_name_from_list = matches[0].lower()
 
     for result in results:
-        if result['title_romaji']:
-            if result['title_romaji'].lower() == closest_name_from_list:
+        res_titles = result['titles']
+        if res_titles['jp']['en']:
+            if res_titles['jp']['en'].lower() == closest_name_from_list:
                 return result
-        elif result['title_english']:
-            if result['title_english'].lower() == closest_name_from_list:
+        if res_titles['kr']['en']:
+            if res_titles['kr']['en'].lower() == closest_name_from_list:
+                return result
+        if res_titles['cn']['en']:
+            if res_titles['cn']['en'].lower() == closest_name_from_list:
+                return result
+        if res_titles['en']:
+            if res_titles['en'].lower() == closest_name_from_list:
                 return result
         else:
             for synonym in result['synonyms']:
@@ -127,18 +139,32 @@ def parse_anime(results):
             id_ = entry['id']
             slug = entry['attributes']['slug']
             url = f"https://kitsu.io/anime/{slug}"
-            title_romaji = get_title_by_language_codes(
-                titles=entry['attributes']['titles'],
-                language_codes=ROMAJI_LANGUAGE_CODES
-            )
             title_english = get_title_by_language_codes(
                 titles=entry['attributes']['titles'],
                 language_codes=ENGLISH_LANGUAGE_CODES
             )
-            title_japanese = get_title_by_language_codes(
+
+            JP = {'en': get_title_by_language_codes(
                 titles=entry['attributes']['titles'],
-                language_codes=JAPANESE_LANGUAGE_CODES
-            )
+                language_codes=ROMAJI_LANGUAGE_CODES),
+                'jp': get_title_by_language_codes(
+                    titles=entry['attributes']['titles'],
+                    language_codes=JAPANESE_LANGUAGE_CODES)}
+
+            KR = {'en': get_title_by_language_codes(
+                titles=entry['attributes']['titles'],
+                language_codes=ROMAJA__LANGUAGE_CODES),
+                'kr': get_title_by_language_codes(
+                    titles=entry['attributes']['titles'],
+                    language_codes=KOREAN_LANGUAGE_CODES)}
+
+            CN = {'en': get_title_by_language_codes(
+                titles=entry['attributes']['titles'],
+                language_codes=PINYIN__LANGUAGE_CODES),
+                'cn': get_title_by_language_codes(
+                    titles=entry['attributes']['titles'],
+                    language_codes=CHINESE_LANGUAGE_CODE)}
+
 
             if entry['attributes']['abbreviatedTitles']:
                 synonyms = set(entry['attributes']['abbreviatedTitles'])
@@ -157,9 +183,12 @@ def parse_anime(results):
             anime = dict(
                 id=id_,
                 url=url,
-                title_romaji=title_romaji,
-                title_english=title_english,
-                title_japanese=title_japanese,
+                titles={
+                    'en': title_english,
+                    'kr': KR,
+                    'jp': JP,
+                    'cn': CN
+                },
                 synonyms=synonyms,
                 episode_count=episode_count,
                 type=type_,
@@ -187,14 +216,31 @@ def parse_manga(results):
             id_ = entry['id']
             slug = entry['attributes']['slug']
             url = f"https://kitsu.io/manga/{slug}"
-            title_romaji = get_title_by_language_codes(
-                titles=entry['attributes']['titles'],
-                language_codes=ROMAJI_LANGUAGE_CODES
-            )
             title_english = get_title_by_language_codes(
                 titles=entry['attributes']['titles'],
                 language_codes=ENGLISH_LANGUAGE_CODES
             )
+
+            JP = {'en': get_title_by_language_codes(
+                titles=entry['attributes']['titles'],
+                language_codes=ROMAJI_LANGUAGE_CODES),
+                'jp': get_title_by_language_codes(
+                    titles=entry['attributes']['titles'],
+                    language_codes=JAPANESE_LANGUAGE_CODES)}
+
+            KR = {'en': get_title_by_language_codes(
+                titles=entry['attributes']['titles'],
+                language_codes=ROMAJA__LANGUAGE_CODES),
+                'kr': get_title_by_language_codes(
+                    titles=entry['attributes']['titles'],
+                    language_codes=KOREAN_LANGUAGE_CODES)}
+
+            CN = {'en': get_title_by_language_codes(
+                titles=entry['attributes']['titles'],
+                language_codes=PINYIN__LANGUAGE_CODES),
+                'cn': get_title_by_language_codes(
+                    titles=entry['attributes']['titles'],
+                    language_codes=CHINESE_LANGUAGE_CODE)}
 
             if entry['attributes']['abbreviatedTitles']:
                 synonyms = set(entry['attributes']['abbreviatedTitles'])
@@ -216,8 +262,12 @@ def parse_manga(results):
             manga = dict(
                 id=id_,
                 url=url,
-                title_romaji=title_romaji,
-                title_english=title_english,
+                titles={
+                    'en': title_english,
+                    'kr': KR,
+                    'jp': JP,
+                    'cn': CN
+                },
                 synonyms=synonyms,
                 volume_count=volume_count,
                 chapter_count=chapter_count,
@@ -245,14 +295,31 @@ def parse_light_novel(results):
             id_ = entry['id']
             slug = entry['attributes']['slug']
             url = f"https://kitsu.io/manga/{slug}"
-            title_romaji = get_title_by_language_codes(
-                titles=entry['attributes']['titles'],
-                language_codes=ROMAJI_LANGUAGE_CODES
-            )
             title_english = get_title_by_language_codes(
                 titles=entry['attributes']['titles'],
                 language_codes=ENGLISH_LANGUAGE_CODES
             )
+
+            JP = {'en': get_title_by_language_codes(
+                titles=entry['attributes']['titles'],
+                language_codes=ROMAJI_LANGUAGE_CODES),
+                'jp': get_title_by_language_codes(
+                    titles=entry['attributes']['titles'],
+                    language_codes=JAPANESE_LANGUAGE_CODES)}
+
+            KR = {'en': get_title_by_language_codes(
+                titles=entry['attributes']['titles'],
+                language_codes=ROMAJA__LANGUAGE_CODES),
+                'kr': get_title_by_language_codes(
+                    titles=entry['attributes']['titles'],
+                    language_codes=KOREAN_LANGUAGE_CODES)}
+
+            CN = {'en': get_title_by_language_codes(
+                titles=entry['attributes']['titles'],
+                language_codes=PINYIN__LANGUAGE_CODES),
+                'cn': get_title_by_language_codes(
+                    titles=entry['attributes']['titles'],
+                    language_codes=CHINESE_LANGUAGE_CODE)}
 
             if entry['attributes']['abbreviatedTitles']:
                 synonyms = set(entry['attributes']['abbreviatedTitles'])
@@ -274,15 +341,18 @@ def parse_light_novel(results):
             ln = dict(
                 id=id_,
                 url=url,
-                title_romaji=title_romaji,
-                title_english=title_english,
+                titles={
+                    'en': title_english,
+                    'kr': KR,
+                    'jp': JP,
+                    'cn': CN
+                },
                 synonyms=synonyms,
                 volume_count=volume_count,
                 chapter_count=chapter_count,
                 type=type_,
                 description=description,
             )
-
             ln_list.append(ln)
         except AttributeError:
             pass
@@ -298,8 +368,14 @@ def get_synonyms(result):
 
 def get_titles(result):
     titles = set()
-    titles.add(result['title_romaji']) if result['title_romaji'] else None
-    titles.add(result['title_english']) if result['title_english'] else None
+    res_titles = result['titles']
+    titles.add(res_titles['en']) if res_titles['en'] else None
+    titles.add(res_titles['kr']['kr']) if res_titles['kr']['kr'] else None
+    titles.add(res_titles['kr']['en']) if res_titles['kr']['en'] else None
+    titles.add(res_titles['jp']['jp']) if res_titles['jp']['jp'] else None
+    titles.add(res_titles['jp']['en']) if res_titles['jp']['en'] else None
+    titles.add(res_titles['cn']['cn']) if res_titles['cn']['cn'] else None
+    titles.add(res_titles['cn']['en']) if res_titles['cn']['en'] else None
     return titles
 
 

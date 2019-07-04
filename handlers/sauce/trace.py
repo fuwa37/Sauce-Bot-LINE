@@ -24,23 +24,30 @@ def tob64(file):
     return b64.decode('utf-8')
 
 
-def saucetrace(url):
+def saucetrace(url, proxy):
     header = {'Content-Type': 'application/json'}
     body = json.dumps({'image': tob64(urltofile(url))})
-
-    r = requests.post(traceurl, headers=header, data=body)
+    proxies = {}
+    if proxy:
+        print(proxy)
+        proxies.update({
+            'http': 'http://' + proxy,
+            'https': 'http://' + proxy,
+        })
+    r = requests.post(traceurl, headers=header, data=body, proxies=proxies)
 
     return json.loads(r.text)
 
 
-def res(url):
-    r = saucetrace(url)
+def res(url, proxy=None):
+    r = saucetrace(url, proxy)
     if r['docs'][0]['similarity'] < 0.90:
         return None
     url_prev2 = 'https://trace.moe/preview.php?anilist_id=' + str(
         r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(
         r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
 
+    print(r['docs'][0]['title_romaji'])
     m = {'Title': r['docs'][0]['title_native'],
          'Romaji': r['docs'][0]['title_romaji'],
          'English': r['docs'][0]['title_english'],

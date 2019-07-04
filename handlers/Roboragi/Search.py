@@ -22,11 +22,9 @@ term.
 import traceback
 
 import handlers.Roboragi.Anilist as Anilist
-import handlers.Roboragi.AnimePlanet as AniP
 import handlers.Roboragi.CommentBuilder as CommentBuilder
 import handlers.Roboragi.Kitsu as Kitsu
 import handlers.Roboragi.LNDB as LNDB
-import handlers.Roboragi.MU as MU
 import handlers.Roboragi.NU as NU
 from handlers.Roboragi.VNDB import VNDB
 
@@ -44,13 +42,8 @@ def buildMangaReply(searchText, isExpanded):
                'title_function': Kitsu.get_titles,
                'checked_synonyms': [],
                'result': None}
-        mu = {'search_function': MU.getMangaURL,
-              'result': None}
-        ap = {'search_function': AniP.getMangaURL,
-              'result': None}
 
         data_sources = [ani, kit]
-        aux_sources = [mu, ap]
 
         synonyms = set([searchText])
         titles = set()
@@ -98,26 +91,10 @@ def buildMangaReply(searchText, isExpanded):
                         if t is not None:
                             titles.update(t.lower())
 
-        for source in aux_sources:
-            for title in titles:
-                source['result'] = source['search_function'](synonym)
-
-                if source['result']:
-                    break
-
-            if not source['result']:
-                for synonym in synonyms:
-                    source['result'] = source['search_function'](synonym)
-
-                    if source['result']:
-                        break
-
         if ani['result'] or kit['result']:
             return CommentBuilder.buildMangaComment(
                 isExpanded=isExpanded,
                 ani=ani['result'],
-                mu=mu['result'],
-                ap=ap['result'],
                 kit=kit['result']
             )
         else:
@@ -142,11 +119,8 @@ def buildAnimeReply(searchText, isExpanded, trace):
                'title_function': Anilist.getTitles,
                'checked_synonyms': [],
                'result': None}
-        ap = {'search_function': AniP.getAnimeURL,
-              'result': None}
 
         data_sources = [ani, kit]
-        aux_sources = [ap]
 
         synonyms = set([searchText])
         titles = set()
@@ -178,24 +152,10 @@ def buildAnimeReply(searchText, isExpanded, trace):
                         if t is not None:
                             titles.update(t.lower())
 
-        for source in aux_sources:
-            for title in titles:
-                source['result'] = source['search_function'](synonym)
-
-                if source['result']:
-                    break
-
-            if not source['result']:
-                for synonym in synonyms:
-                    source['result'] = source['search_function'](synonym)
-
-                    if source['result']:
-                        break
         if ani['result'] or kit['result']:
             return CommentBuilder.buildAnimeComment(
                 isExpanded=isExpanded,
                 ani=ani['result'],
-                ap=ap['result'],
                 kit=kit['result'],
                 trace=trace
             )
@@ -223,11 +183,9 @@ def buildLightNovelReply(searchText, isExpanded):
                'result': None}
         nu = {'search_function': NU.getLightNovelURL,
               'result': None}
-        lndb = {'search_function': LNDB.getLightNovelURL,
-                'result': None}
 
         data_sources = [ani, kit]
-        aux_sources = [nu, lndb]
+        aux_sources = [nu]
 
         synonyms = set([searchText])
         titles = set()
@@ -237,7 +195,7 @@ def buildLightNovelReply(searchText, isExpanded):
                 if source['result']:
                     break
                 else:
-                    for synonym in (titles | synonyms):
+                    for synonym in synonyms:
                         if synonym in source['checked_synonyms']:
                             continue
 
@@ -260,11 +218,10 @@ def buildLightNovelReply(searchText, isExpanded):
                             titles.update(t.lower())
 
         for source in aux_sources:
-            for title in titles:
-                source['result'] = source['search_function'](synonym)
+            source['result'] = source['search_function'](synonym)
 
-                if source['result']:
-                    break
+            if source['result']:
+                break
 
             if not source['result']:
                 for synonym in synonyms:
@@ -278,7 +235,6 @@ def buildLightNovelReply(searchText, isExpanded):
                 isExpanded=isExpanded,
                 ani=ani['result'],
                 nu=nu['result'],
-                lndb=lndb['result'],
                 kit=kit['result']
             )
         else:

@@ -53,7 +53,7 @@ def cleanupDescription(desc):
 
 
 # Builds an anime comment from the various data sources
-def buildAnimeComment(isExpanded, ani, ap, kit, trace):
+def buildAnimeComment(isExpanded, ani, kit, trace):
     try:
         comment = ''
 
@@ -64,7 +64,6 @@ def buildAnimeComment(isExpanded, ani, ap, kit, trace):
 
         malURL = None
         aniURL = None
-        apURL = ap
 
         status = None
         episodes = None
@@ -113,8 +112,15 @@ def buildAnimeComment(isExpanded, ani, ap, kit, trace):
         if kit:
             kitURL = kit['url']
 
+            res_titles = kit["titles"]
             if not title:
-                title = kit['title_romaji'] if kit['title_romaji'] else kit['title_english']
+                title = res_titles['en'] if res_titles['en'] else None
+                kTitle = res_titles['kr']['kr'] if res_titles['kr']['kr'] else None
+                kenTitle = res_titles['kr']['en'] if res_titles['kr']['en'] else None
+                jTitle = res_titles['jp']['jp'] if res_titles['jp']['jp'] else None
+                jenTitle = res_titles['jp']['en'] if res_titles['jp']['en'] else None
+                cTitle = res_titles['cn']['cn'] if res_titles['cn']['cn'] else None
+                cenTitle = res_titles['cn']['en'] if res_titles['cn']['en'] else None
             if not desc:
                 desc = kit['description'] if 'description' in kit else None
             if not cType:
@@ -221,8 +227,6 @@ def buildAnimeComment(isExpanded, ani, ap, kit, trace):
 
         if ani is not None:
             urlComments.append('[AL](' + sanitise_url_for_markdown(aniURL) + ')')
-        if apURL is not None:
-            urlComments.append('[A-P](' + sanitise_url_for_markdown(apURL) + ')')
         if kit is not None:
             urlComments.append('[KIT](' + sanitise_url_for_markdown(kitURL) + ')')
         if malURL:
@@ -237,8 +241,6 @@ def buildAnimeComment(isExpanded, ani, ap, kit, trace):
         receipt = '(A) Request successful: ' + title + ' - '
         if malURL is not None:
             receipt += 'MAL '
-        if apURL is not None:
-            receipt += 'AP '
         if ani is not None:
             receipt += 'AL '
         if kit is not None:
@@ -257,7 +259,7 @@ def buildAnimeComment(isExpanded, ani, ap, kit, trace):
 
 
 # Builds a manga comment from MAL/Anilist/MangaUpdates data
-def buildMangaComment(isExpanded, ani, mu, ap, kit):
+def buildMangaComment(isExpanded, ani, kit):
     try:
         comment = ''
 
@@ -268,8 +270,6 @@ def buildMangaComment(isExpanded, ani, mu, ap, kit):
 
         malURL = None
         aniURL = None
-        muURL = mu
-        apURL = ap
         kitURL = None
 
         status = None
@@ -301,8 +301,15 @@ def buildMangaComment(isExpanded, ani, mu, ap, kit):
         if kit:
             kitURL = kit['url']
 
+            res_titles = kit["titles"]
             if not title:
-                title = kit['title_romaji'] if kit['title_romaji'] else kit['title_english']
+                title = res_titles['en'] if res_titles['en'] else None
+                kTitle = res_titles['kr']['kr'] if res_titles['kr']['kr'] else None
+                kenTitle = res_titles['kr']['en'] if res_titles['kr']['en'] else None
+                jTitle = res_titles['jp']['jp'] if res_titles['jp']['jp'] else None
+                jenTitle = res_titles['jp']['en'] if res_titles['jp']['en'] else None
+                cTitle = res_titles['cn']['cn'] if res_titles['cn']['cn'] else None
+                cenTitle = res_titles['cn']['en'] if res_titles['cn']['en'] else None
             if not desc:
                 desc = kit['description'] if 'description' in kit else None
             if not cType:
@@ -330,27 +337,6 @@ def buildMangaComment(isExpanded, ani, mu, ap, kit):
                     if not (i == 0):
                         comment += ' '
                     comment += word
-
-        # ----- LINKS -----#
-        urlComments = []
-
-        if aniURL is not None:
-            urlComments.append('[AL](' + sanitise_url_for_markdown(aniURL) + ')')
-        if apURL is not None:
-            urlComments.append('[A-P](' + sanitise_url_for_markdown(apURL) + ')')
-        if kitURL is not None:
-            urlComments.append('[KIT](' + sanitise_url_for_markdown(kitURL) + ')')
-        if muURL is not None:
-            urlComments.append('[MU](' + sanitise_url_for_markdown(muURL) + ')')
-        if malURL:
-            urlComments.append('[MAL](' + sanitise_url_for_markdown(malURL) + ')')
-
-        for i, link in enumerate(urlComments):
-            if i is not 0:
-                comment += '\n'
-            comment += link
-
-        comment += ')'
 
         # ----- INFO LINE -----#
 
@@ -412,18 +398,31 @@ def buildMangaComment(isExpanded, ani, mu, ap, kit):
         if (isExpanded):
             comment += '\n\n' + cleanupDescription(desc)
 
+        # ----- LINKS -----#
+        urlComments = []
+
+        if aniURL is not None:
+            urlComments.append('[AL](' + sanitise_url_for_markdown(aniURL) + ')')
+        if kitURL is not None:
+            urlComments.append('[KIT](' + sanitise_url_for_markdown(kitURL) + ')')
+        if malURL:
+            urlComments.append('[MAL](' + sanitise_url_for_markdown(malURL) + ')')
+
+        for i, link in enumerate(urlComments):
+            if i is not 0:
+                comment += '\n'
+            comment += link
+
+        comment += ')'
+
         # ----- END -----#
         receipt = '(M) Request successful: ' + title + ' - '
         if malURL is not None:
             receipt += 'MAL '
-        if ap is not None:
-            receipt += 'AP '
         if ani is not None:
             receipt += 'AL '
         if kit is not None:
             receipt += 'KIT '
-        if muURL is not None:
-            receipt += 'MU '
         print(receipt)
 
         dictToReturn = {}
@@ -437,7 +436,7 @@ def buildMangaComment(isExpanded, ani, mu, ap, kit):
 
 
 # Builds a manga comment from MAL/Anilist/MangaUpdates data
-def buildLightNovelComment(isExpanded, ani, nu, lndb, kit):
+def buildLightNovelComment(isExpanded, ani, nu, kit):
     try:
         comment = ''
 
@@ -449,7 +448,6 @@ def buildLightNovelComment(isExpanded, ani, nu, lndb, kit):
         malURL = None
         aniURL = None
         nuURL = nu
-        lndbURL = lndb
         kitURL = None
 
         status = None
@@ -481,9 +479,16 @@ def buildLightNovelComment(isExpanded, ani, nu, lndb, kit):
 
         if kit:
             kitURL = kit['url']
-
+            res_titles = kit["titles"]
             if not title:
-                title = kit['title_romaji'] if kit['title_romaji'] else kit['title_english']
+                title = res_titles['en'] if res_titles['en'] else None
+                kTitle = res_titles['kr']['kr'] if res_titles['kr']['kr'] else None
+                kenTitle = res_titles['kr']['en'] if res_titles['kr']['en'] else None
+                jTitle = res_titles['jp']['jp'] if res_titles['jp']['jp'] else None
+                jenTitle = res_titles['jp']['en'] if res_titles['jp']['en'] else None
+                cTitle = res_titles['cn']['cn'] if res_titles['cn']['cn'] else None
+                cenTitle = res_titles['cn']['en'] if res_titles['cn']['en'] else None
+
             if not desc:
                 desc = kit['description'] if 'description' in kit else None
             if not cType:
@@ -511,27 +516,6 @@ def buildLightNovelComment(isExpanded, ani, nu, lndb, kit):
                     if not (i == 0):
                         comment += ' '
                     comment += word
-
-        # ----- LINKS -----#
-        urlComments = []
-
-        if aniURL is not None:
-            urlComments.append('[AL](' + sanitise_url_for_markdown(aniURL) + ')')
-        if kitURL is not None:
-            urlComments.append('[KIT](' + sanitise_url_for_markdown(kitURL) + ')')
-        if nuURL is not None:
-            urlComments.append('[NU](' + sanitise_url_for_markdown(nuURL) + ')')
-        if lndbURL is not None:
-            urlComments.append('[LNDB](' + sanitise_url_for_markdown(lndbURL) + ')')
-        if malURL:
-            urlComments.append('[MAL](' + sanitise_url_for_markdown(malURL) + ')')
-
-        for i, link in enumerate(urlComments):
-            if i is not 0:
-                comment += '\n'
-            comment += link
-
-        comment += ')'
 
         # ----- INFO LINE -----#
 
@@ -593,6 +577,26 @@ def buildLightNovelComment(isExpanded, ani, nu, lndb, kit):
         if (isExpanded):
             comment += '\n\n' + cleanupDescription(desc)
 
+        # ----- LINKS -----#
+        urlComments = []
+
+        if aniURL is not None:
+            urlComments.append('[AL](' + sanitise_url_for_markdown(aniURL) + ')')
+        if kitURL is not None:
+            urlComments.append('[KIT](' + sanitise_url_for_markdown(kitURL) + ')')
+        if nuURL is not None:
+            urlComments.append('[NU](' + sanitise_url_for_markdown(nuURL) + ')')
+        if malURL:
+            urlComments.append('[MAL](' + sanitise_url_for_markdown(malURL) + ')')
+
+        for i, link in enumerate(urlComments):
+            if i is not 0:
+                comment += '\n'
+            comment += link
+
+        comment += ')'
+
+
         # ----- END -----#
         receipt = '(LN) Request successful: ' + title + ' - '
         if malURL is not None:
@@ -603,8 +607,6 @@ def buildLightNovelComment(isExpanded, ani, nu, lndb, kit):
             receipt += 'KIT '
         if nuURL is not None:
             receipt += 'MU '
-        if lndbURL is not None:
-            receipt += 'LNDB '
         print(receipt)
 
         dictToReturn = {}
