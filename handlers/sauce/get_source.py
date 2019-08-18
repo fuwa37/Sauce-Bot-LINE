@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import re
 import handlers.sauce.trace as trace2
+import requests
 from proxy_requests import ProxyRequests
 
 MINIMUM_SIMILARITY_PERCENTAGE = 65
@@ -262,11 +263,12 @@ def create_link_dictionary(soup, trace):
 def get_source_data(picture_url, trace=False):
     dic = {}
     try:
-        resp = ProxyRequests('http://saucenao.com/search.php?db=999&url=' + picture_url)
-        resp.get()
-        if resp.get_status_code() == 429:
+        resp = requests.get('https://api.ipify.org/')
+        print(resp.text)
+        resp = requests.get('http://saucenao.com/search.php?db=999&url=' + picture_url)
+        if resp.status_code == 429:
             return dic.update({'code': 429})
-        soup = BeautifulSoup(resp.get_raw(), features='lxml')
+        soup = BeautifulSoup(resp.content, features='lxml')
         dic.update(create_link_dictionary(soup, trace))
     except Exception as x:
         print(x)
@@ -276,5 +278,5 @@ def get_source_data(picture_url, trace=False):
     else:
         if dic.get('type') == 'anidb':
             if trace:
-                dic.update(trace2.res(picture_url, resp.get_proxy_used()))
+                dic.update(trace2.res(picture_url))
         return dic

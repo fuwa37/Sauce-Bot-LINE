@@ -25,9 +25,7 @@ def handle_command(text, iid):
     global is_sleep
 
     if text[:1] == '!':
-        print(text[:2])
         if text in sauce_commands:
-            print("sauce")
             url = base_url + versioning_dic.get(str(iid)) + '/' + iid
 
             if is_sleep["sauce"] or is_sleep["trace"]:
@@ -43,11 +41,9 @@ def handle_command(text, iid):
                 return build_comment(get_source_data(url))  # else return empty dict
 
         if text[:2] in robo_commands:
-            print("robo")
             return aBot.process_comment(text[1:], is_expanded=True)  # else return empty dic
 
         if text[:2] in sukebei_commands:
-            print("h")
             if is_sukebei(str(iid)):
                 m = hBot.processComment(text[1:])  # return string
                 return {'source': 'hbot',

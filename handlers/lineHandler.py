@@ -32,7 +32,7 @@ line = Blueprint('line', __name__)
 
 config = json.loads(os.environ.get('line_config', None))
 
-line_bot_api = LineBotApi(config['token'])
+line_bot_api = LineBotApi(config['token'], timeout=15)
 handler = WebhookHandler(config['secret'])
 
 sn_counter = 0
@@ -94,8 +94,6 @@ def handle_message(event):
     m = handle_command(event.message.text, iid)
 
     if m is not None:
-        print(m)
-        reply = []
         if m.get('status'):
             reply = [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
                                       preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
