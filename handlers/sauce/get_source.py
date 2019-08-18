@@ -279,4 +279,5 @@ def get_source_data(picture_url, trace=False):
         if dic.get('type') == 'anidb':
             if trace:
                 dic.update(trace2.res(picture_url))
+        print(dic)
         return dic

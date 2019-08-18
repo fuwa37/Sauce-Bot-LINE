@@ -30,7 +30,8 @@ def build_comment(dic):
         return {'reply': output_comment,
                 'image_url': dic['image_url'],
                 'vid_url': vid_url,
-                'info': info}
+                'info': info,
+                'source': 'trace'}
 
     # Skip anidb for special handling.
     if not (dic.get('type') == 'anidb' or dic.get('type') == 'fakku'):

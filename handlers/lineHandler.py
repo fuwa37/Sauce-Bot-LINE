@@ -101,19 +101,19 @@ def handle_message(event):
         else:
             try:
                 if m["source"] == 'trace':
-                    if m['quota'] < 1:
+                    if m['info']['quota'] < 1:
                         handle_death(m["quota_ttl"], 'trace')
                         reply = TextSendMessage(
                             text="(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
                                 death_time['trace']) + " seconds")
 
-                    elif m['limit'] < 1:
+                    elif m['info']['limit'] < 1:
                         handle_sleep(m["limit_ttl"], 'trace')
                         reply = TextSendMessage(text="(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
                             sleep_time['trace']) + " seconds")
                     else:
                         reply = [VideoSendMessage(original_content_url=m["vid_url"],
-                                                  preview_image_url=m["image_url"]),
+                                                  preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
                                  TextSendMessage(text=m["reply"])]
                 elif m['source'] == 'sauce':
                     if m == 429:

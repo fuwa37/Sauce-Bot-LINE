@@ -56,8 +56,7 @@ def res(url, proxy=None):
                 'Info': aBot.process_comment('{' + r['docs'][0]['title_romaji'] + '}', is_expanded=True,
                                              trace=True)['reply']})
 
-    return {'source': 'trace',
-            'url': url_prev2,
+    return {'url': url_prev2,
             'limit': r['limit'],
             'limit_ttl': r['limit_ttl'],
             'quota': r['quota'],
