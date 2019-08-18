@@ -32,7 +32,6 @@ def build_comment(dic):
             'quota_ttl': dic.get('quota_ttl'),
         })
         return {'reply': output_comment,
-                'image_url': dic['image_url'],
                 'vid_url': vid_url,
                 'info': info,
                 'source': 'trace'}
@@ -157,7 +156,6 @@ def build_comment(dic):
 
     return {'source': "sauce",
             'reply': output_comment,
-            'image_url': dic['image_url'],
             'info': info}
 
 

@@ -262,7 +262,6 @@ def create_link_dictionary(soup, trace):
 def get_source_data(picture_url, trace=False):
     dic = {}
     try:
-        raise Exception("Tes")
         resp = requests.get('https://api.ipify.org/')
         print(resp.text)
         resp = requests.get('http://saucenao.com/search.php?db=999&url=' + picture_url)
@@ -271,9 +270,17 @@ def get_source_data(picture_url, trace=False):
             raise Exception('Code 429')
         soup = BeautifulSoup(resp.content, features='lxml')
         dic.update(create_link_dictionary(soup, trace))
+        print(dic['image_url'])
     except Exception as x:
-        dic.update(trace2.res(picture_url))
-        return dic
+        temp = {}
+        print(x)
+        if trace:
+            temp.update(trace2.res(picture_url))
+            if temp:
+                dic.update(temp)
+            return dic
+        else:
+            return 429
     else:
         if dic.get('type') == 'anidb':
             if trace:

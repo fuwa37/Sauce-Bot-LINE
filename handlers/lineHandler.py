@@ -17,7 +17,7 @@ from linebot.exceptions import (
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, VideoSendMessage, FollowEvent,
-    JoinEvent, VideoMessage
+    LocationMessage, JoinEvent, VideoMessage
 )
 
 config = json.loads(os.environ.get('cloudinary_config', None))
@@ -113,24 +113,25 @@ def handle_message(event):
                             sleep_time['trace']) + " seconds")
                     else:
                         reply = [VideoSendMessage(original_content_url=m["vid_url"],
-                                                  preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
+                                                  preview_image_url=base_url + versioning_dic.get(
+                                                      str(iid)) + '/' + iid),
                                  TextSendMessage(text=m["reply"])]
+                elif m == 429:
+                    sn_counter += 1
+                    handle_sleep(30, 'sauce')
+                    reply = TextSendMessage(text="(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
+                        sleep_time['sauce']) + " seconds")
+                    if sn_counter > 2:
+                        handle_death(86400, 'sauce')
+                        reply = TextSendMessage(
+                            text="(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
+                                death_time['sauce']) + " seconds")
+
                 elif m['source'] == 'sauce':
-                    if m == 429:
-                        sn_counter += 1
-                        handle_sleep(30, 'sauce')
-                        reply = TextSendMessage(text="(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
-                            sleep_time['sauce']) + " seconds")
-                        if sn_counter > 2:
-                            handle_death(86400, 'sauce')
-                            reply = TextSendMessage(
-                                text="(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
-                                    death_time['sauce']) + " seconds")
-                    else:
-                        reply = [
-                            ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
-                                             preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-                            TextSendMessage(text=m["reply"])]
+                    reply = [
+                        ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
+                                         preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
+                        TextSendMessage(text=m["reply"])]
                 else:
                     reply = TextSendMessage(text=m["reply"])
             except Exception as e:
@@ -184,6 +185,20 @@ def handle_video(event):
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + b64file, public_id=iid, tags="TEMP")
     versioning_dic.update({str(iid): str(res['version'])})
     os.remove(iid)
+
+
+@handler.add(MessageEvent, message=LocationMessage)
+def handle_loc(event):
+    iid = ''
+    stype = event.source.type
+    if stype == 'user':
+        iid = event.source.user_id
+    if stype == 'group':
+        iid = event.source.group_id
+    if stype == 'room':
+        iid = event.source.room_id
+
+    print(event.message.latitude)
 
 
 @handler.add(FollowEvent)
