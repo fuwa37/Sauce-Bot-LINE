@@ -130,7 +130,7 @@ def buildAnimeReply(searchText, isExpanded, trace):
                 if source['result']:
                     break
                 else:
-                    for synonym in (titles | synonyms):
+                    for synonym in synonyms:
                         if synonym in source['checked_synonyms']:
                             continue
 

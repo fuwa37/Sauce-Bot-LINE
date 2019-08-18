@@ -26,6 +26,7 @@ from handlers.Roboragi.patterns import find_requests
 
 
 def process_comment(comment, is_edit=True, is_expanded=False, trace=False):
+    dic = {}
     """ process dat comment """
     # Anime/Manga requests that are found go into separate arrays
     animeArray = []
@@ -173,14 +174,14 @@ def process_comment(comment, is_edit=True, is_expanded=False, trace=False):
         if total_found != total_expected:
             commentReply += '&#32;|&#32;({0}/{1})'.format(total_found,
                                                           total_expected)
-
+        dic.update({'source': 'abot',
+                    'reply': commentReply})
         if is_edit:
-            return {'source': 'abot',
-                    'reply': commentReply}
+            return dic
     else:
         try:
             if is_edit:
-                return None
+                return dic
         except Exception as e:
             traceback.print_exc()
-            print(e)
+            return dic

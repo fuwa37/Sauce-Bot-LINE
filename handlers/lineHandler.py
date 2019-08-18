@@ -76,7 +76,7 @@ def handle_message(event):
             return
 
     if event.message.text == '!help':
-        reply = help_reply
+        reply = help_sauce + '\n\n' + help_robo
         if is_sukebei(str(iid)):
             reply += '\n\n' + help_sukebei
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
@@ -94,53 +94,37 @@ def handle_message(event):
     m = handle_command(event.message.text, iid)
 
     if m is not None:
-        if event.message.text in trace_commands:
-            if is_sleep['trace'] or is_dead['trace']:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
+        if m.get('status'):
+            reply = [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
                                       preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-                     TextSendMessage(text=m['status'])])
-                return
+                     TextSendMessage(text=m['status'])]
+        else:
+            if m["source"] == 'trace':
+                reply = [VideoSendMessage(original_content_url=m["vid_url"],
+                                          preview_image_url=m["image_url"]),
+                         TextSendMessage(text=m["reply"])]
+            elif m['source'] == 'sauce':
+                reply = [ImageSendMessage(original_content_url=m["image_url"],
+                                          preview_image_url=m["image_url"]),
+                         TextSendMessage(text=m["reply"])]
+            else:
+                reply = TextSendMessage(text=m["reply"])
 
-            if m.get('reply'):
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    [VideoSendMessage(original_content_url=m["url"],
-                                      preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-                     TextSendMessage(text=m["comment"])])
-
-            if m['quota'] < 1:
-                handle_death(m["quota_ttl"], 'trace')
-                return
-
-            if m['limit'] < 1:
-                handle_sleep(m["limit_ttl"], 'trace')
-                return
-
-        if event.message.text == '!sauce':
-            if is_sleep['sauce'] or is_dead['sauce']:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
-                                      preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-                     TextSendMessage(text=m['status'])])
-                return
             if m == 429:
                 sn_counter += 1
                 if sn_counter > 2:
                     handle_death(86400, 'sauce')
-                    return
                 handle_sleep(30, 'sauce')
-                return
 
-            if m.get('reply'):
-                line_bot_api.reply_message(event.reply_token, TextSendMessage(text=m["reply"]))
-                return
+            if m['quota'] < 1:
+                handle_death(m["quota_ttl"], 'trace')
 
-        if event.message.text[:2] in hbot_commands:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=m["reply"]))
-            return
+            if m['limit'] < 1:
+                handle_sleep(m["limit_ttl"], 'trace')
+
+        line_bot_api.reply_message(event.reply_token, reply)
+    else:
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=m["NO SAUCE"]))
 
 
 @handler.add(MessageEvent, message=ImageMessage)

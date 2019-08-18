@@ -3,7 +3,6 @@ import handlers.nHentaiTagBot.nhentai as nhentai
 
 def build_comment(dic):
     output_comment = ''
-    vid_url = ''
     info = {}
     is_redacted = False
     if dic == 429:
@@ -29,6 +28,7 @@ def build_comment(dic):
             'quota_ttl': dic.get('quota_ttl'),
         })
         return {'reply': output_comment,
+                'image_url': dic['image_url'],
                 'vid_url': vid_url,
                 'info': info}
 
@@ -150,9 +150,9 @@ def build_comment(dic):
     if not output_comment:
         return None
 
-    return {'reply': output_comment,
-            'pic_url': dic['image_url'],
-            'vid_url': vid_url,
+    return {'sauce' : "sauce",
+            'reply': output_comment,
+            'image_url': dic['image_url'],
             'info': info}
 
 

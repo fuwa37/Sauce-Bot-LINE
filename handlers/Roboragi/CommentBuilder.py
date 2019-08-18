@@ -21,8 +21,10 @@ Takes the data given to it by search and formats it into a comment
 import datetime
 import re
 import traceback
+import logging
 from os import linesep
 
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
 
 # Removes the (Source: MAL) or (Written by X) bits from the decriptions in the databases
 def cleanupDescription(desc):
@@ -245,7 +247,7 @@ def buildAnimeComment(isExpanded, ani, kit, trace):
             receipt += 'AL '
         if kit is not None:
             receipt += 'KIT '
-        print(receipt)
+        logging.info(receipt)
 
         # We return the title/comment separately so we can track if multiples of the same comment have been requests (e.g. {Nisekoi}{Nisekoi}{Nisekoi})
         dictToReturn = {}
@@ -413,8 +415,6 @@ def buildMangaComment(isExpanded, ani, kit):
                 comment += '\n'
             comment += link
 
-        comment += ')'
-
         # ----- END -----#
         receipt = '(M) Request successful: ' + title + ' - '
         if malURL is not None:
@@ -423,7 +423,7 @@ def buildMangaComment(isExpanded, ani, kit):
             receipt += 'AL '
         if kit is not None:
             receipt += 'KIT '
-        print(receipt)
+        logging.info(receipt)
 
         dictToReturn = {}
         dictToReturn['title'] = title
@@ -594,8 +594,6 @@ def buildLightNovelComment(isExpanded, ani, nu, kit):
                 comment += '\n'
             comment += link
 
-        comment += ')'
-
 
         # ----- END -----#
         receipt = '(LN) Request successful: ' + title + ' - '
@@ -607,7 +605,7 @@ def buildLightNovelComment(isExpanded, ani, nu, kit):
             receipt += 'KIT '
         if nuURL is not None:
             receipt += 'MU '
-        print(receipt)
+        logging.info(receipt)
 
         dictToReturn = {}
         dictToReturn['title'] = title
@@ -669,7 +667,7 @@ def buildVisualNovelComment(isExpanded, vndb):
         receipt = '(VN) Request successful: ' + vndb['title'] + ' - '
         if vndb:
             receipt += 'VNDB'
-        print(receipt)
+        logging.info(receipt)
 
         # We return the title/comment separately so we can track if multiples of the same comment have been requests (e.g. {Nisekoi}{Nisekoi}{Nisekoi})
         dictToReturn = {}

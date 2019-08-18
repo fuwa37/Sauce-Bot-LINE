@@ -15,7 +15,7 @@
 
 import difflib
 
-import requests
+import requests, traceback
 
 AUTH_URL = 'https://kitsu.io/api/oauth/'
 BASE_URL = 'https://kitsu.io/api/edge/'
@@ -40,12 +40,18 @@ session.headers = {
 
 
 def search(endpoint, search_term, parser, use_first_result=False):
+    results = ''
+    for i in range(0, 5):
+        try:
+            response = session.get(BASE_URL + endpoint + search_term, timeout=10)
+            response.raise_for_status()
+
+            results = parser(response.json()['data'])
+            break
+        except Exception as e:
+            print(traceback.format_exc())
+
     try:
-        response = session.get(BASE_URL + endpoint + search_term, timeout=5)
-        response.raise_for_status()
-
-        results = parser(response.json()['data'])
-
         if not results:
             return None
 
@@ -55,7 +61,7 @@ def search(endpoint, search_term, parser, use_first_result=False):
             closest_result = get_closest(results, search_term)
             return closest_result
     except Exception as e:
-        print(e)
+        print(traceback.format_exc())
         return None
     finally:
         session.close()
@@ -63,6 +69,7 @@ def search(endpoint, search_term, parser, use_first_result=False):
 
 def get_closest(results, search_term):
     name_list = []
+    closest_name_from_list = ''
 
     for result in results:
         title_and_synonyms = get_titles(result) | get_synonyms(result)
@@ -76,7 +83,8 @@ def get_closest(results, search_term):
         n=1,
         cutoff=0.90
     )
-    closest_name_from_list = matches[0].lower()
+    if matches:
+        closest_name_from_list = matches[0].lower()
 
     for result in results:
         res_titles = result['titles']
@@ -164,7 +172,6 @@ def parse_anime(results):
                 'cn': get_title_by_language_codes(
                     titles=entry['attributes']['titles'],
                     language_codes=CHINESE_LANGUAGE_CODE)}
-
 
             if entry['attributes']['abbreviatedTitles']:
                 synonyms = set(entry['attributes']['abbreviatedTitles'])

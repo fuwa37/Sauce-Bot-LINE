@@ -1,6 +1,5 @@
 import time
 import threading
-import handlers.sauce.trace as trace
 import handlers.nHentaiTagBot.nHentaiTagBot as hBot
 import handlers.Roboragi.AnimeBot as aBot
 from handlers.strings import *
@@ -26,43 +25,25 @@ def handle_command(text, iid):
     global is_sleep
 
     if text[:1] == '!':
-        if '!sauce' in text:
+        if '!sauce' in sauce_commands:
             url = base_url + versioning_dic.get(str(iid)) + '/' + iid
 
-            if text == "!sauce":
-                if is_sleep["sauce"]:
-                    return {
-                        'status': "(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
-                            sleep_time['sauce']) + " seconds"}
-                if is_dead["sauce"]:
-                    return {'status': "(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
-                        death_time['sauce']) + " seconds"}
-
-                return build_comment(get_source_data(url))  # return None
-
-            if '!sauce-anime' in text:  # return None
-                if is_sleep["trace"]:
-                    return {
-                        'status': "(-_-) zzz\n!sauce-anime Bot is exhausted\n\nPlease wait for " + str(
-                            sleep_time['trace']) + " seconds"}
-                if is_dead["trace"]:
-                    return {'status': "(✖╭╮✖)\n!sauce-anime Bot is dead\n\nPlease wait for resurrection in " + str(
-                        death_time['trace']) + " seconds"}
-                if text == "!sauce-anime":
-                    return trace.reply(trace.res(url))
-                if text == "!sauce-anime-ext":
-                    return trace.reply(trace.res(url, 'ext'))
-                if text == "!sauce-anime-ext+":
-                    return trace.reply(trace.res(url, 'ext+'))
-                if text == "!sauce-anime-mini":
-                    return trace.reply(trace.res(url, 'mini'))
-                if text == "!sauce-anime-raw":
-                    return trace.reply(trace.res(url, 'raw'))
+            if is_sleep["sauce"] or is_sleep["trace"]:
+                return {
+                    'status': "(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
+                        sleep_time['sauce']) + " seconds"}
+            if is_dead["sauce"] or is_dead["trace"]:
+                return {'status': "(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
+                    death_time['sauce']) + " seconds"}
+            if text[-1] == '+':
+                return build_comment(get_source_data(url, trace=True))
+            else:
+                return build_comment(get_source_data(url))  # else return empty dict
 
         if text[:2] in robo_commands:
-            return aBot.process_comment(text[1:])  # return None
+            return aBot.process_comment(text[2:-1], is_expanded=True)  # else return empty dic
 
-        if text[:2] in h_commands:
+        if text[:2] in sukebei_commands:
             if is_sukebei(str(iid)):
                 m = hBot.processComment(text[1:])  # return string
                 return {'source': 'hbot',
@@ -70,8 +51,6 @@ def handle_command(text, iid):
             else:
                 return {'source': 'hbot',
                         'reply': "Please turn on Sukebei mode\n !sukebei-switch"}
-    else:
-        return False
 
 
 def handle_sleep(t, source):

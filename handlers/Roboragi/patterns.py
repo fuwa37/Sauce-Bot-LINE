@@ -33,8 +33,8 @@ def _all_patterns(patterns, flags=re.M):
 TAG_CHARACTERS = {
     'anime': ('{', '}'),
     'manga': ('<', '>'),
-    'light_novel': (']', '['),
-    'visual_novel': ('[', ']'),
+    'light_novel': ('[', ']'),
+    'visual_novel': (']', '['),
 }
 REGULAR_PATTERNS = _patterns(TAG_CHARACTERS)
 REGULAR_PATTERNS['all'] = _all_patterns(REGULAR_PATTERNS.values())

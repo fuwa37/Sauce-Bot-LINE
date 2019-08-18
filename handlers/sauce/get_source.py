@@ -261,21 +261,20 @@ def create_link_dictionary(soup, trace):
 
 def get_source_data(picture_url, trace=False):
     dic = {}
-    for i in range(1, 4):
-        try:
-            resp = ProxyRequests('http://saucenao.com/search.php?db=999&url=' + picture_url)
-            resp.get()
-            if resp.get_status_code() == 429:
-                return dic.update({'code': 429})
-            soup = BeautifulSoup(resp.get_raw(), features='lxml')
-            dic.update(create_link_dictionary(soup, trace))
-        except Exception as x:
-            print(x)
+    try:
+        resp = ProxyRequests('http://saucenao.com/search.php?db=999&url=' + picture_url)
+        resp.get()
+        if resp.get_status_code() == 429:
+            return dic.update({'code': 429})
+        soup = BeautifulSoup(resp.get_raw(), features='lxml')
+        dic.update(create_link_dictionary(soup, trace))
+    except Exception as x:
+        print(x)
+        if trace:
+            dic.update(trace2.res(picture_url))
+        return dic
+    else:
+        if dic.get('type') == 'anidb':
             if trace:
-                dic.update(trace2.res(picture_url))
-            return dic
-        else:
-            if dic.get('type') == 'anidb':
-                if trace:
-                    dic.update(trace2.res(picture_url, resp.get_proxy_used()))
-            return dic
+                dic.update(trace2.res(picture_url, resp.get_proxy_used()))
+        return dic

@@ -21,36 +21,45 @@ Handles all NovelUpdates information
 import difflib
 
 import requests
+import traceback
 from pyquery import PyQuery as pq
 
 req = requests.Session()
 
 
 def getLightNovelURL(searchText):
+    html = ''
     try:
         searchText = searchText.replace(' ', '+')
-        html = requests.get(
-            url=f"http://www.novelupdates.com/?s={searchText}",
-            timeout=10
-        )
+        for i in range(0, 5):
+            try:
+                html = requests.get(
+                    url=f"http://www.novelupdates.com/?s={searchText}",
+                    timeout=10
+                )
+                break
+            except Exception:
+                print(traceback.format_exc())
         req.close()
 
         nu = pq(html.text)
 
         lnList = []
 
-        title = nu('.search_title').text()
-        url = nu('.search_title > a').attr('href')
+        for thing in nu.find('.search_title > a'):
+            title = thing.text
+            url = pq(thing).attr['href']
 
-        if title:
-            data = {'title': title,
-                    'url': url}
-            lnList.append(data)
+            if title:
+                data = {'title': title,
+                        'url': url}
+                lnList.append(data)
 
         closest = findClosestLightNovel(searchText, lnList)
         return closest['url']
 
-    except Exception:
+    except Exception as e:
+        print(e)
         req.close()
         return None
 
@@ -88,7 +97,8 @@ def findClosestLightNovel(searchText, lnList):
                 return ln
 
         return None
-    except Exception:
+    except Exception as e:
+        print(e)
         return None
 
 

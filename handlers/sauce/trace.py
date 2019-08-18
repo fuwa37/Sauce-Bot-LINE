@@ -40,26 +40,26 @@ def saucetrace(url, proxy):
 
 
 def res(url, proxy=None):
+    dic = {}
     r = saucetrace(url, proxy)
     if r['docs'][0]['similarity'] < 0.90:
-        return None
+        return dic
     url_prev2 = 'https://trace.moe/preview.php?anilist_id=' + str(
         r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(
         r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
 
-    print(r['docs'][0]['title_romaji'])
-    m = {'Title': r['docs'][0]['title_native'],
-         'Romaji': r['docs'][0]['title_romaji'],
-         'English': r['docs'][0]['title_english'],
-         'Season': str(r['docs'][0]['season']),
-         'Episode': str(r['docs'][0]['episode']),
-         'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))) + '\n',
-         'Info': aBot.process_comment('{' + r['docs'][0]['title_romaji'] + '}', is_expanded=True,
-                                      trace=True)['reply']}
+    dic.update({'Title': r['docs'][0]['title_native'],
+                'Romaji': r['docs'][0]['title_romaji'],
+                'English': r['docs'][0]['title_english'],
+                'Season': str(r['docs'][0]['season']),
+                'Episode': str(r['docs'][0]['episode']),
+                'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))) + '\n',
+                'Info': aBot.process_comment('{' + r['docs'][0]['title_romaji'] + '}', is_expanded=True,
+                                             trace=True)['reply']})
 
     return {'url': url_prev2,
             'limit': r['limit'],
             'limit_ttl': r['limit_ttl'],
             'quota': r['quota'],
             'quota_ttl': r['quota_ttl'],
-            'reply': m}
+            'reply': dic}
