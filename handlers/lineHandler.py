@@ -103,37 +103,40 @@ def handle_message(event):
         else:
             try:
                 if m["source"] == 'trace':
-                    reply = [VideoSendMessage(original_content_url=m["vid_url"],
-                                              preview_image_url=m["image_url"]),
-                             TextSendMessage(text=m["reply"])]
+                    if m['quota'] < 1:
+                        handle_death(m["quota_ttl"], 'trace')
+                        reply = TextSendMessage(
+                            text="(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
+                                death_time['trace']) + " seconds")
+
+                    elif m['limit'] < 1:
+                        handle_sleep(m["limit_ttl"], 'trace')
+                        reply = TextSendMessage(text="(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
+                            sleep_time['trace']) + " seconds")
+                    else:
+                        reply = [VideoSendMessage(original_content_url=m["vid_url"],
+                                                  preview_image_url=m["image_url"]),
+                                 TextSendMessage(text=m["reply"])]
                 elif m['source'] == 'sauce':
-                    reply = [ImageSendMessage(original_content_url=m["image_url"],
-                                              preview_image_url=m["image_url"]),
-                             TextSendMessage(text=m["reply"])]
+                    if m == 429:
+                        sn_counter += 1
+                        handle_sleep(30, 'sauce')
+                        reply = TextSendMessage(text="(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
+                            sleep_time['sauce']) + " seconds")
+                        if sn_counter > 2:
+                            handle_death(86400, 'sauce')
+                            reply = TextSendMessage(
+                                text="(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
+                                    death_time['sauce']) + " seconds")
+                    else:
+                        reply = [ImageSendMessage(original_content_url=m["image_url"],
+                                                  preview_image_url=m["image_url"]),
+                                 TextSendMessage(text=m["reply"])]
                 else:
                     reply = TextSendMessage(text=m["reply"])
             except Exception as e:
                 print(e)
-                if m == 429:
-                    sn_counter += 1
-                    handle_sleep(30, 'sauce')
-                    reply = TextSendMessage(text="(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
-                        sleep_time['sauce']) + " seconds")
-                    if sn_counter > 2:
-                        handle_death(86400, 'sauce')
-                        reply = TextSendMessage(
-                            text="(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
-                                death_time['sauce']) + " seconds")
-
-                if m['quota'] < 1:
-                    handle_death(m["quota_ttl"], 'trace')
-                    reply = TextSendMessage(text="(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
-                        death_time['trace']) + " seconds")
-
-                if m['limit'] < 1:
-                    handle_sleep(m["limit_ttl"], 'trace')
-                    reply = TextSendMessage(text="(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
-                        sleep_time['trace']) + " seconds")
+                reply = TextSendMessage(text="NO SAUCE")
 
         line_bot_api.reply_message(event.reply_token, reply)
 

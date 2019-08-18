@@ -150,7 +150,7 @@ def build_comment(dic):
     if not output_comment:
         return None
 
-    return {'sauce' : "sauce",
+    return {'source': "sauce",
             'reply': output_comment,
             'image_url': dic['image_url'],
             'info': info}
