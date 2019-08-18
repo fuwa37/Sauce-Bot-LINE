@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 import re
 import handlers.sauce.trace as trace2
 import requests
-from proxy_requests import ProxyRequests
 
 MINIMUM_SIMILARITY_PERCENTAGE = 65
 MAX_DELTA = 20
@@ -271,13 +270,15 @@ def get_source_data(picture_url, trace=False):
         soup = BeautifulSoup(resp.content, features='lxml')
         dic.update(create_link_dictionary(soup, trace))
     except Exception as x:
+        temp = {}
         print(x)
         if trace:
-            dic.update(trace2.res(picture_url))
+            temp.update(trace2.res(picture_url))
+            if temp:
+                dic.update(temp)
         return dic
     else:
         if dic.get('type') == 'anidb':
             if trace:
                 dic.update(trace2.res(picture_url))
-        print(dic)
         return dic

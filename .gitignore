@@ -187,3 +187,5 @@ dmypy.json
 testing.py
 
 *.sh
+
+*.json

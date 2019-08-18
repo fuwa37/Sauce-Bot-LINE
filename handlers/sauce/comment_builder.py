@@ -8,6 +8,10 @@ def build_comment(dic):
     if dic == 429:
         return 429
 
+    if not dic:
+        return {'reply': 'NO SAUCE',
+                'source': 'no source'}
+
     if dic.get('reply'):
         r = dic.get('reply')
         output_comment += f"{r['Title']}\n{r['Romaji']}\n{r['English']}\n\n"
