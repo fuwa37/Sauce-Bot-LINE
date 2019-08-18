@@ -113,8 +113,7 @@ def handle_message(event):
                             sleep_time['trace']) + " seconds")
                     else:
                         reply = [VideoSendMessage(original_content_url=m["vid_url"],
-                                                  preview_image_url=base_url + versioning_dic.get(
-                                                      str(iid)) + '/' + iid),
+                                                  preview_image_url=m["image_url"]),
                                  TextSendMessage(text=m["reply"])]
                 elif m == 429:
                     sn_counter += 1
@@ -129,8 +128,8 @@ def handle_message(event):
 
                 elif m['source'] == 'sauce':
                     reply = [
-                        ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
-                                         preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
+                        ImageSendMessage(original_content_url=m["image_url"],
+                                         preview_image_url=m["image_url"]),
                         TextSendMessage(text=m["reply"])]
                 else:
                     reply = TextSendMessage(text=m["reply"])

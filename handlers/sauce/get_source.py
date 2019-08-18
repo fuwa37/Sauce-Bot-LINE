@@ -264,13 +264,12 @@ def get_source_data(picture_url, trace=False):
     try:
         resp = requests.get('https://api.ipify.org/')
         print(resp.text)
-        resp = requests.get('http://saucenao.com/search.php?db=999&url=' + picture_url)
+        resp = requests.get('https://saucenao.com/search.php?db=999&url=' + picture_url)
         if resp.status_code == 429:
             dic.update({'code': 429})
             raise Exception('Code 429')
         soup = BeautifulSoup(resp.content, features='lxml')
         dic.update(create_link_dictionary(soup, trace))
-        print(dic['image_url'])
     except Exception as x:
         temp = {}
         print(x)
