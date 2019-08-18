@@ -29,7 +29,6 @@ def saucetrace(url, proxy):
     body = json.dumps({'image': tob64(urltofile(url))})
     proxies = {}
     if proxy:
-        print(proxy)
         proxies.update({
             'http': 'http://' + proxy,
             'https': 'http://' + proxy,

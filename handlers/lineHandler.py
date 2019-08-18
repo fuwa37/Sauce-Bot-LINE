@@ -92,6 +92,7 @@ def handle_message(event):
             return
 
     m = handle_command(event.message.text, iid)
+    print(m)
 
     if m is not None:
         if m.get('status'):

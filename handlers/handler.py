@@ -25,7 +25,7 @@ def handle_command(text, iid):
     global is_sleep
 
     if text[:1] == '!':
-        if '!sauce' in sauce_commands:
+        if text[:2] in sauce_commands:
             url = base_url + versioning_dic.get(str(iid)) + '/' + iid
 
             if is_sleep["sauce"] or is_sleep["trace"]:
