@@ -129,9 +129,10 @@ def handle_message(event):
                                 text="(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
                                     death_time['sauce']) + " seconds")
                     else:
-                        reply = [ImageSendMessage(original_content_url=m["image_url"],
-                                                  preview_image_url=m["image_url"]),
-                                 TextSendMessage(text=m["reply"])]
+                        reply = [
+                            ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
+                                             preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
+                            TextSendMessage(text=m["reply"])]
                 else:
                     reply = TextSendMessage(text=m["reply"])
             except Exception as e:

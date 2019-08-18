@@ -44,7 +44,7 @@ def handle_command(text, iid):
 
         if text[:2] in robo_commands:
             print("robo")
-            return aBot.process_comment(text[2:-1], is_expanded=True)  # else return empty dic
+            return aBot.process_comment(text[1:], is_expanded=True)  # else return empty dic
 
         if text[:2] in sukebei_commands:
             print("h")
