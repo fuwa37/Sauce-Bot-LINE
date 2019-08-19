@@ -23,4 +23,5 @@ Hosted on Heroku Free Dynos
 #### To Do
 
 - Data persistent
+- Setup database
 - Easy of use
