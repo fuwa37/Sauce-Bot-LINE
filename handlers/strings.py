@@ -36,7 +36,7 @@ help_robo = "Search anime/manga/LN/WN/VN information\n\n" \
             "- !]VN[\n" \
             "ex.: !]Fate Stay Night["
 
-help_sukebei = "Find hentai doujinshi information\n\n" \
+help_sukebei = "Find hentai manga doujinshi information\n\n" \
                "Sukebei commands:\n" \
                "- !(numbers) - nHentai\n" \
                "ex.: !(123456) or !(00001)\n\n" \

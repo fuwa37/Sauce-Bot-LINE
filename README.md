@@ -4,7 +4,7 @@ LINE Bot for searching sauce and many more
 
 LINE ID :@475uixgn
 
->Use and modify:
+>Modified from:
 
 - [Roboragi](https://github.com/Nihilate/Roboragi) ([u/Roboragi](https://reddit.com/user/Roboragi))
 
@@ -15,6 +15,4 @@ LINE ID :@475uixgn
 #### To Do
 
 - Need some kind of database for data persistent
-- Multithreading
-- Clean code
 - Easy of use
