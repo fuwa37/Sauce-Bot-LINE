@@ -14,7 +14,7 @@ Hosted on Heroku Free Dynos
 >> - Remove reddit bot functionality
 >> - Modify some output of reply/comment functions to adjust with LINE Bot's reply message and chat's screen
 >> - Roborogi :
->>  - Remove database handler
+>>    - Remove database handler
 
 #### To Do
 
