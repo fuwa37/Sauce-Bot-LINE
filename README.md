@@ -4,7 +4,9 @@ LINE Bot for searching sauce and many more
 
 LINE ID :@475uixgn
 
->Modified from:
+Hosted on Heroku Free Dynos
+
+> Modified from:
 
 - [Roboragi](https://github.com/Nihilate/Roboragi) ([u/Roboragi](https://reddit.com/user/Roboragi))
 
@@ -12,7 +14,13 @@ LINE ID :@475uixgn
 
 - [HentaiSource-Bot](https://github.com/TheVexedGerman/hsauce_bot) ([u/HentaiSource_Bot](https://www.reddit.com/user/HentaiSource_Bot))
 
+>> General changes:
+>> - Remove reddit bot functionality
+>> - Modify some output of reply/comment functions to adjust with LINE Bot's reply message and chat's screen
+>> - Roborogi :
+>>  - Remove database handler
+
 #### To Do
 
-- Need some kind of database for data persistent
+- Data persistent
 - Easy of use

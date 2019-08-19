@@ -162,3 +162,4 @@ def generateLinks(number, key):
         linkString = hitomila.API_URL_HITOMILA + str(number) + ".html"
     return linkString
 
+print(processComment('(177013)'))

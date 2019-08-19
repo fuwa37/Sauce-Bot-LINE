@@ -1,5 +1,7 @@
 # from https://stackoverflow.com/questions/16981921/relative-imports-in-python-3 to make the imports work when imported as submodule
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+import os, sys;
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import handlers.nHentaiTagBot.commentpy as commentpy
 import requests
 import json
@@ -11,6 +13,7 @@ API_URL_TSUMINO = 'https://www.tsumino.com/Book/Info/'
 API_URL_EHENTAI = "https://api.e-hentai.org/api.php"
 LINK_URL_NHENTAI = "https://nhentai.net/g/"
 LINK_URL_EHENTAI = "https://e-hentai.org/g/"
+
 
 def analyseNumber(galleryNumber):
     title = ''
@@ -52,7 +55,8 @@ def analyseNumber(galleryNumber):
                 elif 'shotacon' in entry[0]:
                     isRedacted = True
 
-    processedData = [title, numberOfPages, listOfTags, languages, artists, categories, parodies, characters, groups, isRedacted]
+    processedData = [title, numberOfPages, listOfTags, languages, artists, categories, parodies, characters, groups,
+                     isRedacted]
     # Sort the tags by descending popularity to imitate website behavior
     i = 0
     for tagList in processedData:
@@ -61,6 +65,7 @@ def analyseNumber(galleryNumber):
         i += 1
     # print(processedData)
     return processedData
+
 
 def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useError=False, generateLink=False):
     # parodies
@@ -86,11 +91,11 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
         replyString += "nHentai returned 404 for this number. The gallery has either been removed or doesn't exist yet.\n\n"
         return replyString
     if processedData[title]:
-        #Censorship engine
+        # Censorship engine
         if processedData[isRedacted]:
             if censorshipLevel > 5:
                 return ""
-            #Level 2
+            # Level 2
             if censorshipLevel > 1:
                 processedData[title] = "[REDACTED]"
                 if processedData[artists]:
@@ -99,7 +104,7 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
                 if processedData[groups]:
                     for element in processedData[groups]:
                         element[0] = "[REDACTED]"
-            #Level 3
+            # Level 3
             if censorshipLevel > 2:
                 if processedData[characters]:
                     for element in processedData[characters]:
@@ -107,13 +112,13 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
                 if processedData[parodies]:
                     for element in processedData[parodies]:
                         element[0] = "[REDACTED]"
-            #Level 4
+            # Level 4
             if censorshipLevel > 3:
                 if processedData[listOfTags]:
                     for element in processedData[listOfTags]:
-                        if not any(tag in element[0] for tag in ['loli','shota']):
+                        if not any(tag in element[0] for tag in ['loli', 'shota']):
                             element[0] = "[REDACTED]"
-            #Level 5
+            # Level 5
             if censorshipLevel > 4:
                 if processedData[languages]:
                     for element in processedData[languages]:
@@ -137,7 +142,7 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
 
         replyString += "Title: " + processedData[title] + "\n\n"
         replyString += "Number of pages: " + str(processedData[numberOfPages]) + "\n\n"
-        
+
         if processedData[characters]:
             replyString += commentpy.additionalTagsString(processedData[characters], "Characters") + "\n\n"
         if processedData[parodies]:
@@ -158,13 +163,14 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
 
 def getJSON(galleryNumber):
     galleryNumber = str(galleryNumber)
-    request = getRequest(galleryNumber) # ['tags'] #
+    #request = getRequest(galleryNumber)  # ['tags'] #
+    request = requests.get(API_URL_NHENTAI + galleryNumber)
     if request == None:
         return []
     if request.status_code == 404:
         return [404]
-    nhentaiTags = json.loads(re.search(r'(?<=N.gallery\().*(?=\))', request.text).group(0))
-    # nhentaiTags = request.json()
+    #nhentaiTags = json.loads(re.search(r'(?<=N.gallery\().*(?=\))', request.text).group(0))
+    nhentaiTags = request.json()
     if "error" in nhentaiTags:
         return []
     else:
@@ -173,11 +179,12 @@ def getJSON(galleryNumber):
 
 def getRequest(galleryNumber):
     for i in range(1, 5):
-        request = requests.get(LINK_URL_NHENTAI+galleryNumber) # ['tags'] #
+        request = requests.get(LINK_URL_NHENTAI + galleryNumber)  # ['tags'] #
         if request.status_code == 200 or request.status_code == 404:
             return request
         time.sleep(i)
     return None
+
 
 def getNumbers(comment):
     numbers = re.findall(r'(?<=\()\d{5,6}(?=\))', comment)
