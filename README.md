@@ -12,6 +12,7 @@ Hosted on Heroku Free Dynos
 > - [HentaiSource-Bot](https://github.com/TheVexedGerman/hsauce_bot) ([u/HentaiSource_Bot](https://www.reddit.com/user/HentaiSource_Bot))
 >> General changes:
 >> - Remove reddit bot functionality
+>> - Add LINE Bot functionality
 >> - Modify some output of reply/comment functions to adjust with LINE Bot's reply message and chat's screen
 >> - Roborogi :
 >>    - Remove database handler
