@@ -8,6 +8,8 @@ import cloudinary.api
 import moviepy.editor as mpe
 from PIL import Image
 from io import BytesIO
+import handlers.firebase as firebase
+from handlers.model import Mode
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -17,7 +19,8 @@ from linebot.exceptions import (
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, VideoSendMessage, FollowEvent,
-    LocationMessage, JoinEvent, VideoMessage
+    VideoMessage, JoinEvent, QuickReply, QuickReplyButton, CameraRollAction, CameraAction, LocationMessage,
+    MessageAction
 )
 
 config = json.loads(os.environ.get('cloudinary_config', None))
@@ -36,6 +39,12 @@ line_bot_api = LineBotApi(config['token'], timeout=15)
 handler = WebhookHandler(config['secret'])
 
 sn_counter = 0
+
+quick_reply_sauce = QuickReply(
+    items=[
+        QuickReplyButton(action=MessageAction(label="!sauce")),
+        QuickReplyButton(action=MessageAction(label="!sauce+"))]
+)
 
 
 @line.route("/callback", methods=['POST'])
@@ -63,17 +72,22 @@ def handle_message(event):
     stype = event.source.type
     iid = ''
     if stype == 'user':
-        iid = event.source.user_id
+        iid = {"id": event.source.user_id, "type": "user"}
     if stype == 'group':
-        iid = event.source.group_id
+        iid = {"id": event.source.user_id, "type": "group", }
         if event.message.text == '!kikku':
             line_bot_api.leave_group(str(iid))
             return
     if stype == 'room':
-        iid = event.source.room_id
+        iid = {"id": event.source.user_id, "type": "room"}
         if event.message.text == '!kikku':
             line_bot_api.leave_group(str(iid))
             return
+
+    if event.message.text == '!sauce-mode':
+        line_bot_api.reply_message(event.reply_token,
+                                   TextSendMessage(text="Sauce Mode On", quick_reply=quick_reply_sauce))
+        return
 
     if event.message.text == '!help':
         reply = help_sauce + '\n\n' + help_robo
@@ -90,6 +104,8 @@ def handle_message(event):
         if not is_sukebei(str(iid)):
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF"))
             return
+
+    print(event.message.text)
 
     m = handle_command(event.message.text, iid)
 
