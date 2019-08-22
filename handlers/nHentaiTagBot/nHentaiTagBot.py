@@ -120,6 +120,8 @@ def processComment(comment):
     if replyString:
         # replyString += addFooter()
         return replyString
+    else:
+        return "NO SAUCE"
 
 def generateLinkString(numbersCombi):
     # generate the string that will be replied

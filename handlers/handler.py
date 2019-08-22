@@ -26,7 +26,10 @@ def handle_command(text, iid):
 
     if text[:1] == '!':
         if text in sauce_commands:
-            url = base_url + versioning_dic.get(str(iid)) + '/' + iid
+            try:
+                url = base_url + versioning_dic.get(str(iid)) + '/' + iid
+            except Exception as e:
+                return {'reply': "NO SAUCE"}
 
             if is_sleep["sauce"] or is_sleep["trace"]:
                 return {
