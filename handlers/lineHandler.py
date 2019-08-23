@@ -61,6 +61,10 @@ def callback():
     return 'OK'
 
 
+def get_profile(id):
+    return line_bot_api.get_profile(id)
+
+
 def lid(event):
     stype = event.source.type
     iid = ''
