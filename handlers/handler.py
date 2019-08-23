@@ -23,17 +23,17 @@ def handle_command(text, iid):
     global is_sleep
 
     if text[:1] == '!':
-        try:
-            if iid["type"] == "group" or iid["type"] == "room":
-                temp_text = text.split('@')
-                url = get_user_glast_img(name=temp_text[1]) or get_group_last_img(iid["gid"])
-            else:
-                url = get_user_last_img(iid["uid"])
-        except Exception as err:
-            print(err)
-            return {'reply': "NO SAUCE"}
+        if text.split('@')[0] in sauce_commands:
+            try:
+                if iid["type"] == "group" or iid["type"] == "room":
+                    temp_text = text.split('@')
+                    url = get_user_glast_img(name=temp_text[1]) or get_group_last_img(iid["gid"])
+                else:
+                    url = get_user_last_img(iid["uid"])
+            except Exception as err:
+                print(err)
+                return {'reply': "NO SAUCE"}
 
-        if text in sauce_commands:
             if is_sleep["sauce"] or is_sleep["trace"]:
                 return {
                     'status': "(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
