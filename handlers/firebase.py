@@ -4,7 +4,6 @@ from firebase_admin import db
 from handlers.model import *
 import json
 import os
-from handlers.lineHandler import get_profile
 
 try:
     config = json.loads(os.environ.get('firebase_admin', None))
@@ -42,6 +41,7 @@ def get_group_last_img(group_id):
 
 
 def set_user(id):
+    from handlers.lineHandler import get_profile
     temp = get_profile(id)
     user = User(user_id=temp.user_id, name=temp.display_name)
     user_ref.child(id).set(user.to_dict())
