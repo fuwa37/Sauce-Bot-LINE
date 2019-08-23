@@ -1,5 +1,3 @@
-import os
-import json
 import base64
 from handlers.handler import *
 from flask import request, abort, Blueprint, current_app
@@ -8,8 +6,6 @@ import cloudinary.api
 import moviepy.editor as mpe
 from PIL import Image
 from io import BytesIO
-import handlers.firebase as firebase
-from handlers.model import Mode
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -19,8 +15,7 @@ from linebot.exceptions import (
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, VideoSendMessage, FollowEvent,
-    VideoMessage, JoinEvent, QuickReply, QuickReplyButton, CameraRollAction, CameraAction, LocationMessage,
-    MessageAction
+    VideoMessage, JoinEvent, QuickReply, QuickReplyButton, MessageAction
 )
 
 config = json.loads(os.environ.get('cloudinary_config', None))
@@ -66,71 +61,98 @@ def callback():
     return 'OK'
 
 
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    global sn_counter
+def lid(event):
     stype = event.source.type
     iid = ''
     if stype == 'user':
-        iid = {"id": event.source.user_id, "type": "user"}
+        iid = {"uid": event.source.user_id, "type": "user"}
     if stype == 'group':
-        iid = {"id": event.source.user_id, "type": "group", }
-        if event.message.text == '!kikku':
-            line_bot_api.leave_group(str(iid))
-            return
+        iid = {"uid": event.source.user_id, "type": "group", "gid": event.source.group_id}
     if stype == 'room':
-        iid = {"id": event.source.user_id, "type": "room"}
-        if event.message.text == '!kikku':
-            line_bot_api.leave_group(str(iid))
+        iid = {"uid": event.source.user_id, "type": "room", "gid": event.source.room_id}
+
+    return iid
+
+
+def handle_user_message(iid, event):
+    if event.message.text == '!help':
+        reply = help_sauce + '\n\n' + help_robo
+        if is_sukebei(iid):
+            reply += '\n\n' + help_sukebei
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
+        return
+
+    if event.message.text == '!sukebei-switch':
+        if not is_sukebei(iid):
+            sukebei_on(iid)
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode ON\n\n" + help_sukebei))
             return
+        else:
+            sukebei_off(iid)
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF"))
+            return
+
+    m = handle_command(event.message.text, iid)
+
+    return m
+
+
+def handle_group_message(iid, event):
+    if event.message.text == '!help':
+        reply = help_sauce + '\n\n' + help_robo
+        if is_sukebei(iid):
+            reply += '\n\n' + help_sukebei
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
+        return
+
+    if event.message.text == '!sukebei-switch':
+        if not is_sukebei(iid):
+            sukebei_on(iid)
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode ON\n\n" + help_sukebei))
+            return
+        else:
+            sukebei_off(iid)
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF"))
+            return
+
+    if event.message.text == '!kikku':
+        line_bot_api.leave_group(iid["gid"])
+        return
+    m = handle_command(event.message.text, iid)
+
+    return m
+
+
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+    global sn_counter
+    iid = lid(event)
 
     if event.message.text == '!sauce-mode':
         line_bot_api.reply_message(event.reply_token,
                                    TextSendMessage(text="Sauce Mode On", quick_reply=quick_reply_sauce))
         return
 
-    if event.message.text == '!help':
-        reply = help_sauce + '\n\n' + help_robo
-        if is_sukebei(str(iid)):
-            reply += '\n\n' + help_sukebei
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
-        return
-
-    if event.message.text == '!sukebei-switch':
-        handle_sukebei(str(iid))
-        if is_sukebei(str(iid)):
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode ON\n\n" + help_sukebei))
-            return
-        if not is_sukebei(str(iid)):
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF"))
-            return
-
-    print(event.message.text)
-
-    m = handle_command(event.message.text, iid)
+    if iid["type"] == "group" or iid["type"] == "room":
+        m = handle_group_message(iid, event)
+    else:
+        m = handle_user_message(iid, event)
 
     if m is not None:
         if m.get('status'):
-            reply = [ImageSendMessage(original_content_url=base_url + versioning_dic.get(str(iid)) + '/' + iid,
-                                      preview_image_url=base_url + versioning_dic.get(str(iid)) + '/' + iid),
-                     TextSendMessage(text=m['status'])]
+            reply = TextSendMessage(text=m['status'])
         else:
             try:
                 if m["source"] == 'trace':
                     if m['info']['quota'] < 1:
                         handle_death(m["quota_ttl"], 'trace')
-                        reply = TextSendMessage(
-                            text="(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
-                                death_time['trace']) + " seconds")
 
                     elif m['info']['limit'] < 1:
                         handle_sleep(m["limit_ttl"], 'trace')
-                        reply = TextSendMessage(text="(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
-                            sleep_time['trace']) + " seconds")
-                    else:
-                        reply = [VideoSendMessage(original_content_url=m["vid_url"],
-                                                  preview_image_url=m["image_url"]),
-                                 TextSendMessage(text=m["reply"])]
+
+                    reply = [VideoSendMessage(original_content_url=m["vid_url"],
+                                              preview_image_url=m["image_url"]),
+                             TextSendMessage(text=m["reply"])]
                 elif m == 429:
                     sn_counter += 1
                     handle_sleep(30, 'sauce')
@@ -149,42 +171,46 @@ def handle_message(event):
                         TextSendMessage(text=m["reply"])]
                 else:
                     reply = TextSendMessage(text=m["reply"])
-            except Exception as e:
-                print(e)
+            except Exception as err:
+                print(err)
                 reply = TextSendMessage(text="NO SAUCE")
 
         line_bot_api.reply_message(event.reply_token, reply)
 
 
-@handler.add(MessageEvent, message=ImageMessage)
-def handle_image(event):
+def handle_group_image(iid, event):
     r = b''
-    iid = ''
-    stype = event.source.type
-    if stype == 'user':
-        iid = event.source.user_id
-    if stype == 'group':
-        iid = event.source.group_id
-    if stype == 'room':
-        iid = event.source.room_id
     message_content = line_bot_api.get_message_content(event.message.id)
     for chunk in message_content.iter_content():
         r += chunk
     img = base64.b64encode(r).decode('utf-8')
-    res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid, tags="TEMP")
-    versioning_dic.update({str(iid): str(res['version'])})
+    res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["gid"] + "_" + iid["uid"],
+                                     tags="TEMP")
+    set_user_glast_img(iid["uid"], res["url"])
+    set_group_last_img(iid["gid"], res["url"])
 
 
-@handler.add(MessageEvent, message=VideoMessage)
-def handle_video(event):
-    iid = ''
-    stype = event.source.type
-    if stype == 'user':
-        iid = event.source.user_id
-    if stype == 'group':
-        iid = event.source.group_id
-    if stype == 'room':
-        iid = event.source.room_id
+def handle_user_image(iid, event):
+    r = b''
+    message_content = line_bot_api.get_message_content(event.message.id)
+    for chunk in message_content.iter_content():
+        r += chunk
+    img = base64.b64encode(r).decode('utf-8')
+    res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["uid"],
+                                     tags="TEMP")
+    set_user_last_img(iid["uid"], res["url"])
+
+
+@handler.add(MessageEvent, message=ImageMessage)
+def handle_image(event):
+    iid = lid(event)
+    if iid["type"] == "group" or iid["type"] == "room":
+        handle_group_image(iid, event)
+    else:
+        handle_user_image(iid, event)
+
+
+def handle_group_video(iid, event):
     message_content = line_bot_api.get_message_content(event.message.id)
     with open(iid, 'wb') as fd:
         for chunk in message_content.iter_content():
@@ -196,36 +222,45 @@ def handle_video(event):
     pil_img = Image.fromarray(frame)
     buff = BytesIO()
     pil_img.save(buff, format="JPEG")
-    b64file = base64.b64encode(buff.getvalue()).decode("utf-8")
-    res = cloudinary.uploader.upload('data:image/jpg;base64,' + b64file, public_id=iid, tags="TEMP")
-    versioning_dic.update({str(iid): str(res['version'])})
+    img = base64.b64encode(buff.getvalue()).decode("utf-8")
     os.remove(iid)
+    res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["gid"] + "_" + iid["uid"],
+                                     tags="TEMP")
+    set_user_glast_img(iid["uid"], res["url"])
+    set_group_last_img(iid["gid"], res["url"])
 
 
-@handler.add(MessageEvent, message=LocationMessage)
-def handle_loc(event):
-    iid = ''
-    stype = event.source.type
-    if stype == 'user':
-        iid = event.source.user_id
-    if stype == 'group':
-        iid = event.source.group_id
-    if stype == 'room':
-        iid = event.source.room_id
+def handle_user_video(iid, event):
+    message_content = line_bot_api.get_message_content(event.message.id)
+    with open(iid, 'wb') as fd:
+        for chunk in message_content.iter_content():
+            fd.write(chunk)
 
-    print(event.message.latitude)
+    video = mpe.VideoFileClip(iid)
+    frame = video.get_frame(5 * 1 / video.fps)
+
+    pil_img = Image.fromarray(frame)
+    buff = BytesIO()
+    pil_img.save(buff, format="JPEG")
+    img = base64.b64encode(buff.getvalue()).decode("utf-8")
+    os.remove(iid)
+    res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["uid"],
+                                     tags="TEMP")
+    set_user_last_img(iid["uid"], res["url"])
+
+
+@handler.add(MessageEvent, message=VideoMessage)
+def handle_video(event):
+    iid = lid(event)
+    if iid["type"] == "group" or iid["type"] == "room":
+        handle_group_video(iid, event)
+    else:
+        handle_user_video(iid, event)
 
 
 @handler.add(FollowEvent)
 def handle_follow(event):
-    iid = ''
-    stype = event.source.type
-    if stype == 'user':
-        iid = event.source.user_id
-    if stype == 'group':
-        iid = event.source.group_id
-    if stype == 'room':
-        iid = event.source.room_id
+    iid = lid(event)
 
     line_bot_api.reply_message(
         event.reply_token,
@@ -233,19 +268,12 @@ def handle_follow(event):
                           preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
          TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
-    sukebei_dic.update({str(iid): False})
+    set_user(iid["uid"])
 
 
 @handler.add(JoinEvent)
 def handle_join(event):
-    iid = ''
-    stype = event.source.type
-    if stype == 'user':
-        iid = event.source.user_id
-    if stype == 'group':
-        iid = event.source.group_id
-    if stype == 'room':
-        iid = event.source.room_id
+    iid = lid(event)
 
     line_bot_api.reply_message(
         event.reply_token,
@@ -253,4 +281,4 @@ def handle_join(event):
                           preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
          TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
-    sukebei_dic.update({str(iid): False})
+    set_group_user(iid["gid"], iid["uid"])

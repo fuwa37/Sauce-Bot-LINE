@@ -5,9 +5,7 @@ import handlers.Roboragi.AnimeBot as aBot
 from handlers.strings import *
 from handlers.sauce.comment_builder import build_comment
 from handlers.sauce.get_source import get_source_data
-
-versioning_dic = {}
-sukebei_dic = {}
+from handlers.firebase import *
 
 is_sleep = {'trace': False,
             'sauce': False}
@@ -25,12 +23,17 @@ def handle_command(text, iid):
     global is_sleep
 
     if text[:1] == '!':
-        if text in sauce_commands:
-            try:
-                url = base_url + versioning_dic.get(str(iid)) + '/' + iid
-            except Exception as e:
-                return {'reply': "NO SAUCE"}
+        try:
+            if iid["type"] == "group" or iid["type"] == "room":
+                temp_text = text.split('@')
+                url = get_user_glast_img(name=temp_text[1]) or get_group_last_img(iid["gid"])
+            else:
+                url = get_user_last_img(iid["uid"])
+        except Exception as err:
+            print(err)
+            return {'reply': "NO SAUCE"}
 
+        if text in sauce_commands:
             if is_sleep["sauce"] or is_sleep["trace"]:
                 return {
                     'status': "(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
@@ -47,7 +50,7 @@ def handle_command(text, iid):
             return aBot.process_comment(text[1:], is_expanded=True)  # else return empty dic
 
         if text[:2] in sukebei_commands:
-            if is_sukebei(str(iid)):
+            if is_sukebei(iid):
                 m = hBot.processComment(text[1:])  # return string
                 return {'source': 'hbot',
                         'reply': m}
@@ -95,11 +98,21 @@ def handle_dead(t, source):
 
 
 def is_sukebei(iid):
-    if str(iid) not in sukebei_dic:
-        sukebei_dic.update({str(iid): False})
+    if iid["type"] == "group" or iid["type"] == "room":
+        return get_group_mode(iid["gid"])
+    else:
+        get_user_mode(iid["uid"])
 
-    return sukebei_dic[str(iid)]
+
+def sukebei_on(iid):
+    if iid["type"] == "group" or iid["type"] == "room":
+        set_group_mode(iid["gid"], Mode.sukebei)
+    else:
+        set_user_mode(iid["uid"], Mode.sukebei)
 
 
-def handle_sukebei(iid):
-    return sukebei_dic.update({str(iid): not is_sukebei(iid)})
+def sukebei_off(iid):
+    if iid["type"] == "group" or iid["type"] == "room":
+        set_group_mode(iid["gid"], Mode.none)
+    else:
+        set_user_mode(iid["uid"], Mode.none)

@@ -123,6 +123,7 @@ def processComment(comment):
     else:
         return "NO SAUCE"
 
+
 def generateLinkString(numbersCombi):
     # generate the string that will be replied
     linkString = ""
@@ -163,5 +164,3 @@ def generateLinks(number, key):
     elif key == hitomilaKey:
         linkString = hitomila.API_URL_HITOMILA + str(number) + ".html"
     return linkString
-
-print(processComment('(177013)'))
