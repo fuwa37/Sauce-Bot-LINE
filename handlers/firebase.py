@@ -29,6 +29,7 @@ def get_group_mode(group_id):
 
 
 def set_group_user(group_id, user_id):
+    set_user(user_id)
     group_ref.child(group_id).child("user").child(user_id).set(True)
 
 
