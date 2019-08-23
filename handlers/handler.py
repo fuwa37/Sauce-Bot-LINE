@@ -27,7 +27,7 @@ def handle_command(text, iid):
             try:
                 if iid["type"] == "group" or iid["type"] == "room":
                     temp_text = text.split('@')
-                    if len(temp_text > 1):
+                    if len(temp_text) > 1:
                         url = get_user_glast_img(name=temp_text[1])
                     else:
                         url = get_group_last_img(iid["gid"])
