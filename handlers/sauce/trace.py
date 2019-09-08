@@ -43,6 +43,9 @@ def res(url, proxy=None):
     r = saucetrace(url, proxy)
     if r['docs'][0]['similarity'] < 0.90:
         return dic
+    url_prev = 'https://trace.moe/thumbnail.php?anilist_id=' + str(
+        r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(
+        r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
     url_prev2 = 'https://trace.moe/preview.php?anilist_id=' + str(
         r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(
         r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
@@ -57,6 +60,7 @@ def res(url, proxy=None):
                                              trace=True)['reply']})
 
     return {'url': url_prev2,
+            'image_url': url_prev,
             'limit': r['limit'],
             'limit_ttl': r['limit_ttl'],
             'quota': r['quota'],

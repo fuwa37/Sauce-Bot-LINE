@@ -5,8 +5,6 @@ def build_comment(dic):
     output_comment = ''
     info = {}
     is_redacted = False
-    if dic == 429:
-        return 429
 
     if not dic:
         return {'reply': 'NO SAUCE',
