@@ -26,7 +26,7 @@ help_sauce = "Search for source\n\n" \
              "- !sauce+ - Source(anime)+Info (if found)"
 
 help_robo = "Search anime/manga/LN/WN/VN information\n\n" \
-            "Roboragi commands:\n" \
+            "Info commands:\n" \
             "- !{anime}\n" \
             "ex.: !{Nisekoi}\n\n" \
             "- !<manga>\n" \

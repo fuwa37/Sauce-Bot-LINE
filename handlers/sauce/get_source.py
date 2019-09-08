@@ -274,7 +274,7 @@ def get_source_data(picture_url, trace=False):
             raise Exception('NO SAUCE')
     except Exception as x:
         temp = {}
-        print(x)
+        print("Error: " + x)
         if trace:
             temp.update(trace2.res(picture_url))
             if temp:

@@ -143,7 +143,7 @@ def handle_message(event):
         m = handle_user_message(iid, event)
 
     if m is not None:
-        if m.get('status'):
+        if m["status"]:
             reply = TextSendMessage(text=m['status'])
         else:
             try:
