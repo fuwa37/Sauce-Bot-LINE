@@ -266,7 +266,6 @@ def get_source_data(picture_url, trace=False):
         print(resp.text)
         resp = requests.get('https://saucenao.com/search.php?db=999&url=' + picture_url)
         if resp.status_code == 429:
-            dic.update({'code': 429})
             raise Exception('Code 429')
         soup = BeautifulSoup(resp.content, features='lxml')
         dic.update(create_link_dictionary(soup, trace))
@@ -282,7 +281,7 @@ def get_source_data(picture_url, trace=False):
                 dic.update(temp)
             return dic
         else:
-            return 429
+            return dic.update({'code': 429})
     else:
         if dic.get('type') == 'anidb':
             if trace:

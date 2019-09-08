@@ -142,8 +142,8 @@ def handle_message(event):
     else:
         m = handle_user_message(iid, event)
 
-    if m is not None:
-        if m["status"]:
+    if type(m) is dict:
+        if "status" in m:
             reply = TextSendMessage(text=m['status'])
         else:
             try:
@@ -157,7 +157,7 @@ def handle_message(event):
                     reply = [VideoSendMessage(original_content_url=m["vid_url"],
                                               preview_image_url=m["image_url"]),
                              TextSendMessage(text=m["reply"])]
-                elif m == 429:
+                elif m.get("code"):
                     sn_counter += 1
                     handle_sleep(30, 'sauce')
                     reply = TextSendMessage(text="(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
