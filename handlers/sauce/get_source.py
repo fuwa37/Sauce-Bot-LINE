@@ -270,6 +270,8 @@ def get_source_data(picture_url, trace=False):
             raise Exception('Code 429')
         soup = BeautifulSoup(resp.content, features='lxml')
         dic.update(create_link_dictionary(soup, trace))
+        if not dic:
+            raise Exception('NO SAUCE')
     except Exception as x:
         temp = {}
         print(x)

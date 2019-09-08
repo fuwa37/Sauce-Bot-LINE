@@ -54,4 +54,3 @@ def create_mode():
     line_bot_api.set_default_rich_menu(rich_menu_id)
 
 
-set_user("U42c8c14bf9f5bc869934ce753c7aef5f")
