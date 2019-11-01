@@ -33,7 +33,7 @@ mock==3.0.5
 moviepy==1.0.0
 msgpack==0.6.1
 numpy==1.17.0
-Pillow==6.1.0
+Pillow==6.2.0
 proglog==0.1.9
 protobuf==3.9.1
 pyasn1==0.4.6
