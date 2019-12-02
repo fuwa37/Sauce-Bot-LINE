@@ -12,7 +12,9 @@ except Exception as e:
     config = "firebase_admin.json"
 cred = credentials.Certificate(config)
 
-firebase_url = os.environ.get('firebase_url', open("firebase_url.txt", "r").read())
+firebase_url = os.environ.get('firebase_url', None)
+if firebase_url is None:
+    firebase_url = open("firebase_url.txt", "r").read()
 
 firebase_admin.initialize_app(cred, {
     'databaseURL': firebase_url
