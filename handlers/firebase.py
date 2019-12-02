@@ -32,7 +32,7 @@ def get_group_mode(group_id):
     return group_ref.child(group_id).child("mode").get()
 
 
-def set_group(group_id, user_id):
+def set_group_user(group_id, user_id):
     if user_ref.child(user_id) is None:
         set_user(user_id)
     group_ref.child(group_id).child("user").child(user_id).set(True)

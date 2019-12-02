@@ -185,7 +185,8 @@ def handle_group_image(iid, event):
     img = base64.b64encode(r).decode('utf-8')
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["gid"] + "_" + iid["uid"],
                                      tags="TEMP")
-
+    set_group_user(iid["gid"], iid["uid"])
+    set_user_glast_img(iid["uid"], res["url"])
     set_group_last_img(iid["gid"], res["url"])
 
 
@@ -225,7 +226,8 @@ def handle_group_video(iid, event):
     os.remove(iid)
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["gid"] + "_" + iid["uid"],
                                      tags="TEMP")
-
+    set_group_user(iid["gid"], iid["uid"])
+    set_user_glast_img(iid["uid"], res["url"])
     set_group_last_img(iid["gid"], res["url"])
 
 
@@ -280,4 +282,4 @@ def handle_join(event):
                           preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
          TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
-    set_group(iid["gid"], iid["uid"])
+    set_group_user(iid["gid"], iid["uid"])
