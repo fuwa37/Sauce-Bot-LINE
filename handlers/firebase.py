@@ -5,13 +5,9 @@ from handlers.model import *
 import json
 import os
 
-try:
-    config = json.loads(os.environ.get('firebase_admin', None))
-    cred = credentials.Certificate(config)
-except Exception as e:
-    print(e)
-    cred = credentials.Certificate("secret.json")
 
+config = json.loads(os.environ.get('firebase_admin', None))
+cred = credentials.Certificate(config)
 firebase_admin.initialize_app(cred, {
     'databaseURL': os.environ.get('firebase_url', None)
 })
