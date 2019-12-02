@@ -5,11 +5,17 @@ from handlers.model import *
 import json
 import os
 
-
-config = json.loads(os.environ.get('firebase_admin', None))
+try:
+    config = json.loads(os.environ.get('firebase_admin', None))
+except Exception as e:
+    print(e)
+    config = "firebase_admin.json"
 cred = credentials.Certificate(config)
+
+firebase_url = os.environ.get('firebase_url', open("firebase_url.txt", "r").read())
+
 firebase_admin.initialize_app(cred, {
-    'databaseURL': os.environ.get('firebase_url', None)
+    'databaseURL': firebase_url
 })
 
 user_ref = db.reference('users')
@@ -42,6 +48,9 @@ def set_user(id):
     temp = get_profile(id)
     user = User(user_id=temp.user_id, name=temp.display_name)
     user_ref.child(id).set(user.to_dict())
+
+
+user_ref.child("123").set({"name": "abc"})
 
 
 def get_user_by_id(user_id):
