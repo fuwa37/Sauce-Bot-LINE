@@ -86,9 +86,9 @@ def get_user_last_img(user_id):
 
 
 def set_user_last_img(user_id, last_img):
-    user_ref.child(user_id).child("last_img").set(last_img)
+    user_ref.child(user_id).child("last_img").update(last_img)
 
 
 def set_user_glast_img(user_id, glast_img):
-    user_ref.child(user_id).child("glast_img").set(glast_img)
+    user_ref.child(user_id).child("glast_img").update(glast_img)
 
