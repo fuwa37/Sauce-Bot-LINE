@@ -49,8 +49,7 @@ def set_user(id):
     from handlers.lineHandler import get_profile
     temp = get_profile(id)
     user = User(user_id=temp.user_id, name=temp.display_name)
-    user_ref.child(id).set(user.to_dict())
-
+    user_ref.child(id).update(user.to_dict())
 
 def get_user_by_id(user_id):
     return user_ref.child(user_id).get()
