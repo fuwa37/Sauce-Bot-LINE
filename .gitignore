@@ -188,5 +188,5 @@ testing.py
 
 *.sh
 
-*.json
-*.txt
+firebase_admin.json
+firebase_url.txt
