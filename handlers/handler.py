@@ -53,7 +53,6 @@ def handle_command(text, iid):
             return aBot.process_comment(text[1:], is_expanded=True)  # else return empty dic
 
         if text[:2] in sukebei_commands:
-            print(is_sukebei(iid))
             if is_sukebei(iid):
                 m = hBot.processComment(text[1:])  # return string
                 return {'source': 'hbot',
@@ -105,7 +104,7 @@ def is_sukebei(iid):
     if iid["type"] == "group" or iid["type"] == "room":
         return get_group_mode(iid["gid"])
     else:
-        get_user_mode(iid["uid"])
+        return get_user_mode(iid["uid"])
 
 
 def sukebei_on(iid):
