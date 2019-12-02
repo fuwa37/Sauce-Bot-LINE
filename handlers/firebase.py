@@ -25,7 +25,7 @@ group_ref = db.reference('groups')
 
 
 def set_group_mode(group_id, mode: Mode):
-    group_ref.child(group_id).child("mode").set(mode.value)
+    group_ref.child(group_id).child("mode").update(mode.value)
 
 
 def get_group_mode(group_id):
@@ -34,11 +34,11 @@ def get_group_mode(group_id):
 
 def set_group_user(group_id, user_id):
     set_user(user_id)
-    group_ref.child(group_id).child("user").child(user_id).set(True)
+    group_ref.child(group_id).child("user").child(user_id).update(True)
 
 
 def set_group_last_img(group_id, last_img):
-    group_ref.child(group_id).child("last_img").set(last_img)
+    group_ref.child(group_id).child("last_img").update(last_img)
 
 
 def get_group_last_img(group_id):
@@ -49,7 +49,8 @@ def set_user(id):
     from handlers.lineHandler import get_profile
     temp = get_profile(id)
     user = User(user_id=temp.user_id, name=temp.display_name)
-    user_ref.child(id).set(user.to_dict())
+    user_ref.child(id).update(user.to_dict())
+
 
 def get_user_by_id(user_id):
     return user_ref.child(user_id).get()
@@ -74,19 +75,21 @@ def get_user_glast_img(user_id=None, name=None):
 
 
 def set_user_mode(user_id, mode: Mode):
-    user_ref.child(user_id).child("mode").set(mode.value)
+    user_ref.child(user_id).child("mode").update(mode.value)
 
 
 def get_user_mode(user_id):
     return user_ref.child(user_id).child("mode").get()
+
 
 def get_user_last_img(user_id):
     return user_ref.child(user_id).child("last_img").get()
 
 
 def set_user_last_img(user_id, last_img):
-    user_ref.child(user_id).child("last_img").set(last_img)
+    user_ref.child(user_id).child("last_img").update(last_img)
 
 
 def set_user_glast_img(user_id, glast_img):
-    user_ref.child(user_id).child("glast_img").set(glast_img)
+    user_ref.child(user_id).child("glast_img").update(glast_img)
+
