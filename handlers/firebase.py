@@ -51,10 +51,6 @@ def set_user(id):
     user = User(user_id=temp.user_id, name=temp.display_name)
     user_ref.child(id).set(user.to_dict())
 
-
-user_ref.child("123").set({"name": "abc"})
-
-
 def get_user_by_id(user_id):
     return user_ref.child(user_id).get()
 
