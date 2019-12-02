@@ -80,6 +80,7 @@ def set_user_mode(user_id, mode: Mode):
 def get_user_mode(user_id):
     return user_ref.child(user_id).child("mode").get()
 
+print(get_user_mode("U42c8c14bf9f5bc869934ce753c7aef5f"))
 
 def get_user_last_img(user_id):
     return user_ref.child(user_id).child("last_img").get()

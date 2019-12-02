@@ -132,11 +132,6 @@ def handle_message(event):
     global sn_counter
     iid = lid(event)
 
-    if event.message.text == '!sauce-mode':
-        line_bot_api.reply_message(event.reply_token,
-                                   TextSendMessage(text="Sauce Mode On", quick_reply=quick_reply_sauce))
-        return
-
     if iid["type"] == "group" or iid["type"] == "room":
         m = handle_group_message(iid, event)
     else:

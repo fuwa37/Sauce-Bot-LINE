@@ -104,6 +104,7 @@ def is_sukebei(iid):
     if iid["type"] == "group" or iid["type"] == "room":
         return get_group_mode(iid["gid"])
     else:
+        print("user")
         get_user_mode(iid["uid"])
 
 
