@@ -3,8 +3,6 @@ from handlers.handler import *
 from flask import request, abort, Blueprint, current_app
 import cloudinary.uploader
 import cloudinary.api
-from PIL import Image
-from io import BytesIO
 import cv2
 
 from linebot import (
@@ -191,14 +189,11 @@ def proc_video(iid, event):
 
     cap = cv2.VideoCapture(iid["uid"])
     success, frame = cap.read()
-
-    pil_img = Image.fromarray(frame)
-    buff = BytesIO()
-    pil_img.save(buff, format="JPEG")
-    img = base64.b64encode(buff.getvalue()).decode("utf-8")
+    success, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 75])
+    image = base64.b64encode(buffer)
     os.remove(iid["uid"])
 
-    return img
+    return image.decode('utf-8')
 
 
 @handler.add(MessageEvent, message=VideoMessage)
