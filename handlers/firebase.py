@@ -32,12 +32,14 @@ def get_group_mode(group_id):
     return group_ref.child(group_id).child("mode").get()
 
 
-def set_group_user(group_id, user_id):
+def set_group_user(group_id, user_id=None):
+    if user_id is None:
+        return
     if user_ref.child(user_id).get() is None:
         set_user(user_id)
     if user_ref.child(user_id).child("name").get() is None:
         from handlers.lineHandler import get_profile
-        temp = get_profile(id)
+        temp = get_profile(user_id)
         user_ref.child(user_id).child("name").set(temp.display_name)
     group_ref.child(group_id).child("user").child(user_id).set(True)
 

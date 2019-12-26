@@ -228,4 +228,4 @@ def handle_join(event):
                           preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
          TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
-    set_group_user(iid["gid"], iid["uid"])
+    set_group_user(iid["gid"])
