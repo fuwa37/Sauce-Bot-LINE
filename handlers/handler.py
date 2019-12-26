@@ -50,7 +50,7 @@ def handle_command(text, iid):
             if is_dead["sauce"] or is_dead["trace"]:
                 return {'status': "(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
                     death_time['sauce']) + " seconds"}
-            if text[-1] == '+':
+            if text.split('@')[0][-1] == '+':
                 return build_comment(get_source_data(url, trace=True))
             else:
                 return build_comment(get_source_data(url))  # else return empty dict
