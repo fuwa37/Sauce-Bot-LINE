@@ -196,7 +196,7 @@ def proc_video(iid, event):
     buff = BytesIO()
     pil_img.save(buff, format="JPEG")
     img = base64.b64encode(buff.getvalue()).decode("utf-8")
-    os.remove(iid)
+    os.remove(iid["uid"])
 
     return img
 
