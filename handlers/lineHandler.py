@@ -3,9 +3,9 @@ from handlers.handler import *
 from flask import request, abort, Blueprint, current_app
 import cloudinary.uploader
 import cloudinary.api
-import moviepy.editor as mpe
 from PIL import Image
 from io import BytesIO
+import cv2
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -189,8 +189,8 @@ def proc_video(iid, event):
         for chunk in message_content.iter_content():
             fd.write(chunk)
 
-    video = mpe.VideoFileClip(iid)
-    frame = video.get_frame(5 * 1 / video.fps)
+    cap = cv2.VideoCapture(iid["uid"])
+    success, frame = cap.read()
 
     pil_img = Image.fromarray(frame)
     buff = BytesIO()
