@@ -33,8 +33,6 @@ config = json.loads(os.environ.get('line_config', None))
 line_bot_api = LineBotApi(config['token'], timeout=15)
 handler = WebhookHandler(config['secret'])
 
-sn_counter = 0
-
 quick_reply_sauce = QuickReply(
     items=[
         QuickReplyButton(action=MessageAction(label="!sauce")),
@@ -66,19 +64,19 @@ def get_profile(id):
 
 
 def lid(event):
-    stype = event.source.type
+    source_type = event.source.type
     iid = ''
-    if stype == 'user':
+    if source_type == 'user':
         iid = {"uid": event.source.user_id, "type": "user"}
-    if stype == 'group':
+    if source_type == 'group':
         iid = {"uid": event.source.user_id, "type": "group", "gid": event.source.group_id}
-    if stype == 'room':
+    if source_type == 'room':
         iid = {"uid": event.source.user_id, "type": "room", "gid": event.source.room_id}
 
     return iid
 
 
-def handle_user_message(iid, event):
+def proc_message(iid, event):
     if event.message.text == '!help':
         reply = help_sauce + '\n\n' + help_robo
         if is_sukebei(iid):
@@ -96,32 +94,11 @@ def handle_user_message(iid, event):
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF"))
             return
 
-    m = handle_command(event.message.text, iid)
-
-    return m
-
-
-def handle_group_message(iid, event):
-    if event.message.text == '!help':
-        reply = help_sauce + '\n\n' + help_robo
-        if is_sukebei(iid):
-            reply += '\n\n' + help_sukebei
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
-        return
-
-    if event.message.text == '!sukebei-switch':
-        if not is_sukebei(iid):
-            sukebei_on(iid)
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode ON\n\n" + help_sukebei))
-            return
-        else:
-            sukebei_off(iid)
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF"))
+    if iid["type"] == "group" or iid["type"] == "room":
+        if event.message.text == '!kikku':
+            line_bot_api.leave_group(iid["gid"])
             return
 
-    if event.message.text == '!kikku':
-        line_bot_api.leave_group(iid["gid"])
-        return
     m = handle_command(event.message.text, iid)
 
     return m
@@ -129,13 +106,9 @@ def handle_group_message(iid, event):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    global sn_counter
     iid = lid(event)
 
-    if iid["type"] == "group" or iid["type"] == "room":
-        m = handle_group_message(iid, event)
-    else:
-        m = handle_user_message(iid, event)
+    m = proc_message(iid, event)
 
     if type(m) is dict:
         if "status" in m:
@@ -153,7 +126,7 @@ def handle_message(event):
                                               preview_image_url=m["image_url"]),
                              TextSendMessage(text=m["reply"])]
                 elif m.get("code"):
-                    sn_counter += 1
+                    sn_inc()
                     handle_sleep(30, 'sauce')
                     reply = TextSendMessage(text="(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
                         sleep_time['sauce']) + " seconds")
@@ -177,12 +150,7 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, reply)
 
 
-def handle_group_image(iid, event):
-    r = b''
-    message_content = line_bot_api.get_message_content(event.message.id)
-    for chunk in message_content.iter_content():
-        r += chunk
-    img = base64.b64encode(r).decode('utf-8')
+def image_uploader_group(iid, img):
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["gid"] + "_" + iid["uid"],
                                      tags="TEMP")
     set_group_user(iid["gid"], iid["uid"])
@@ -190,29 +158,34 @@ def handle_group_image(iid, event):
     set_group_last_img(iid["gid"], res["url"])
 
 
-def handle_user_image(iid, event):
+def image_uploader_user(iid, img):
+    res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["uid"],
+                                     tags="TEMP")
+    set_user_last_img(iid["uid"], res["url"])
+
+
+def proc_image(event):
     r = b''
     message_content = line_bot_api.get_message_content(event.message.id)
     for chunk in message_content.iter_content():
         r += chunk
     img = base64.b64encode(r).decode('utf-8')
-    res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["uid"],
-                                     tags="TEMP")
-    set_user_last_img(iid["uid"], res["url"])
+
+    return img
 
 
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_image(event):
     iid = lid(event)
     if iid["type"] == "group" or iid["type"] == "room":
-        handle_group_image(iid, event)
+        image_uploader_group(iid, proc_image(event))
     else:
-        handle_user_image(iid, event)
+        image_uploader_user(iid, proc_image(event))
 
 
-def handle_group_video(iid, event):
+def proc_video(iid, event):
     message_content = line_bot_api.get_message_content(event.message.id)
-    with open(iid, 'wb') as fd:
+    with open(iid["uid"], 'wb') as fd:
         for chunk in message_content.iter_content():
             fd.write(chunk)
 
@@ -224,39 +197,17 @@ def handle_group_video(iid, event):
     pil_img.save(buff, format="JPEG")
     img = base64.b64encode(buff.getvalue()).decode("utf-8")
     os.remove(iid)
-    res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["gid"] + "_" + iid["uid"],
-                                     tags="TEMP")
-    set_group_user(iid["gid"], iid["uid"])
-    set_user_glast_img(iid["uid"], res["url"])
-    set_group_last_img(iid["gid"], res["url"])
 
-
-def handle_user_video(iid, event):
-    message_content = line_bot_api.get_message_content(event.message.id)
-    with open(iid, 'wb') as fd:
-        for chunk in message_content.iter_content():
-            fd.write(chunk)
-
-    video = mpe.VideoFileClip(iid)
-    frame = video.get_frame(5 * 1 / video.fps)
-
-    pil_img = Image.fromarray(frame)
-    buff = BytesIO()
-    pil_img.save(buff, format="JPEG")
-    img = base64.b64encode(buff.getvalue()).decode("utf-8")
-    os.remove(iid)
-    res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["uid"],
-                                     tags="TEMP")
-    set_user_last_img(iid["uid"], res["url"])
+    return img
 
 
 @handler.add(MessageEvent, message=VideoMessage)
 def handle_video(event):
     iid = lid(event)
     if iid["type"] == "group" or iid["type"] == "room":
-        handle_group_video(iid, event)
+        image_uploader_group(iid, proc_video(iid, event))
     else:
-        handle_user_video(iid, event)
+        image_uploader_user(iid, proc_video(iid, event))
 
 
 @handler.add(FollowEvent)

@@ -16,6 +16,12 @@ sleep_time = {'trace': 0,
               'sauce': 0}
 death_time = {'trace': 0,
               'sauce': 0}
+sn_counter = 0
+
+
+def sn_inc():
+    global sn_counter
+    sn_counter += 1
 
 
 def handle_command(text, iid):
