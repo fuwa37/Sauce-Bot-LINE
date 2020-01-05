@@ -3,11 +3,10 @@ import re
 import handlers.sauce.trace as trace2
 import requests
 
-MINIMUM_SIMILARITY_PERCENTAGE = 65
-MAX_DELTA = 20
-
 
 def create_link_dictionary(soup, force, trace):
+    MINIMUM_SIMILARITY_PERCENTAGE = 65
+    MAX_DELTA = 20
     dic = {}
     first = True
     top_similarity_percentage = 0.0
