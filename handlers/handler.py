@@ -50,10 +50,12 @@ def handle_command(text, iid):
             if is_dead["sauce"] or is_dead["trace"]:
                 return {'status': "(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
                     death_time['sauce']) + " seconds"}
+            force, trace = False
+            if text[:1] == 'f':
+                force = True
             if text.split('@')[0][-1] == '+':
-                return build_comment(get_source_data(url, trace=True))
-            else:
-                return build_comment(get_source_data(url))  # else return empty dict
+                trace = True
+            return build_comment(get_source_data(url, force, trace))
 
         if text[:2] in robo_commands:
             return aBot.process_comment(text[1:], is_expanded=True)  # else return empty dic

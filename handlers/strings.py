@@ -1,5 +1,7 @@
 sauce_commands = {'!sauce',
-                  '!sauce+'
+                  '!sauce+',
+                  '!fsauce',
+                  '!fsauce+'
                   }
 
 sukebei_commands = {'!(',

@@ -152,14 +152,13 @@ def image_uploader_group(iid, img):
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["gid"] + "_" + iid["uid"],
                                      tags="TEMP")
     set_group_user(iid["gid"], iid["uid"])
-    set_user_glast_img(iid["uid"], res["url"])
-    set_group_last_img(iid["gid"], res["url"])
+    set_group_last_img(iid["uid"], iid["gid"], res["url"])
 
 
 def image_uploader_user(iid, img):
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["uid"],
                                      tags="TEMP")
-    set_user_last_img(iid["uid"], res["url"])
+    set_user_img(iid["uid"], last_img=res["url"])
 
 
 def proc_image(event):

@@ -7,10 +7,12 @@ MINIMUM_SIMILARITY_PERCENTAGE = 65
 MAX_DELTA = 20
 
 
-def create_link_dictionary(soup, trace):
+def create_link_dictionary(soup, force, trace):
     dic = {}
     first = True
     top_similarity_percentage = 0.0
+    if force is True:
+        MINIMUM_SIMILARITY_PERCENTAGE = 0
     # Creator - boorus; Material - boorus; Author - DeviantArt; Member - Pixiv
 
     # Filters to only show relevant results.
@@ -259,16 +261,14 @@ def create_link_dictionary(soup, trace):
     return dic
 
 
-def get_source_data(picture_url, trace=False):
+def get_source_data(picture_url, force, trace):
     dic = {}
     try:
-        resp = requests.get('https://api.ipify.org/')
-        print(resp.text)
         resp = requests.get('https://saucenao.com/search.php?db=999&url=' + picture_url)
         if resp.status_code == 429:
             raise Exception('Code 429')
         soup = BeautifulSoup(resp.content, features='lxml')
-        dic.update(create_link_dictionary(soup, trace))
+        dic.update(create_link_dictionary(soup, force, trace))
         if not dic:
             raise Exception('NO SAUCE')
     except Exception as x:
@@ -276,7 +276,7 @@ def get_source_data(picture_url, trace=False):
         print("Error: " + str(x))
         if trace:
             print("Trace: True")
-            temp.update(trace2.res(picture_url))
+            temp.update(trace2.res(picture_url, force))
             if temp:
                 dic.update(temp)
             return dic

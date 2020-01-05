@@ -38,10 +38,13 @@ def saucetrace(url, proxy):
     return json.loads(r.text)
 
 
-def res(url, proxy=None):
+def res(url, force, proxy=None):
+    minimum_similarity = 0.90
+    if force is True:
+        minimum_similarity = 0
     dic = {}
     r = saucetrace(url, proxy)
-    if r['docs'][0]['similarity'] < 0.90:
+    if r['docs'][0]['similarity'] < minimum_similarity:
         return dic
     url_prev = 'https://trace.moe/thumbnail.php?anilist_id=' + str(
         r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(

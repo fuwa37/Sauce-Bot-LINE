@@ -37,14 +37,11 @@ def set_group_user(group_id, user_id=None):
         return
     if user_ref.child(user_id).get() is None:
         set_user(user_id)
-    if user_ref.child(user_id).child("name").get() is None:
-        from handlers.lineHandler import get_profile
-        temp = get_profile(user_id)
-        user_ref.child(user_id).child("name").set(temp.display_name)
     group_ref.child(group_id).child("user").child(user_id).set(True)
 
 
-def set_group_last_img(group_id, last_img):
+def set_group_last_img(user_id, group_id, last_img):
+    set_user_img(user_id, glast_img=last_img)
     group_ref.child(group_id).child("last_img").set(last_img)
 
 
@@ -52,11 +49,11 @@ def get_group_last_img(group_id):
     return group_ref.child(group_id).child("last_img").get()
 
 
-def set_user(id):
+def set_user(user_id):
     from handlers.lineHandler import get_profile
-    temp = get_profile(id)
+    temp = get_profile(user_id)
     user = User(user_id=temp.user_id, name=temp.display_name)
-    user_ref.child(id).set(user.to_dict())
+    user_ref.child(user_id).set(user.to_dict())
 
 
 def get_user_by_id(user_id):
@@ -93,9 +90,12 @@ def get_user_last_img(user_id):
     return user_ref.child(user_id).child("last_img").get()
 
 
-def set_user_last_img(user_id, last_img):
-    user_ref.child(user_id).child("last_img").set(last_img)
-
-
-def set_user_glast_img(user_id, glast_img):
-    user_ref.child(user_id).child("glast_img").set(glast_img)
+def set_user_img(user_id, last_img=None, glast_img=None):
+    updates = {}
+    if last_img is None and glast_img is None:
+        return
+    if last_img is not None:
+        updates['/last_img'] = last_img
+    if glast_img is not None:
+        updates['/glast_img'] = glast_img
+    user_ref.child(user_id).update(updates)
