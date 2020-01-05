@@ -27,10 +27,13 @@ import os
 cache = {'get': []}
 cachetime = 720  # cache stuff for 12 minutes
 
-config = json.loads(os.environ.get('vndb_config', None))
+try:
+    config = json.loads(os.environ.get('vndb_config', None))
 
-username = config['user']
-password = config['pass']
+    username = config['user']
+    password = config['pass']
+except:
+    print("Error")
 
 client_name = 'SauceLineBot'
 client_version = '0.1'
