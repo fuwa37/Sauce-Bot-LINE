@@ -12,7 +12,6 @@ def create_link_dictionary(soup, force, trace):
     top_similarity_percentage = 0.0
     if force is True:
         MINIMUM_SIMILARITY_PERCENTAGE = 0
-    print(MINIMUM_SIMILARITY_PERCENTAGE)
     # Creator - boorus; Material - boorus; Author - DeviantArt; Member - Pixiv
 
     # Filters to only show relevant results.
