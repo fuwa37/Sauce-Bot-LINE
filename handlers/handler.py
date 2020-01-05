@@ -52,7 +52,7 @@ def handle_command(text, iid):
                     death_time['sauce']) + " seconds"}
             force = False
             trace = False
-            if text[:2] == 'f':
+            if text[1] == 'f':
                 force = True
             if text.split('@')[0][-1] == '+':
                 trace = True
