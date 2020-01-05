@@ -61,7 +61,7 @@ def res(url, force, proxy=None):
                 'Season': str(r['docs'][0]['season']),
                 'Episode': str(r['docs'][0]['episode']),
                 'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))) + '\n',
-                'similarity': "{:.2%}".format(top_similarity),
+                'Similarity': "{:.2%}".format(top_similarity),
                 'Info': aBot.process_comment('{' + r['docs'][0]['title_romaji'] + '}', is_expanded=True,
                                              trace=True)['reply']})
 

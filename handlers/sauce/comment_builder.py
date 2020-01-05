@@ -10,11 +10,10 @@ def build_comment(dic):
         return {'reply': 'NO SAUCE',
                 'source': 'no source'}
 
-    if dic.get('force'):
-        output_comment += f"Similarity(s): {dic.get('similarity')}\n\n"
-
     if dic.get('reply'):
         r = dic.get('reply')
+        if dic.get('force'):
+            output_comment += f"Similarity(s): {r['Similarity']}\n\n"
         output_comment += f"{r['Title']}\n{r['Romaji']}\n{r['English']}\n\n"
         output_comment += f"Season: {r['Season']}\n\n"
         output_comment += f"Episode: {r['Episode']}\n\n"
@@ -37,6 +36,9 @@ def build_comment(dic):
                 'vid_url': vid_url,
                 'info': info,
                 'source': 'trace'}
+
+    if dic.get('force'):
+        output_comment += f"Similarity(s): {dic.get('similarity')}%\n\n"
 
     # Skip anidb for special handling.
     if not (dic.get('type') == 'anidb' or dic.get('type') == 'fakku'):
@@ -201,4 +203,3 @@ def generate_mangadex_links(dic):
         if mal:
             link_comment += f"{generate_seperator_bar(link_comment)}[MAL]({mal}) "
     return link_comment
-
