@@ -12,6 +12,7 @@ def create_link_dictionary(soup, force, trace):
     top_similarity_percentage = 0.0
     if force is True:
         MINIMUM_SIMILARITY_PERCENTAGE = 0
+        dic.update({"force": True})
     # Creator - boorus; Material - boorus; Author - DeviantArt; Member - Pixiv
 
     # Filters to only show relevant results.
@@ -284,5 +285,5 @@ def get_source_data(picture_url, force, trace):
     else:
         if dic.get('type') == 'anidb':
             if trace:
-                dic.update(trace2.res(picture_url))
+                dic.update(trace2.res(picture_url, force))
         return dic

@@ -39,12 +39,14 @@ def saucetrace(url, proxy):
 
 
 def res(url, force, proxy=None):
+    dic = {}
     minimum_similarity = 0.90
     if force is True:
         minimum_similarity = 0
-    dic = {}
+        dic.update({"force": True})
     r = saucetrace(url, proxy)
-    if r['docs'][0]['similarity'] < minimum_similarity:
+    top_similarity = r['docs'][0]['similarity']
+    if top_similarity < minimum_similarity:
         return dic
     url_prev = 'https://trace.moe/thumbnail.php?anilist_id=' + str(
         r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(
@@ -59,6 +61,7 @@ def res(url, force, proxy=None):
                 'Season': str(r['docs'][0]['season']),
                 'Episode': str(r['docs'][0]['episode']),
                 'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))) + '\n',
+                'similarity': "{:.2%}".format(top_similarity),
                 'Info': aBot.process_comment('{' + r['docs'][0]['title_romaji'] + '}', is_expanded=True,
                                              trace=True)['reply']})
 

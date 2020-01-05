@@ -10,6 +10,9 @@ def build_comment(dic):
         return {'reply': 'NO SAUCE',
                 'source': 'no source'}
 
+    if dic.get('force'):
+        output_comment += f"Similarity(s): {dic.get('similarity')}\n\n"
+
     if dic.get('reply'):
         r = dic.get('reply')
         output_comment += f"{r['Title']}\n{r['Romaji']}\n{r['English']}\n\n"
