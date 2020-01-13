@@ -41,7 +41,10 @@ def handle_command(text, iid):
                     url = get_user_last_img(iid["uid"])
             except Exception as err:
                 print(err)
-                return {'reply': "NO SAUCE"}
+                return {'reply': "Can't get the image"}
+            else:
+                if url is None:
+                    return {'reply': "Image not found"}
 
             if is_sleep["sauce"] or is_sleep["trace"]:
                 return {

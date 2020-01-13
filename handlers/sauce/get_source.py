@@ -12,14 +12,13 @@ def create_link_dictionary(soup, force, trace):
     top_similarity_percentage = 0.0
     if force is True:
         MINIMUM_SIMILARITY_PERCENTAGE = 0
-        dic.update({"force": True})
     # Creator - boorus; Material - boorus; Author - DeviantArt; Member - Pixiv
 
     # Filters to only show relevant results.
     results = soup.find_all('div', class_='result')
 
     if not results:
-        return dic
+        return {}
 
     for result in results:
         # Skip "hidden results" result
@@ -269,13 +268,10 @@ def get_source_data(picture_url, force, trace):
             raise Exception('Code 429')
         soup = BeautifulSoup(resp.content, features='lxml')
         dic.update(create_link_dictionary(soup, force, trace))
-        if not dic:
-            raise Exception('NO SAUCE')
     except Exception as x:
         temp = {}
         print("Error: " + str(x))
         if trace:
-            print("Trace: True")
             temp.update(trace2.res(picture_url, force))
             if temp:
                 dic.update(temp)
@@ -283,7 +279,7 @@ def get_source_data(picture_url, force, trace):
         else:
             return dic.update({'code': 429})
     else:
-        if dic.get('type') == 'anidb':
-            if trace:
+        if trace:
+            if dic.get('type') == 'anidb' or not dic:
                 dic.update(trace2.res(picture_url, force))
         return dic

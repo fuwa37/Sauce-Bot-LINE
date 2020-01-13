@@ -7,13 +7,12 @@ def build_comment(dic):
     is_redacted = False
 
     if not dic:
-        return {'reply': 'NO SAUCE',
-                'source': 'no source'}
+        return None
 
+    # Trace
     if dic.get('reply'):
         r = dic.get('reply')
-        if dic.get('force'):
-            output_comment += f"Similarity: {r['Similarity']}\n\n"
+        output_comment += f"Similarity: {r['Similarity']}\n\n"
         output_comment += f"{r['Title']}\n{r['Romaji']}\n{r['English']}\n\n"
         output_comment += f"Season: {r['Season']}\n\n"
         output_comment += f"Episode: {r['Episode']}\n\n"
@@ -31,14 +30,16 @@ def build_comment(dic):
             'quota': dic.get('quota'),
             'quota_ttl': dic.get('quota_ttl'),
         })
+        if not output_comment:
+            return dic
         return {'reply': output_comment,
                 'image_url': dic.get('image_url'),
                 'vid_url': vid_url,
                 'info': info,
                 'source': 'trace'}
 
-    if dic.get('force'):
-        output_comment += f"Similarity: {dic.get('similarity')}%\n\n"
+    # Saucenao
+    output_comment += f"Similarity: {dic.get('similarity')}%\n\n"
 
     # Skip anidb for special handling.
     if not (dic.get('type') == 'anidb' or dic.get('type') == 'fakku'):
@@ -156,7 +157,7 @@ def build_comment(dic):
 
     # Handle no results
     if not output_comment:
-        return None
+        return dic
 
     return {'source': "sauce",
             'image_url': dic.get('image_url'),

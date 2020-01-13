@@ -43,11 +43,10 @@ def res(url, force, proxy=None):
     minimum_similarity = 0.90
     if force is True:
         minimum_similarity = 0
-        dic.update({"force": True})
     r = saucetrace(url, proxy)
     top_similarity = r['docs'][0]['similarity']
     if top_similarity < minimum_similarity:
-        return dic
+        return {}
     url_prev = 'https://trace.moe/thumbnail.php?anilist_id=' + str(
         r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(
         r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']

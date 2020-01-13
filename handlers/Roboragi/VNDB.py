@@ -32,8 +32,9 @@ try:
 
     username = config['user']
     password = config['pass']
-except:
-    print("Error")
+except Exception as e:
+    print(e)
+
 
 client_name = 'SauceLineBot'
 client_version = '0.1'

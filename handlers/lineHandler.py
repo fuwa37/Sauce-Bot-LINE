@@ -63,15 +63,12 @@ def get_profile(id):
 
 def lid(event):
     source_type = event.source.type
-    iid = ''
     if source_type == 'user':
-        iid = {"uid": event.source.user_id, "type": "user"}
+        return {"uid": event.source.user_id, "type": "user"}
     if source_type == 'group':
-        iid = {"uid": event.source.user_id, "type": "group", "gid": event.source.group_id}
+        return {"uid": event.source.user_id, "type": "group", "gid": event.source.group_id}
     if source_type == 'room':
-        iid = {"uid": event.source.user_id, "type": "room", "gid": event.source.room_id}
-
-    return iid
+        return {"uid": event.source.user_id, "type": "room", "gid": event.source.room_id}
 
 
 def proc_message(iid, event):
@@ -82,7 +79,7 @@ def proc_message(iid, event):
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
         return
 
-    if event.message.text == '!sukebei-switch':
+    elif event.message.text == '!sukebei-switch':
         if not is_sukebei(iid):
             sukebei_on(iid)
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode ON\n\n" + help_sukebei))
@@ -92,14 +89,13 @@ def proc_message(iid, event):
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF"))
             return
 
-    if iid["type"] == "group" or iid["type"] == "room":
+    elif iid["type"] == "group" or iid["type"] == "room":
         if event.message.text == '!kikku':
             line_bot_api.leave_group(iid["gid"])
             return
 
-    m = handle_command(event.message.text, iid)
-
-    return m
+    else:
+        return handle_command(event.message.text, iid)
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -108,7 +104,7 @@ def handle_message(event):
 
     m = proc_message(iid, event)
 
-    if type(m) is dict:
+    if m is not None:
         if "status" in m:
             reply = TextSendMessage(text=m['status'])
         else:

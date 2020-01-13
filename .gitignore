@@ -184,7 +184,7 @@ dmypy.json
 .pyre/
 
 #test file
-testing.py
+handlers/testing.py
 
 *.sh
 
