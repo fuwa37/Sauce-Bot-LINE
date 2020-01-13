@@ -101,6 +101,7 @@ def proc_message(iid, event):
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     iid = lid(event)
+    reply = ''
 
     m = proc_message(iid, event)
 
@@ -109,7 +110,7 @@ def handle_message(event):
             reply = TextSendMessage(text=m['status'])
         else:
             try:
-                if m["source"] == 'trace':
+                if m.get("source") == 'trace':
                     if m['info']['quota'] < 1:
                         handle_death(m["quota_ttl"], 'trace')
 
@@ -130,7 +131,7 @@ def handle_message(event):
                             text="(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
                                 death_time['sauce']) + " seconds")
 
-                elif m['source'] == 'sauce':
+                elif m.get("source") == 'sauce':
                     reply = [
                         ImageSendMessage(original_content_url=m["image_url"],
                                          preview_image_url=m["image_url"]),
@@ -139,9 +140,9 @@ def handle_message(event):
                     reply = TextSendMessage(text=m["reply"])
             except Exception as err:
                 print(err)
-                reply = TextSendMessage(text="NO SAUCE")
 
-        line_bot_api.reply_message(event.reply_token, reply)
+        if reply:
+          line_bot_api.reply_message(event.reply_token, reply)
 
 
 def image_uploader_group(iid, img):

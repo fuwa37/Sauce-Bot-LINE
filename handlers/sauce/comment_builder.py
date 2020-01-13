@@ -7,7 +7,7 @@ def build_comment(dic):
     is_redacted = False
 
     if not dic:
-        return None
+        return {'reply' : "NO SAUCE"}
 
     # Trace
     if dic.get('reply'):

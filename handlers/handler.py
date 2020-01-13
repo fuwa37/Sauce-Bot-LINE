@@ -61,18 +61,17 @@ def handle_command(text, iid):
                 trace = True
             return build_comment(get_source_data(url, force, trace))
 
-        if text[:2] in robo_commands:
-            return aBot.process_comment(text[1:], is_expanded=True)  # else return empty dic
+        elif text[:2] in robo_commands:
+            return aBot.process_comment(text[1:], is_expanded=True)
 
-        if text[:2] in sukebei_commands:
+        elif text[:2] in sukebei_commands:
             if is_sukebei(iid):
-                m = hBot.processComment(text[1:])  # return string
+                m = hBot.processComment(text[1:])
                 return {'source': 'hbot',
                         'reply': m}
             else:
                 return {'source': 'hbot',
                         'reply': "Please turn on Sukebei mode\n !sukebei-switch"}
-
 
 def handle_sleep(t, source):
     sleep_t = threading.Thread(target=handle_sleeping, args=(t, source))
