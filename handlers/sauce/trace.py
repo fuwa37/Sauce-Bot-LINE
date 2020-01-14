@@ -42,7 +42,6 @@ def forceres(img, r):
         img_hash = imagehash.dhash(img)
 
         diff = thumb_hash - img_hash
-        print(diff)
         if diff == 0:
             return i
         elif diff < cutoff:
