@@ -1,10 +1,12 @@
 import base64
 import requests
 import json
-import urllib.request
 import datetime
 import urllib.parse as urlparse
 import handlers.Roboragi.AnimeBot as aBot
+import imagehash
+from PIL import Image
+from io import BytesIO
 
 traceurl = "https://trace.moe/api/search"
 
@@ -13,55 +15,70 @@ def chop_microseconds(delta):
     return delta - datetime.timedelta(microseconds=delta.microseconds)
 
 
-def urltofile(url):
-    with urllib.request.urlopen(url) as url:
-        temp = url.read()
+def saucetrace(url):
+    header = {'Content-Type': 'application/json'}
+    data = requests.get(url, stream=True)
+    buffered = BytesIO()
+    image = Image.open(data.raw)
+    image.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue())
+
+    body = json.dumps({'image': img_str.decode('utf-8')})
+    r = requests.post(traceurl, headers=header, data=body)
+
+    return image, json.loads(r.text)
+
+
+def forceres(img, r):
+    cutoff = 100
+    temp = {}
+    for i in r['docs']:
+        data = requests.get('https://trace.moe/thumbnail.php?anilist_id=' + str(
+            i['anilist_id']) + '&file=' + urlparse.quote(i['filename']) + '&t=' + str(
+            i['at']) + '&token=' + i['tokenthumb'], stream=True)
+        img_thumb = Image.open(data.raw)
+
+        thumb_hash = imagehash.dhash(img_thumb)
+        img_hash = imagehash.dhash(img)
+
+        diff = thumb_hash - img_hash
+        print(diff)
+        if diff == 0:
+            return i
+        elif diff < cutoff:
+            cutoff = diff
+            temp = i
+
     return temp
 
 
-def tob64(file):
-    b64 = base64.b64encode(file)
-    return b64.decode('utf-8')
-
-
-def saucetrace(url, proxy):
-    header = {'Content-Type': 'application/json'}
-    body = json.dumps({'image': tob64(urltofile(url))})
-    proxies = {}
-    if proxy:
-        proxies.update({
-            'http': 'http://' + proxy,
-            'https': 'http://' + proxy,
-        })
-    r = requests.post(traceurl, headers=header, data=body, proxies=proxies)
-
-    return json.loads(r.text)
-
-
-def res(url, force, proxy=None):
+def res(url, force):
     dic = {}
     minimum_similarity = 0.90
+    img, r = saucetrace(url)
     if force is True:
-        minimum_similarity = 0
-    r = saucetrace(url, proxy)
-    top_similarity = r['docs'][0]['similarity']
-    if top_similarity < minimum_similarity:
-        return {}
+        data = forceres(img, r)
+        similarity = data['similarity']
+    else:
+        data = r['docs'][0]
+        similarity = data['similarity']
+        if similarity < minimum_similarity:
+            return {}
     url_prev = 'https://trace.moe/thumbnail.php?anilist_id=' + str(
-        r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(
-        r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
+        data['anilist_id']) + '&file=' + urlparse.quote(data['filename']) + '&t=' + str(
+        data['at']) + '&token=' + data['tokenthumb']
     url_prev2 = 'https://trace.moe/preview.php?anilist_id=' + str(
-        r['docs'][0]['anilist_id']) + '&file=' + urlparse.quote(r['docs'][0]['filename']) + '&t=' + str(
-        r['docs'][0]['at']) + '&token=' + r['docs'][0]['tokenthumb']
+        data['anilist_id']) + '&file=' + urlparse.quote(data['filename']) + '&t=' + str(
+        data['at']) + '&token=' + data['tokenthumb']
 
-    dic.update({'Title': r['docs'][0]['title_native'],
-                'Romaji': r['docs'][0]['title_romaji'],
-                'English': r['docs'][0]['title_english'],
-                'Season': str(r['docs'][0]['season']),
-                'Episode': str(r['docs'][0]['episode']),
-                'Time': str(chop_microseconds(datetime.timedelta(seconds=r['docs'][0]['at']))) + '\n',
-                'Similarity': "{:.2%}".format(top_similarity),
-                'Info': aBot.process_comment('{' + r['docs'][0]['title_romaji'] + '}', is_expanded=True,
+    dic.update({'Title': data['title_native'],
+                'Romaji': data['title_romaji'],
+                'English': data['title_english'],
+                'Season': str(data['season']),
+                'Episode': str(data['episode']),
+                'Time': str(chop_microseconds(datetime.timedelta(seconds=data['at']))) + '\n',
+                'Similarity': "{:.2%}".format(similarity),
+                'Info': aBot.process_comment('{' + data['title_romaji'] + '}', is_expanded=True,
                                              trace=True)['reply']})
 
     return {'url': url_prev2,
