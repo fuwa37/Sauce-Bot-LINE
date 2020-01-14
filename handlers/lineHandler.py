@@ -1,9 +1,11 @@
 import base64
-from handlers.handler import *
+import handlers.handler as handlers
 from flask import request, abort, Blueprint, current_app
 import cloudinary.uploader
 import cloudinary.api
 import cv2
+import json
+import os
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -57,8 +59,8 @@ def callback():
     return 'OK'
 
 
-def get_profile(id):
-    return line_bot_api.get_profile(id)
+def get_profile(uid):
+    return line_bot_api.get_profile(uid)
 
 
 def lid(event):
@@ -73,19 +75,20 @@ def lid(event):
 
 def proc_message(iid, event):
     if event.message.text == '!help':
-        reply = help_sauce + '\n\n' + help_robo
-        if is_sukebei(iid):
-            reply += '\n\n' + help_sukebei
+        reply = handlers.help_sauce + '\n\n' + handlers.help_robo
+        if handlers.is_sukebei(iid):
+            reply += '\n\n' + handlers.help_sukebei
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
         return
 
     elif event.message.text == '!sukebei-switch':
-        if not is_sukebei(iid):
-            sukebei_on(iid)
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode ON\n\n" + help_sukebei))
+        if not handlers.is_sukebei(iid):
+            handlers.sukebei_on(iid)
+            line_bot_api.reply_message(event.reply_token,
+                                       TextSendMessage(text="Sukebei mode ON\n\n" + handlers.help_sukebei))
             return
         else:
-            sukebei_off(iid)
+            handlers.sukebei_off(iid)
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF"))
             return
 
@@ -95,7 +98,7 @@ def proc_message(iid, event):
             return
 
     else:
-        return handle_command(event.message.text, iid)
+        return handlers.handle_command(event.message.text, iid)
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -112,24 +115,24 @@ def handle_message(event):
             try:
                 if m.get("source") == 'trace':
                     if m['info']['quota'] < 1:
-                        handle_death(m["quota_ttl"], 'trace')
+                        handlers.handle_death(m["quota_ttl"], 'trace')
 
                     elif m['info']['limit'] < 1:
-                        handle_sleep(m["limit_ttl"], 'trace')
+                        handlers.handle_sleep(m["limit_ttl"], 'trace')
 
                     reply = [VideoSendMessage(original_content_url=m["vid_url"],
                                               preview_image_url=m["image_url"]),
                              TextSendMessage(text=m["reply"])]
                 elif m.get("code"):
-                    sn_inc()
-                    handle_sleep(30, 'sauce')
+                    handlers.sn_inc()
+                    handlers.handle_sleep(30, 'sauce')
                     reply = TextSendMessage(text="(-_-) zzz\n!sauce Bot is exhausted\n\nPlease wait for " + str(
-                        sleep_time['sauce']) + " seconds")
-                    if sn_counter > 2:
-                        handle_death(86400, 'sauce')
+                        handlers.sleep_time['sauce']) + " seconds")
+                    if handlers.sn_counter > 2:
+                        handlers.handle_death(86400, 'sauce')
                         reply = TextSendMessage(
                             text="(✖╭╮✖)\n!sauce Bot is dead\n\nPlease wait for resurrection in " + str(
-                                death_time['sauce']) + " seconds")
+                                handlers.death_time['sauce']) + " seconds")
 
                 elif m.get("source") == 'sauce':
                     reply = [
@@ -142,20 +145,20 @@ def handle_message(event):
                 print(err)
 
         if reply:
-          line_bot_api.reply_message(event.reply_token, reply)
+            line_bot_api.reply_message(event.reply_token, reply)
 
 
 def image_uploader_group(iid, img):
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["gid"] + "_" + iid["uid"],
                                      tags="TEMP")
-    set_group_user(iid["gid"], iid["uid"])
-    set_group_last_img(iid["uid"], iid["gid"], res["url"])
+    handlers.set_group_user(iid["gid"], iid["uid"])
+    handlers.set_group_last_img(iid["uid"], iid["gid"], res["url"])
 
 
 def image_uploader_user(iid, img):
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["uid"],
                                      tags="TEMP")
-    set_user_img(iid["uid"], last_img=res["url"])
+    handlers.set_user_img(iid["uid"], last_img=res["url"])
 
 
 def proc_image(event):
@@ -211,7 +214,7 @@ def handle_follow(event):
                           preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
          TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
-    set_user(iid["uid"])
+    handlers.set_user(iid["uid"])
 
 
 @handler.add(JoinEvent)
@@ -224,4 +227,4 @@ def handle_join(event):
                           preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
          TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
-    set_group_user(iid["gid"])
+    handlers.set_group_user(iid["gid"])

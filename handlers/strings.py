@@ -25,7 +25,8 @@ sauce_tutorial_media = "https://res.cloudinary.com/fuwa/video/upload/saucetutor"
 help_sauce = "Search for source\n\n" \
              "Sauce commands:\n" \
              "- !sauce - Search any source\n" \
-             "- !sauce+ - Source(anime)+Info (if found)"
+             "- !sauce+ - for anime\n" \
+             "- !f[command] - return any sauce found (may give wrong sauce)"
 
 help_robo = "Search anime/manga/LN/WN/VN information\n\n" \
             "Info commands:\n" \

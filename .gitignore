@@ -184,7 +184,9 @@ dmypy.json
 .pyre/
 
 #test file
+handlers/maintest.py
 handlers/testing.py
+handlers/testing2.py
 
 *.sh
 
