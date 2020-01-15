@@ -22,19 +22,9 @@ import json
 import socket
 import time
 import traceback
-import os
 
 cache = {'get': []}
 cachetime = 720  # cache stuff for 12 minutes
-
-try:
-    config = json.loads(os.environ.get('vndb_config', None))
-
-    username = config['user']
-    password = config['pass']
-except Exception as e:
-    print(e)
-
 
 client_name = 'SauceLineBot'
 client_version = '0.1'

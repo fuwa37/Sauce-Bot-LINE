@@ -32,7 +32,7 @@ def saucetrace(url):
 def forceres(img, r):
     cutoff = 100
     temp = {}
-    for i in r['docs']:
+    for i in r['docs'][:3]:
         data = requests.get('https://trace.moe/thumbnail.php?anilist_id=' + str(
             i['anilist_id']) + '&file=' + urlparse.quote(i['filename']) + '&t=' + str(
             i['at']) + '&token=' + i['tokenthumb'], stream=True)
