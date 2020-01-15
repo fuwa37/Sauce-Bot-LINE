@@ -81,7 +81,7 @@ def proc_message(iid, event):
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
         return
 
-    elif event.message.text == '!sukebei-switch':
+    if event.message.text == '!sukebei-switch':
         if not handlers.is_sukebei(iid):
             handlers.sukebei_on(iid)
             line_bot_api.reply_message(event.reply_token,
@@ -92,13 +92,12 @@ def proc_message(iid, event):
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Sukebei mode OFF"))
             return
 
-    elif iid["type"] == "group" or iid["type"] == "room":
+    if iid["type"] == "group" or iid["type"] == "room":
         if event.message.text == '!kikku':
             line_bot_api.leave_group(iid["gid"])
             return
 
-    else:
-        return handlers.handle_command(event.message.text, iid)
+    return handlers.handle_command(event.message.text, iid)
 
 
 @handler.add(MessageEvent, message=TextMessage)
