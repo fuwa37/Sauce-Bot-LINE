@@ -4,7 +4,7 @@ LINE Bot for searching sauce and many more
 
 LINE ID :@475uixgn
 
-Hosted on Heroku Free Dynos
+Hosted on Repl.it
 
 > Modified from:
 > - [Roboragi](https://github.com/Nihilate/Roboragi) ([u/Roboragi](https://reddit.com/user/Roboragi))
