@@ -47,6 +47,7 @@ help_sukebei = "Find hentai manga doujinshi information\n\n" \
                "ex.: !)12345( or !)00002("
 
 help_media = "https://res.cloudinary.com/fuwa/video/upload/help"
+sauce_img="https://res.cloudinary.com/fuwa/image/upload/v1579077715/le4afvkfgyia2svh45ej.jpg"
 
 help_sukebei_ext = "For nHentai galleries you need to put the gallery number in parentheses, " \
                    "while padding it with leading zeroes to have at least 5 digits. For example: (123456) or (00001)\n" \

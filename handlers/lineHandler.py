@@ -210,8 +210,8 @@ def handle_follow(event):
 
     line_bot_api.reply_message(
         event.reply_token,
-        [ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/sauce.jpg",
-                          preview_image_url="https://res.cloudinary.com/fuwa/image/upload/sauce.jpg"),
+        [ImageSendMessage(original_content_url=handlers.sauce_img,
+                          preview_image_url=handlers.sauce_img),
          TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
     handlers.set_user(iid["uid"])
@@ -223,8 +223,8 @@ def handle_join(event):
 
     line_bot_api.reply_message(
         event.reply_token,
-        [ImageSendMessage(original_content_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg",
-                          preview_image_url="https://res.cloudinary.com/fuwa/image/upload/v1559414185/sauce.jpg"),
+        [ImageSendMessage(original_content_url=handlers.sauce_img,
+                          preview_image_url=handlers.sauce_img),
          TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
     handlers.set_group_user(iid["gid"])
