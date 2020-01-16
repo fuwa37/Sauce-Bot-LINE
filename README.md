@@ -16,9 +16,3 @@ Hosted on Repl.it
 >> - Modify some output of reply/comment functions to adjust with LINE Bot's reply message and chat's screen
 >> - Roborogi :
 >>    - Remove database handler
-
-#### To Do
-
-- Data persistent
-- Setup database
-- Easy of use
