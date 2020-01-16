@@ -1,6 +1,6 @@
 ## Sauce Bot
 
-LINE Bot for searching sauce and many more
+LINE Bot to find sauce and many more
 
 LINE ID :@475uixgn
 
