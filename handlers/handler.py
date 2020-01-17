@@ -5,7 +5,7 @@ import handlers.Roboragi.AnimeBot as aBot
 from handlers.strings import *
 from handlers.sauce.comment_builder import build_comment
 from handlers.sauce.get_source import get_source_data
-from handlers.firebase import *
+from handlers.dbhandler import *
 
 is_sleep = {'trace': False,
             'sauce': False}
@@ -120,13 +120,13 @@ def is_sukebei(iid):
 
 def sukebei_on(iid):
     if iid["type"] == "group" or iid["type"] == "room":
-        set_group_mode(iid["gid"], Mode.sukebei)
+        set_group_mode(iid["gid"], model.Mode.sukebei)
     else:
-        set_user_mode(iid["uid"], Mode.sukebei)
+        set_user_mode(iid["uid"], model.Mode.sukebei)
 
 
 def sukebei_off(iid):
     if iid["type"] == "group" or iid["type"] == "room":
-        set_group_mode(iid["gid"], Mode.none)
+        set_group_mode(iid["gid"], model.Mode.none)
     else:
-        set_user_mode(iid["uid"], Mode.none)
+        set_user_mode(iid["uid"], model.Mode.none)

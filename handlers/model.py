@@ -1,4 +1,3 @@
-from typing import *
 from enum import Enum
 
 
@@ -16,21 +15,15 @@ class User:
         self.mode = mode
 
     def to_dict(self):
-        return {"name": self.name, "last_img": self.last_img, "glast_img": self.last_img, "mode": self.mode.value}
+        return {"user_id": self.id, "name": self.name, "last_img": self.last_img, "glast_img": self.last_img,
+                "mode": self.mode.value}
 
 
 class Group:
-    def __init__(self, group_id, users: List[str], last_img="", mode: Mode = Mode.none):
+    def __init__(self, group_id, last_img="", mode: Mode = Mode.none):
         self.id = group_id
-        self.users = users
         self.last_img = last_img
         self.mode = mode
 
-    def user_list(self):
-        temp = {}
-        for i in self.users:
-            temp.update({i: True})
-        return temp
-
     def to_dict(self):
-        return {"users": self.user_list(), "last_img": self.last_img, "mode": self.mode.value}
+        return {"group_id": self.id, "users": [], "last_img": self.last_img, "mode": self.mode.value}

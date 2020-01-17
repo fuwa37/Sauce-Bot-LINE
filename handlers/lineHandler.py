@@ -157,7 +157,7 @@ def image_uploader_group(iid, img):
 def image_uploader_user(iid, img):
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["uid"],
                                      tags="TEMP")
-    handlers.set_user_img(iid["uid"], last_img=res["url"])
+    handlers.set_user_last_img(iid["uid"], res["url"])
 
 
 def proc_image(event):
@@ -226,4 +226,4 @@ def handle_join(event):
                           preview_image_url=handlers.sauce_img),
          TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
-    handlers.set_group_user(iid["gid"])
+    handlers.set_group_user(iid["gid"], iid['uid'])
