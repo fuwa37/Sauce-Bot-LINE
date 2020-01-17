@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List
 
 
 class Mode(Enum):
@@ -27,3 +28,24 @@ class Group:
 
     def to_dict(self):
         return {"group_id": self.id, "users": [], "last_img": self.last_img, "mode": self.mode.value}
+
+
+class Hentai:
+    def __init__(self, number, info, token, last_update):
+        self.number = number
+        self.info = info
+        self.token = token
+        self.last_update = last_update
+
+    def to_dict(self):
+        return {'number': self.number, 'info': self.info, 'token': self.token, 'last_update': self.last_update}
+
+
+class Ani:
+    def __init__(self, synonims: List[str], info, last_update):
+        self.synonims = synonims
+        self.info = info
+        self.last_update = last_update
+
+    def to_dict(self):
+        return {'synonims': self.synonims, 'info': self.info, 'last_update': self.last_update}

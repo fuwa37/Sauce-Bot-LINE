@@ -1,12 +1,22 @@
 # from https://stackoverflow.com/questions/16981921/relative-imports-in-python-3 to make the imports work when imported as submodule
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+import os, sys;
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import handlers.nHentaiTagBot.commentpy as commentpy
 import requests
 import json
 import re
 from bs4 import BeautifulSoup
+from handlers.dbhandler import HentaiCache
+from datetime import datetime
+import logging
+import handlers.logger
 
-API_URL_HITOMILA = 'https://hitomi.la/galleries/' # needs .html appended
+API_URL_HITOMILA = 'https://hitomi.la/galleries/'  # needs .html appended
+
+logger = handlers.logger.setup_logger('hitomila_log', 'hitomila_log.log', level=logging.INFO)
+cache = HentaiCache('hitomila')
+
 
 def analyseNumber(galleryNumber):
     title = ''
@@ -20,11 +30,12 @@ def analyseNumber(galleryNumber):
     tags = []
     isRedacted = False
 
-    response = requests.get(API_URL_HITOMILA+str(galleryNumber)+".html")
-    if response.status_code == 404:
+    # response = requests.get(API_URL_HITOMILA+str(galleryNumber)+".html")
+    response = getHTML(galleryNumber)
+    if response == 404:
         return [404]
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, features="html.parser")
+    if response:
+        soup = BeautifulSoup(response, features="html.parser")
 
         # Check for redirect
         if soup.title.string == 'Redirect':
@@ -44,7 +55,7 @@ def analyseNumber(galleryNumber):
             print("No Artist")
 
         # Page count works by finding and counting the loaded thumbnail images
-        numbersText = re.findall(r'tn\.hitomi\.la\/smalltn\/', response.text)
+        numbersText = re.findall(r'tn\.hitomi\.la\/smalltn\/', response)
         numberOfPages = len(numbersText)
 
         # reduce scope to the different remaining categories
@@ -57,7 +68,8 @@ def analyseNumber(galleryNumber):
             print("No Title")
 
         try:
-            types = [re.search(r'\S+\s?\S+', a.string).group(0).title() for a in categories.table.findAll('a', href=re.compile(r'\/type\/'))]
+            types = [re.search(r'\S+\s?\S+', a.string).group(0).title() for a in
+                     categories.table.findAll('a', href=re.compile(r'\/type\/'))]
             print(types)
         except:
             print("No type")
@@ -97,6 +109,7 @@ def analyseNumber(galleryNumber):
     else:
         return []
 
+
 def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useError=False, generateLink=False):
     title = 0
     pages = 1
@@ -119,11 +132,11 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
             if processedData[0] == 404:
                 replyString += "This gallery is returning a 404. The gallery has either been removed or doesn't exist yet."
 
-        #Censorship engine
+        # Censorship engine
         if processedData[isRedacted]:
             if censorshipLevel > 5:
                 return ""
-            #Level 2
+            # Level 2
             if censorshipLevel > 1:
                 if processedData[artist]:
                     processedData[artist] = "[REDACTED]"
@@ -131,17 +144,19 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
                     processedData[title] = "[REDACTED]"
                 if processedData[group]:
                     processedData[group] = ["[REDACTED]" for element in processedData[group]]
-            #Level 3
+            # Level 3
             if censorshipLevel > 2:
                 if processedData[series]:
                     processedData[series] = ["[REDACTED]" for element in processedData[series]]
                 if processedData[characters]:
                     processedData[characters] = ["[REDACTED]" for element in processedData[characters]]
-            #Level 4
+            # Level 4
             if censorshipLevel > 3:
                 if processedData[tags]:
-                    processedData[tags] = ["[REDACTED]" if not any(tag in element.lower() for tag in ['loli','shota']) else element for element in processedData[tags]]
-            #Level 5
+                    processedData[tags] = [
+                        "[REDACTED]" if not any(tag in element.lower() for tag in ['loli', 'shota']) else element for
+                        element in processedData[tags]]
+            # Level 5
             if censorshipLevel > 4:
                 if processedData[pages] > 0:
                     processedData[pages] = 0
@@ -149,8 +164,6 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
                     processedData[types] = ["[REDACTED]" for element in processedData[types]]
                 if processedData[language]:
                     processedData[language] = ["[REDACTED]" for element in processedData[language]]
-
-
 
         if processedData[isRedacted]:
             if censorshipLevel > 0:
@@ -171,7 +184,7 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
             replyString += "Number of pages: " + str(processedData[pages]) + "\n\n"
         if processedData[artist]:
             replyString += "Artist: " + processedData[artist] + "\n\n"
-        
+
         if processedData[group]:
             replyString += commentpy.additionalTagsString(processedData[group], "Group", False) + "\n\n"
         if processedData[types]:
@@ -186,6 +199,23 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
             replyString += commentpy.additionalTagsString(processedData[tags], "Tag", False) + "\n\n"
     return replyString
 
+
+def getHTML(galleryNumber):
+    entry = cache.get(galleryNumber)
+
+    if entry and (datetime.now() - cache.string_to_date(entry['last_update'])).days < 7:
+        logger.info('Cache HIT ' + str(galleryNumber) + ' ' + entry['last_update'])
+        return entry['info']
+
+    response = requests.get(API_URL_HITOMILA + str(galleryNumber) + ".html")
+    if response.status_code == 404:
+        return entry['info'] if entry else 404
+    if response.status_code == 200:
+        cache.set(galleryNumber, response.text)
+        logger.info('Cache UPSERT ' + str(galleryNumber))
+        return response.text
+
+
 def getNumbers(comment):
     numbers = re.findall(r'(?<=(?<!\>)\!)\d{5,8}(?=\!(?!\<))', comment)
     try:
@@ -194,6 +224,7 @@ def getNumbers(comment):
         numbers = []
     numbers = commentpy.removeDuplicates(numbers)
     return numbers
+
 
 def scanURL(comment):
     hitomilaNumbers = []

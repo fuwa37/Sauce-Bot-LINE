@@ -1,9 +1,15 @@
 # from https://stackoverflow.com/questions/16981921/relative-imports-in-python-3 to make the imports work when imported as submodule
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+import os, sys;
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import handlers.nHentaiTagBot.commentpy as commentpy
 import requests
 import json
 import re
+from handlers.dbhandler import HentaiCache
+from datetime import datetime
+import logging
+import handlers.logger
 
 API_URL_NHENTAI = 'https://nhentai.net/api/gallery/'
 API_URL_TSUMINO = 'https://www.tsumino.com/Book/Info/'
@@ -11,9 +17,11 @@ API_URL_EHENTAI = "https://api.e-hentai.org/api.php"
 LINK_URL_NHENTAI = "https://nhentai.net/g/"
 LINK_URL_EHENTAI = "https://e-hentai.org/g/"
 
+logger = handlers.logger.setup_logger('ehentai_log', 'ehentai_log.log', level=logging.INFO)
+cache = HentaiCache('ehantai')
+
+
 def analyseNumber(galleryNumberAndToken):
-    galleryID = galleryNumberAndToken[0]
-    galleryToken = galleryNumberAndToken[1]
     title = ''
     numberOfPages = 0
     category = ''
@@ -28,8 +36,9 @@ def analyseNumber(galleryNumberAndToken):
     misc = []
     isRedacted = False
 
-    requestString = '{"method": "gdata","gidlist": [['+ str(galleryID) + ',' + '"' + galleryToken +'"]],"namespace": 1}'
-    ehentaiJSON = requests.post(API_URL_EHENTAI, json=json.loads(requestString)).json()
+    ehentaiJSON = getJSON(galleryNumberAndToken)
+    # requestString = '{"method": "gdata","gidlist": [['+ str(galleryID) + ',' + '"' + galleryToken +'"]],"namespace": 1}'
+    # ehentaiJSON = requests.post(API_URL_EHENTAI, json=json.loads(requestString)).json()
 
     if 'gmetadata' in ehentaiJSON:
         title = ehentaiJSON['gmetadata'][0]['title']
@@ -41,7 +50,7 @@ def analyseNumber(galleryNumberAndToken):
         rating = ehentaiJSON['gmetadata'][0]['rating']
         tags = ehentaiJSON['gmetadata'][0]['tags']
         for tag in tags:
-        # print(tag)
+            # print(tag)
             if 'artist:' in tag:
                 artist.append(re.search(r'(?<=artist:).+', tag).group(0))
             elif 'character:' in tag:
@@ -63,8 +72,9 @@ def analyseNumber(galleryNumberAndToken):
             elif "shotacon" in male:
                 isRedacted = True
 
-        #TODO actual loli check
-    return [title, numberOfPages, category, rating, artist, character, female, group, language, male, parody, misc, isRedacted]
+        # TODO actual loli check
+    return [title, numberOfPages, category, rating, artist, character, female, group, language, male, parody, misc,
+            isRedacted]
 
 
 def generateReplyString(processedData, galleryNumberAndToken, censorshipLevel=0, useError=False, generateLink=False):
@@ -97,11 +107,11 @@ def generateReplyString(processedData, galleryNumberAndToken, censorshipLevel=0,
     replyString = ""
 
     if processedData:
-        #Censorship engine
+        # Censorship engine
         if processedData[isRedacted]:
             if censorshipLevel > 5:
                 return ""
-            #Level 2
+            # Level 2
             if censorshipLevel > 1:
                 if processedData[title]:
                     processedData[title] = "[REDACTED]"
@@ -109,21 +119,23 @@ def generateReplyString(processedData, galleryNumberAndToken, censorshipLevel=0,
                     processedData[artist] = ["[REDACTED]" for element in processedData[artist]]
                 if processedData[group]:
                     processedData[group] = ["[REDACTED]" for element in processedData[group]]
-            #Level 3
+            # Level 3
             if censorshipLevel > 2:
                 if processedData[parody]:
                     processedData[parody] = ["[REDACTED]" for element in processedData[parody]]
                 if processedData[character]:
                     processedData[character] = ["[REDACTED]" for element in processedData[character]]
-            #Level 4
+            # Level 4
             if censorshipLevel > 3:
                 if processedData[male]:
-                    processedData[male] = ["[REDACTED]" if "shota" not in element else element for element in processedData[male]]
+                    processedData[male] = ["[REDACTED]" if "shota" not in element else element for element in
+                                           processedData[male]]
                 if processedData[female]:
-                    processedData[female] = ["[REDACTED]" if "loli" not in element else element for element in processedData[female]]
+                    processedData[female] = ["[REDACTED]" if "loli" not in element else element for element in
+                                             processedData[female]]
                 if processedData[misc]:
                     processedData[misc] = ["[REDACTED]" for element in processedData[misc]]
-            #Level 5
+            # Level 5
             if censorshipLevel > 4:
                 if processedData[numberOfPages]:
                     processedData[numberOfPages] = "[REDACTED]"
@@ -170,8 +182,25 @@ def generateReplyString(processedData, galleryNumberAndToken, censorshipLevel=0,
             replyString += commentpy.additionalTagsString(processedData[female], "Female", False) + "\n\n"
         if processedData[misc]:
             replyString += commentpy.additionalTagsString(processedData[misc], "Misc", False) + "\n\n"
-    
+
     return replyString
+
+
+def getJSON(galleryNumberAndToken):
+    galleryID = galleryNumberAndToken[0]
+    galleryToken = galleryNumberAndToken[1]
+    entry = cache.get(galleryID)
+
+    if entry and (datetime.now() - cache.string_to_date(entry['last_update'])).days < 7:
+        logger.info('Cache HIT ' + galleryID + ' ' + entry['last_update'])
+        return entry['info']
+    requestString = '{"method": "gdata","gidlist": [[' + str(
+        galleryID) + ',' + '"' + galleryToken + '"]],"namespace": 1}'
+    ehentaiResponse = requests.post(API_URL_EHENTAI, json=json.loads(requestString))
+    if ehentaiResponse.status_code == 200:
+        cache.set(galleryID, ehentaiResponse.json(), galleryToken)
+        logger.info('Cache UPSERT ' + galleryID + ', ' + galleryToken)
+    return ehentaiResponse.json()
 
 
 def getNumbers(comment):
@@ -186,6 +215,7 @@ def getNumbers(comment):
         print("Number Recognition failed Ehentai")
     return numbers
 
+
 def scanURL(comment):
     ehentaiNumbers = []
     # having two sites makes getting the url more than with the others.
@@ -197,7 +227,7 @@ def scanURL(comment):
             removeURL = re.search(r'(?<=\/g\/).+', link).group(0)
             galleryID = int(re.search(r'\d+(?=\/)', removeURL).group(0))
             galleryToken = re.search(r'(?<=\/)\w+', removeURL).group(0)
-            ehentaiNumbers.append([galleryID,galleryToken])
+            ehentaiNumbers.append([galleryID, galleryToken])
     except AttributeError:
         print("no ehentaiLinks")
     except ValueError:
@@ -214,7 +244,7 @@ def scanURL(comment):
             pageToken = re.search(r'\w+', removeURL).group(0)
             page = re.search(r'(?<=-)\d+', removeURL).group(0)
 
-            resquestStringPage = '{"method": "gtoken","pagelist": [[' + galleryID +',"' + pageToken + '",' + page + ']]}'
+            resquestStringPage = '{"method": "gtoken","pagelist": [[' + galleryID + ',"' + pageToken + '",' + page + ']]}'
             ehentaiJSONpage = requests.post(API_URL_EHENTAI, json=json.loads(resquestStringPage)).json()
             if 'tokenlist' in ehentaiJSONpage:
                 galleryToken = ehentaiJSONpage['tokenlist'][0]['token']

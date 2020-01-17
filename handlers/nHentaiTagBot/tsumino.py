@@ -1,15 +1,25 @@
 # from https://stackoverflow.com/questions/16981921/relative-imports-in-python-3 to make the imports work when imported as submodule
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+import os, sys;
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import handlers.nHentaiTagBot.commentpy as commentpy
 import requests
 import re
 from bs4 import BeautifulSoup
+from handlers.dbhandler import HentaiCache
+from datetime import datetime
+import logging
+import handlers.logger
 
 API_URL_NHENTAI = 'https://nhentai.net/api/gallery/'
-API_URL_TSUMINO = 'https://www.tsumino.com/Book/Info/'
+API_URL_TSUMINO = 'https://www.tsumino.com/entry/'
 API_URL_EHENTAI = "https://api.e-hentai.org/api.php"
 LINK_URL_NHENTAI = "https://nhentai.net/g/"
 LINK_URL_EHENTAI = "https://e-hentai.org/g/"
+
+logger = handlers.logger.setup_logger('tsumino_log', 'tsumino_log.log', level=logging.INFO)
+cache = HentaiCache('tsumino')
+
 
 def analyseNumber(galleryNumber):
     title = ''
@@ -23,27 +33,28 @@ def analyseNumber(galleryNumber):
     collection = []
     isRedacted = False
 
-    response = requests.get(API_URL_TSUMINO+str(galleryNumber))
-    print(response)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, features="html.parser")
+    response = getHTML(galleryNumber)
+    # response = requests.get(API_URL_TSUMINO+str(galleryNumber))
+    # print(response)
+    if response:
+        soup = BeautifulSoup(response, features="html.parser")
         # title finder
         try:
-            title = soup.find('div', id="Title").string.replace('\n','')
+            title = soup.find('div', id="Title").string.replace('\n', '')
             print(title)
         except:
             print("No Title")
 
         # pages finder
         try:
-            numberOfPages = soup.find('div', id="Pages").string.replace('\n','')
+            numberOfPages = soup.find('div', id="Pages").string.replace('\n', '')
             print(numberOfPages)
         except:
             print("No Pages")
 
         # rating finder
         try:
-            rating = soup.find('div', id="Rating").string.replace('\n','')
+            rating = soup.find('div', id="Rating").string.replace('\n', '')
             print(rating)
         except:
             print("No Rating")
@@ -138,9 +149,9 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
     print("Tsumino replyStringGenerator Start")
 
     if processedData:
-        #Censorship engine
+        # Censorship engine
         if processedData[isRedacted]:
-            #Level 2
+            # Level 2
             if censorshipLevel > 5:
                 return ""
             if censorshipLevel > 1:
@@ -151,20 +162,22 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
                     processedData[artist] = ["[REDACTED]" for element in processedData[artist]]
                 if processedData[group]:
                     processedData[group] = ["[REDACTED]" for element in processedData[group]]
-            #Level 3
+            # Level 3
             if censorshipLevel > 2:
                 if processedData[collection]:
                     processedData[collection] = ["[REDACTED]" for element in processedData[collection]]
                 if processedData[parody]:
                     processedData[parody] = ["[REDACTED]" for element in processedData[parody]]
-            #Level 4
+            # Level 4
             if censorshipLevel > 3:
                 if processedData[tag]:
-                    processedData[tag] = ["[REDACTED]" if not any(tags in element.lower() for tags in ['loli','shota']) else element for element in processedData[tag]]
-            #Level 5
+                    processedData[tag] = [
+                        "[REDACTED]" if not any(tags in element.lower() for tags in ['loli', 'shota']) else element for
+                        element in processedData[tag]]
+            # Level 5
             if censorshipLevel > 4:
                 if processedData[pages]:
-                    processedData[pages] = "[REDACTED]"  
+                    processedData[pages] = "[REDACTED]"
                 if processedData[rating]:
                     processedData[rating] = "[REDACTED]"
                 if processedData[category]:
@@ -204,6 +217,20 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
     return replyString
 
 
+def getHTML(galleryNumber):
+    entry = cache.get(galleryNumber)
+
+    if entry and (datetime.now() - cache.string_to_date(entry['last_update'])).days < 7:
+        logger.info('Cache HIT ' + str(galleryNumber) + ' ' + entry['last_update'])
+        return entry['info']
+
+    response = requests.get(API_URL_TSUMINO + str(galleryNumber))
+    if response.status_code == 200:
+        cache.set(galleryNumber, response.text)
+        logger.info('Cache UPSERT ' + str(galleryNumber))
+        return response.text
+
+
 def getNumbers(comment):
     numbers = re.findall(r'(?<=\))\d{5}(?=\()', comment)
     try:
@@ -220,6 +247,7 @@ def scanURL(comment):
     commentLower = comment.lower()
     tsuminoLinks = re.findall(r'https?:\/\/(?:www.)?tsumino.com\/book\/info\/\d{1,5}', commentLower)
     tsuminoLinks += re.findall(r'https?:\/\/(?:www.)?tsumino.com\/read\/view\/\d{1,5}', commentLower)
+    tsuminoLinks += re.findall(r'https?:\/\/(?:www.)?tsumino.com\/entry\/\d{1,5}', commentLower)
     try:
         tsuminoNumbers = [re.search(r'\d+', link).group(0) for link in tsuminoLinks]
     except AttributeError:

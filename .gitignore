@@ -189,6 +189,7 @@ handlers/testing.py
 handlers/testing2.py
 
 *.sh
+*.db
 
 firebase_admin.json
 firebase_url.txt

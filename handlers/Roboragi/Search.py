@@ -20,18 +20,34 @@ term.
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import traceback
+import json
 
 import handlers.Roboragi.Anilist as Anilist
+import handlers.Roboragi.AnimePlanet as AniP
 import handlers.Roboragi.CommentBuilder as CommentBuilder
 import handlers.Roboragi.Kitsu as Kitsu
 import handlers.Roboragi.LNDB as LNDB
 import handlers.Roboragi.NU as NU
+import handlers.Roboragi.MU as MU
 from handlers.Roboragi.VNDB import VNDB
+from handlers.dbhandler import AniDB
+from datetime import datetime
+import logging
+import handlers.logger
+
+logger = handlers.logger.setup_logger('AniDB', 'Ani_DB_log.log', level=logging.INFO)
 
 
 def buildMangaReply(searchText, isExpanded):
     """ Builds a manga reply from multiple sources """
     try:
+        cache = AniDB('manga')
+
+        entry = cache.get(searchText)
+        if entry and (datetime.now() - cache.string_to_date(entry['last_update'])).days < 7:
+            logger.info('Cache HIT ' + searchText + ' ' + entry['last_update'])
+            return entry['info']
+
         ani = {'search_function': Anilist.getMangaDetails,
                'title_function': Anilist.getTitles,
                'synonym_function': Anilist.getSynonyms,
@@ -42,6 +58,10 @@ def buildMangaReply(searchText, isExpanded):
                'title_function': Kitsu.get_titles,
                'checked_synonyms': [],
                'result': None}
+        mu = {'search_function': MU.getMangaURL,
+              'result': None}
+        ap = {'search_function': AniP.getMangaURL,
+              'result': None}
 
         data_sources = [ani, kit]
 
@@ -92,11 +112,14 @@ def buildMangaReply(searchText, isExpanded):
                             titles.update(t.lower())
 
         if ani['result'] or kit['result']:
-            return CommentBuilder.buildMangaComment(
+            info = CommentBuilder.buildMangaComment(
                 isExpanded=isExpanded,
                 ani=ani['result'],
                 kit=kit['result']
             )
+            cache.set(list(synonyms), info)
+            logger.info('Cache UPSERT ' + searchText)
+            return info
         else:
             print('No result found for ' + searchText)
             return None
@@ -109,6 +132,13 @@ def buildMangaReply(searchText, isExpanded):
 def buildAnimeReply(searchText, isExpanded, trace):
     """ Builds an anime reply from multiple sources """
     try:
+        cache = AniDB('anime')
+
+        entry = cache.get(searchText)
+        if entry and (datetime.now() - cache.string_to_date(entry['last_update'])).days < 7:
+            logger.info('Cache HIT ' + searchText + ' ' + entry['last_update'])
+            return entry['info']
+
         kit = {'search_function': Kitsu.search_anime,
                'synonym_function': Kitsu.get_synonyms,
                'title_function': Kitsu.get_titles,
@@ -153,12 +183,16 @@ def buildAnimeReply(searchText, isExpanded, trace):
                             titles.update(t.lower())
 
         if ani['result'] or kit['result']:
-            return CommentBuilder.buildAnimeComment(
+            info = CommentBuilder.buildAnimeComment(
                 isExpanded=isExpanded,
                 ani=ani['result'],
                 kit=kit['result'],
                 trace=trace
             )
+            cache.set(list(synonyms), info)
+            logger.info('Cache UPSERT ' + searchText)
+
+            return info
         else:
             print('No result found for ' + searchText)
             return None
@@ -171,6 +205,13 @@ def buildAnimeReply(searchText, isExpanded, trace):
 def buildLightNovelReply(searchText, isExpanded):
     """ Builds an LN reply from multiple sources """
     try:
+        cache = AniDB('ln')
+
+        entry = cache.get(searchText)
+        if entry and (datetime.now() - cache.string_to_date(entry['last_update'])).days < 7:
+            logger.info('Cache HIT ' + searchText + ' ' + entry['last_update'])
+            return entry['info']
+
         ani = {'search_function': Anilist.getLightNovelDetails,
                'synonym_function': Anilist.getSynonyms,
                'title_function': Anilist.getTitles,
@@ -231,12 +272,15 @@ def buildLightNovelReply(searchText, isExpanded):
                         break
 
         if ani['result'] or kit['result']:
-            return CommentBuilder.buildLightNovelComment(
+            info = CommentBuilder.buildLightNovelComment(
                 isExpanded=isExpanded,
                 ani=ani['result'],
                 nu=nu['result'],
                 kit=kit['result']
             )
+            cache.set(list(synonyms), info)
+            logger.info('Cache UPSERT ' + searchText)
+            return info
         else:
             print('No result found for ' + searchText)
             return None
@@ -249,6 +293,13 @@ def buildLightNovelReply(searchText, isExpanded):
 def buildVisualNovelReply(searchText, isExpanded):
     """ Builds an VN reply from VNDB """
     try:
+        cache = AniDB('vn')
+
+        entry = cache.get(searchText)
+        if entry and (datetime.now() - cache.string_to_date(entry['last_update'])).days < 7:
+            logger.info('Cache HIT ' + searchText + ' ' + entry['last_update'])
+            return entry['info']
+
         vndb = VNDB()
 
         result = vndb.getVisualNovelDetails(searchText)
@@ -256,7 +307,10 @@ def buildVisualNovelReply(searchText, isExpanded):
         vndb.close()
 
         if result:
-            return CommentBuilder.buildVisualNovelComment(isExpanded, result)
+            info = CommentBuilder.buildVisualNovelComment(isExpanded, result)
+            cache.set(list({searchText}), info)
+            logger.info('Cache UPSERT ' + searchText)
+            return info
         else:
             print('No result found for ' + searchText)
             return None

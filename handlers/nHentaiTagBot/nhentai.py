@@ -1,18 +1,24 @@
 # from https://stackoverflow.com/questions/16981921/relative-imports-in-python-3 to make the imports work when imported as submodule
-import os, sys;
-
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+import os
+import sys
 import handlers.nHentaiTagBot.commentpy as commentpy
 import requests
 import json
 import re
 import time
+from handlers.dbhandler import HentaiCache
+from datetime import datetime
+import logging
+import handlers.logger
 
 API_URL_NHENTAI = 'https://nhentai.net/api/gallery/'
 API_URL_TSUMINO = 'https://www.tsumino.com/Book/Info/'
 API_URL_EHENTAI = "https://api.e-hentai.org/api.php"
 LINK_URL_NHENTAI = "https://nhentai.net/g/"
 LINK_URL_EHENTAI = "https://e-hentai.org/g/"
+
+logger = handlers.logger.setup_logger('nhentai_log', 'nhentai_log.log', level=logging.INFO)
+cache = HentaiCache('nhentai')
 
 
 def analyseNumber(galleryNumber):
@@ -163,17 +169,25 @@ def generateReplyString(processedData, galleryNumber, censorshipLevel=0, useErro
 
 def getJSON(galleryNumber):
     galleryNumber = str(galleryNumber)
-    #request = getRequest(galleryNumber)  # ['tags'] #
+    entry = cache.get(galleryNumber)
+
+    if entry and (datetime.now() - cache.string_to_date(entry['last_update'])).days < 7:
+        logger.info('Cache HIT ' + galleryNumber + ' ' + entry['last_update'])
+        return entry['info']
+
+    # request = getRequest(galleryNumber)  # ['tags'] #
     request = requests.get(API_URL_NHENTAI + galleryNumber)
-    if request == None:
-        return []
+    if request is None:
+        return entry['info'] if entry else []
     if request.status_code == 404:
-        return [404]
-    #nhentaiTags = json.loads(re.search(r'(?<=N.gallery\().*(?=\))', request.text).group(0))
+        return entry['info'] if entry else [404]
+    # nhentaiTags = json.loads(re.search(r'(?<=N.gallery\().*(?=\))', request.text).group(0))
     nhentaiTags = request.json()
     if "error" in nhentaiTags:
         return []
     else:
+        cache.set(galleryNumber, nhentaiTags)
+        logger.info('Cache UPSERT ' + galleryNumber)
         return nhentaiTags
 
 

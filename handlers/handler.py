@@ -5,7 +5,7 @@ import handlers.Roboragi.AnimeBot as aBot
 from handlers.strings import *
 from handlers.sauce.comment_builder import build_comment
 from handlers.sauce.get_source import get_source_data
-from handlers.dbhandler import *
+from handlers.dbhandler import LineProfile, model
 
 is_sleep = {'trace': False,
             'sauce': False}
@@ -34,11 +34,11 @@ def handle_command(text, iid):
                 if iid["type"] == "group" or iid["type"] == "room":
                     temp_text = text.split('@')
                     if len(temp_text) > 1:
-                        url = get_user_glast_img(name=temp_text[1].rstrip())
+                        url = LineProfile.get_user_glast_img(name=temp_text[1].rstrip())
                     else:
-                        url = get_group_last_img(iid["gid"])
+                        url = LineProfile.get_group_last_img(iid["gid"])
                 else:
-                    url = get_user_last_img(iid["uid"])
+                    url = LineProfile.get_user_last_img(iid["uid"])
             except Exception as err:
                 print(err)
                 return {'reply': "Can't get the image"}
@@ -72,6 +72,7 @@ def handle_command(text, iid):
             else:
                 return {'source': 'hbot',
                         'reply': "Please turn on Sukebei mode\n !sukebei-switch"}
+
 
 def handle_sleep(t, source):
     sleep_t = threading.Thread(target=handle_sleeping, args=(t, source))
@@ -113,20 +114,20 @@ def handle_dead(t, source):
 
 def is_sukebei(iid):
     if iid["type"] == "group" or iid["type"] == "room":
-        return get_group_mode(iid["gid"])
+        return LineProfile.get_group_mode(iid["gid"])
     else:
-        return get_user_mode(iid["uid"])
+        return LineProfile.get_user_mode(iid["uid"])
 
 
 def sukebei_on(iid):
     if iid["type"] == "group" or iid["type"] == "room":
-        set_group_mode(iid["gid"], model.Mode.sukebei)
+        LineProfile.set_group_mode(iid["gid"], model.Mode.sukebei)
     else:
-        set_user_mode(iid["uid"], model.Mode.sukebei)
+        LineProfile.set_user_mode(iid["uid"], model.Mode.sukebei)
 
 
 def sukebei_off(iid):
     if iid["type"] == "group" or iid["type"] == "room":
-        set_group_mode(iid["gid"], model.Mode.none)
+        LineProfile.set_group_mode(iid["gid"], model.Mode.none)
     else:
-        set_user_mode(iid["uid"], model.Mode.none)
+        LineProfile.set_user_mode(iid["uid"], model.Mode.none)
