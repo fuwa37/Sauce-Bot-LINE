@@ -43,7 +43,7 @@ def handle_command(text, iid):
                 print(err)
                 return {'reply': "Can't get the image"}
             else:
-                if url is None:
+                if url is None or url == '':
                     return {'reply': "Image not found"}
 
             if is_sleep["sauce"] or is_sleep["trace"]:

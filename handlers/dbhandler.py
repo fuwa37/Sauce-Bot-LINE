@@ -6,8 +6,6 @@ user_ref = line_db.table('users')
 group_ref = line_db.table('groups')
 Search = Query()
 
-u_id = 'U2e91a820fc12fa78c55ded8731cd3698'
-
 
 def set_user(user_id):
     from handlers.lineHandler import get_profile
@@ -59,25 +57,43 @@ def set_group_last_img(user_id, group_id, img):
     group_ref.update({'last_img': img}, Search.group_id == group_id)
 
 
+def get_user(user_id):
+    return user_ref.get(Search.user_id == user_id)
+
+
+def get_user_by_name(name):
+    return user_ref.get(Search.name == name)
+
+
+def get_group(group_id):
+    return group_id.get(Search.group_id == group_id)
+
+
 def get_user_mode(user_id):
-    return user_ref.get(Search.user_id == user_id)['mode']
+    temp = get_user(user_id)
+    return temp['mode'] if temp else False
 
 
 def get_group_mode(group_id):
-    return group_id.get(Search.group_id == group_id)['mode']
+    temp = get_group(group_id)
+    return temp['mode'] if temp else False
 
 
 def get_user_last_img(user_id):
-    return user_ref.get(Search.user_id == user_id)['last_img']
+    temp = get_user(user_id)
+    return temp['last_img'] if temp else None
 
 
 def get_user_glast_img(name):
-    return user_ref.get(Search.name == name)['glast_img']
+    temp = get_user_by_name(name)
+    return temp['glast_img'] if temp else None
 
 
 def get_group_last_img(group_id):
-    return group_id.get(Search.group_id == group_id)['last_img']
+    temp = get_group(group_id)
+    return temp['last_img'] if temp else None
 
 
 def get_group_users(group_id):
-    return group_ref.get(Search.group_id == group_id)['users']
+    temp = get_group(group_id)
+    return temp['last_img'] if temp else []
