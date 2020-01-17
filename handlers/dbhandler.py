@@ -66,7 +66,7 @@ def get_user_by_name(name):
 
 
 def get_group(group_id):
-    return group_id.get(Search.group_id == group_id)
+    return group_ref.get(Search.group_id == group_id)
 
 
 def get_user_mode(user_id):
