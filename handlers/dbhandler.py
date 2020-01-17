@@ -37,23 +37,33 @@ def set_group_user(group_id, user_id):
 
 
 def set_user_mode(user_id, mode: model.Mode):
+    if not get_user(user_id):
+        set_user(user_id)
     user_ref.update({'mode': mode.value}, Search.user_id == user_id)
 
 
 def set_group_mode(group_id, mode: model.Mode):
+    if not get_group(group_id):
+        set_group(group_id)
     group_ref.update({'mode': mode.value}, Search.group_id == group_id)
 
 
 def set_user_last_img(user_id, img):
+    if not get_user(user_id):
+        set_user(user_id)
     user_ref.update({'last_img': img}, Search.user_id == user_id)
 
 
 def set_user_glast_img(user_id, img):
+    if not get_user(user_id):
+        set_user(user_id)
     user_ref.update({'glast_img': img}, Search.user_id == user_id)
 
 
 def set_group_last_img(user_id, group_id, img):
     set_user_glast_img(user_id, img)
+    if not get_group(group_id):
+        set_group(group_id, user_id)
     group_ref.update({'last_img': img}, Search.group_id == group_id)
 
 
