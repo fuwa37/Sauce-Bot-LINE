@@ -42,10 +42,10 @@ class Hentai:
 
 
 class Ani:
-    def __init__(self, synonims: List[str], info, last_update):
-        self.synonims = synonims
+    def __init__(self, synonyms: List[str], info, last_update):
+        self.synonyms = synonyms
         self.info = info
         self.last_update = last_update
 
     def to_dict(self):
-        return {'synonyms': self.synonims, 'info': self.info, 'last_update': self.last_update}
+        return {'synonyms': self.synonyms, 'info': self.info, 'last_update': self.last_update}
