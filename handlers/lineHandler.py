@@ -60,7 +60,14 @@ def callback():
 
 
 def get_profile(uid, gid=None):
-    return line_bot_api.get_group_member_profile(gid, uid) if gid else line_bot_api.get_profile(uid)
+    if gid:
+        try:
+            return line_bot_api.get_group_member_profile(gid, uid)
+        except Exception as e:
+            print("Is A Room" + str(e))
+            return line_bot_api.get_room_member_profile(gid, uid)
+    else:
+        return line_bot_api.get_group_member_profile(gid, uid) if gid else line_bot_api.get_profile(uid)
 
 
 def lid(event):
