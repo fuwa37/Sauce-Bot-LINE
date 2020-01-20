@@ -48,4 +48,4 @@ class Ani:
         self.last_update = last_update
 
     def to_dict(self):
-        return {'synonims': self.synonims, 'info': self.info, 'last_update': self.last_update}
+        return {'synonyms': self.synonims, 'info': self.info, 'last_update': self.last_update}

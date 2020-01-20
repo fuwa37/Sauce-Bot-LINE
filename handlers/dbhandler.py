@@ -1,6 +1,7 @@
 from tinydb import TinyDB, Query
 import handlers.model as model
 from datetime import datetime
+from string import capwords
 
 line_db = TinyDB('line_db.json')
 user_ref = line_db.table('users')
@@ -151,9 +152,29 @@ class AniDB:
     def string_to_date(date):
         return datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
 
-    def set(self, synonims, info):
-        temp = model.Ani(synonims, info, AniDB.date_to_string(datetime.now()))
-        ani_db.table(self.table).upsert(temp.to_dict(), Search.synonims.any(synonims))
+    def append_synonyms(self, first_list, second_list):
+        in_first = set(first_list)
+        in_second = set(second_list)
 
-    def get(self, title):
-        return ani_db.table(self.table).get(Search.synonims.any(title.lower()))
+        in_second_but_not_in_first = in_second - in_first
+
+        result = first_list + list(in_second_but_not_in_first)
+
+        return result
+
+    def set(self, synonyms, info):
+        temp = model.Ani(synonyms, info, AniDB.date_to_string(datetime.now()))
+        entry = self.get(info['title'])
+        if entry:
+            try:
+                temp = self.append_synonyms(entry['synonyms'], synonyms)
+            except Exception as e:
+                temp = entry['synonyms']
+                temp.extend(synonyms)
+            ani_db.table(self.table).update({'synonyms': temp}, Search.info.title == info['title'])
+        else:
+            ani_db.table(self.table).insert(temp.to_dict())
+
+    def get(self, synonym):
+        return ani_db.table(self.table).get(
+            (Search.info.title == capwords(synonym)) | (Search.synonyms.any(synonym.lower())))
