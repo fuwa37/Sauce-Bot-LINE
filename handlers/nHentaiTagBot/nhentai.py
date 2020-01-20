@@ -182,6 +182,9 @@ def getJSON(galleryNumber):
     if request.status_code == 404:
         return entry['info'] if entry else [404]
     # nhentaiTags = json.loads(re.search(r'(?<=N.gallery\().*(?=\))', request.text).group(0))
+    print(request.text)
+    print('\n\n')
+    print(request.json())
     nhentaiTags = request.json()
     if "error" in nhentaiTags:
         return []

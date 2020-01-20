@@ -51,8 +51,8 @@ SUBREDDIT_PATTERN: Pattern[str] = re.compile(
 TAG_CHARACTERS: Dict[str, Tuple[str, str]] = {
     "anime": ("{", "}"),
     "manga": ("<", ">"),
-    "light_novel": ("]", "["),
-    "visual_novel": ("[", "]"),
+    "light_novel": ("[", "]"),
+    "visual_novel": ("]", "["),
 }
 REGULAR_PATTERNS: Dict[str, Pattern[str]] = _patterns(TAG_CHARACTERS)
 REGULAR_PATTERNS["all"] = _all_patterns(REGULAR_PATTERNS.values())

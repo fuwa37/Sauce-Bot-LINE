@@ -59,8 +59,8 @@ def callback():
     return 'OK'
 
 
-def get_profile(uid):
-    return line_bot_api.get_profile(uid)
+def get_profile(uid, gid=None):
+    return line_bot_api.get_group_member_profile(gid, uid) if gid else line_bot_api.get_profile(uid)
 
 
 def lid(event):

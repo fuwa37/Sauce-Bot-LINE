@@ -15,22 +15,22 @@ Search = Query()
 
 class LineProfile:
     @staticmethod
-    def set_user(user_id):
+    def set_user(user_id, group_id=None):
         from handlers.lineHandler import get_profile
-        temp = get_profile(user_id)
+        temp = get_profile(user_id, group_id)
         user = model.User(user_id=temp.user_id, name=temp.display_name)
         user_ref.insert(user.to_dict())
 
     @staticmethod
-    def set_user_name(user_id):
+    def set_user_name(user_id, group_id=None):
         from handlers.lineHandler import get_profile
-        temp = get_profile(user_id)
+        temp = get_profile(user_id, group_id)
         user_ref.update({'name': temp.display_name}, Search.user_id == temp.user_id)
 
     @staticmethod
     def set_group(group_id, user_id=None):
         if not user_ref.contains(Search.user_id == user_id) and user_id is not None:
-            LineProfile.set_user(user_id)
+            LineProfile.set_user(user_id, group_id)
         group = model.Group(group_id=group_id)
         group_ref.insert(group.to_dict())
 
