@@ -29,7 +29,7 @@ class LineProfile:
 
     @staticmethod
     def set_group(group_id, user_id=None):
-        if not user_ref.contains(Search.user_id == user_id) and user_id is not None:
+        if user_id is not None and not user_ref.contains(Search.user_id == user_id):
             LineProfile.set_user(user_id, group_id)
         group = model.Group(group_id=group_id)
         group_ref.insert(group.to_dict())
@@ -62,14 +62,14 @@ class LineProfile:
         user_ref.update({'last_img': img}, Search.user_id == user_id)
 
     @staticmethod
-    def set_user_glast_img(user_id, img):
+    def set_user_glast_img(user_id, group_id, img):
         if not LineProfile.get_user(user_id):
-            LineProfile.set_user(user_id)
+            LineProfile.set_user(user_id, group_id)
         user_ref.update({'glast_img': img}, Search.user_id == user_id)
 
     @staticmethod
     def set_group_last_img(user_id, group_id, img):
-        LineProfile.set_user_glast_img(user_id, img)
+        LineProfile.set_user_glast_img(user_id, group_id, img)
         if not LineProfile.get_group(group_id):
             LineProfile.set_group(group_id, user_id)
         group_ref.update({'last_img': img}, Search.group_id == group_id)

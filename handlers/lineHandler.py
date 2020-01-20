@@ -62,12 +62,14 @@ def callback():
 def get_profile(uid, gid=None):
     if gid:
         try:
+            print("Is A Group")
             return line_bot_api.get_group_member_profile(gid, uid)
         except Exception as e:
-            print("Is A Room" + str(e))
+            print("Is A Room")
             return line_bot_api.get_room_member_profile(gid, uid)
     else:
-        return line_bot_api.get_group_member_profile(gid, uid) if gid else line_bot_api.get_profile(uid)
+        print("Is A User")
+        return line_bot_api.get_profile(uid)
 
 
 def lid(event):
@@ -157,8 +159,8 @@ def handle_message(event):
 def image_uploader_group(iid, img):
     res = cloudinary.uploader.upload('data:image/jpg;base64,' + img, public_id=iid["gid"] + "_" + iid["uid"],
                                      tags="TEMP")
-    handlers.LineProfile.set_group_user(iid["gid"], iid["uid"])
     handlers.LineProfile.set_group_last_img(iid["uid"], iid["gid"], res["url"])
+    handlers.LineProfile.set_group_user(iid["gid"], iid["uid"])
 
 
 def image_uploader_user(iid, img):

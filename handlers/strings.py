@@ -28,7 +28,7 @@ help_sauce = "Search for source\n\n" \
              "- !sauce+ - for anime\n" \
              "- !f[command] - return any sauce found (may give wrong sauce)"
 
-help_robo = "Search anime/manga/LN/WN/VN information\n\n" \
+help_robo = "Find anime/manga/LN/WN/VN information\n\n" \
             "Info commands:\n" \
             "- !{anime}\n" \
             "ex.: !{Nisekoi}\n\n" \
@@ -37,7 +37,7 @@ help_robo = "Search anime/manga/LN/WN/VN information\n\n" \
             "- ![LN/WN/novel]\n" \
             "ex.: ![A Will Eternal]\n\n" \
             "- !]VN[\n" \
-            "ex.: !]Fate Stay Night["
+            "ex.: !]Fate Stay Night[\n\n" \
 
 help_sukebei = "Find hentai manga doujinshi information\n\n" \
                "Sukebei commands:\n" \
