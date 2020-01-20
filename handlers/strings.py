@@ -23,6 +23,7 @@ sauce_tutorial = "Sauce tutorial:\n" \
 sauce_tutorial_media = "https://res.cloudinary.com/fuwa/video/upload/saucetutor"
 
 help_sauce = "Search for source\n\n" \
+             "Please use good quality(full/clear/clean) image/gif/video\n\n" \
              "Sauce commands:\n" \
              "- !sauce - Search any source\n" \
              "- !sauce+ - for anime\n" \
@@ -37,7 +38,8 @@ help_robo = "Find anime/manga/LN/WN/VN information\n\n" \
             "- ![LN/WN/novel]\n" \
             "ex.: ![A Will Eternal]\n\n" \
             "- !]VN[\n" \
-            "ex.: !]Fate Stay Night[\n\n" \
+            "ex.: !]ImoPara[\n\n" \
+            "Use full title or official/known aliases"
 
 help_sukebei = "Find hentai manga doujinshi information\n\n" \
                "Sukebei commands:\n" \
