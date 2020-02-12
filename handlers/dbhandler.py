@@ -3,7 +3,7 @@ import handlers.model as model
 from datetime import datetime
 from string import capwords
 
-line_db = TinyDB('line_db.json')
+line_db = TinyDB('line_db.db')
 user_ref = line_db.table('users')
 group_ref = line_db.table('groups')
 

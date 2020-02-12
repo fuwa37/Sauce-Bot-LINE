@@ -54,12 +54,12 @@ def analyseNumber(galleryNumber):
                 characters.append([tags['name'], tags['count']])
             elif 'group' in tags['type']:
                 groups.append([tags['name'], tags['count']])
-        if listOfTags:
+        """if listOfTags:
             for entry in listOfTags:
                 if 'lolicon' in entry[0]:
                     isRedacted = True
                 elif 'shotacon' in entry[0]:
-                    isRedacted = True
+                    isRedacted = True"""
 
     processedData = [title, numberOfPages, listOfTags, languages, artists, categories, parodies, characters, groups,
                      isRedacted]

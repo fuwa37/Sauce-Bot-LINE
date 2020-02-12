@@ -53,7 +53,7 @@ def forceres(img, r):
 
 def res(url, force):
     dic = {}
-    minimum_similarity = 0.90
+    minimum_similarity = 0.88
     img, r = saucetrace(url)
     if force is True:
         data = forceres(img, r)

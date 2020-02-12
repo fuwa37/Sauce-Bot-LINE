@@ -108,12 +108,12 @@ def analyseNumber(galleryNumber):
         except:
             print("No Tags")
 
-        if tag:
+        """if tag:
             for entry in tag:
                 if 'loli' in entry.lower():
                     isRedacted = True
                 elif 'shota' in entry.lower():
-                    isRedacted = True
+                    isRedacted = True"""
 
         return [title, numberOfPages, rating, category, group, artist, parody, tag, collection, isRedacted]
     else:
