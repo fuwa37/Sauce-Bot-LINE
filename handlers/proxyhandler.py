@@ -7,12 +7,12 @@ proxies = []
 
 def get_proxies():
     global proxies
-    resp = requests.get('http://localhost:5000/proxy', timeout=60)
+    resp = requests.get('https://proxy-listing.herokuapp.com/proxy', timeout=60)
     proxies = resp.json()
 
 
 def scheduler_proxy():
-    requests.get('http://localhost:5000/process', timeout=300)
+    requests.get('https://proxy-listing.herokuapp.com/process', timeout=300)
     get_proxies()
     scheduler = BackgroundScheduler()
     scheduler.remove_all_jobs()

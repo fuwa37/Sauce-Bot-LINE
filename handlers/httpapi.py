@@ -9,7 +9,6 @@ import cv2
 import json
 import os
 
-app = Flask('')
 proxyhandler.run()
 
 api = Blueprint('api', __name__)
@@ -36,8 +35,3 @@ def upload_file():
         print(f)
         r = get_source.get_source_data(f, force=False, trace=True)
         return comment_builder.build_comment(r)
-
-
-app.register_blueprint(api)
-
-app.run(host="0.0.0.0", port=8080, use_reloader=False, debug=True)
