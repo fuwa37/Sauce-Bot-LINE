@@ -35,7 +35,7 @@ from datetime import datetime
 import logging
 import handlers.logger
 
-logger = handlers.logger.setup_logger('AniDB', 'Ani_DB_log.log', level=logging.INFO)
+logger = handlers.logger.setup_logger('AniDB', 'log/Ani_DB_log.log', level=logging.INFO)
 
 
 def buildMangaReply(searchText, isExpanded):

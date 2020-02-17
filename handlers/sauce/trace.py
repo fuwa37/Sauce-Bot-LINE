@@ -7,6 +7,7 @@ import handlers.Roboragi.AnimeBot as aBot
 import imagehash
 from PIL import Image
 from io import BytesIO
+from handlers.reqeuesthandler import reqhandler
 
 traceurl = "https://trace.moe/api/search"
 
@@ -15,18 +16,27 @@ def chop_microseconds(delta):
     return delta - datetime.timedelta(microseconds=delta.microseconds)
 
 
-def saucetrace(url):
+def saucetrace(picture):
     header = {'Content-Type': 'application/json'}
-    data = requests.get(url, stream=True)
     buffered = BytesIO()
-    image = Image.open(data.raw)
+
+    if type(picture) is str and picture.startswith('http'):
+        data = requests.get(picture, stream=True)
+        image = Image.open(data.raw)
+    else:
+        image = Image.open(picture.stream)
     image.save(buffered, format="JPEG")
     img_str = base64.b64encode(buffered.getvalue())
 
     body = json.dumps({'image': img_str.decode('utf-8')})
-    r = requests.post(traceurl, headers=header, data=body)
+    r = reqhandler(url=traceurl, method='post', headers=header, data=body)
+    try:
+        temp = json.loads(r.text)
+    except Exception as e:
+        print(e)
+        temp = None
 
-    return image, json.loads(r.text)
+    return image, temp
 
 
 def forceres(img, r):
@@ -55,6 +65,9 @@ def res(url, force):
     dic = {}
     minimum_similarity = 0.88
     img, r = saucetrace(url)
+    if r is None:
+        return {}
+
     if force is True:
         data = forceres(img, r)
         similarity = data['similarity']
@@ -76,7 +89,7 @@ def res(url, force):
                 'Season': str(data['season']),
                 'Episode': str(data['episode']),
                 'Time': str(chop_microseconds(datetime.timedelta(seconds=data['at']))) + '\n',
-                'Similarity': "{:.2%}".format(similarity),
+                'Similarity': float("%.2f" % (similarity*100)),
                 'Info': aBot.process_comment('{' + data['title_romaji'] + '}', is_expanded=True,
                                              trace=True)['reply']})
 

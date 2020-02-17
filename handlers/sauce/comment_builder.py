@@ -12,7 +12,6 @@ def build_comment(dic):
     # Trace
     if dic.get('reply'):
         r = dic.get('reply')
-        output_comment += f"Similarity: {r['Similarity']}\n\n"
         output_comment += f"{r['Title']}\n{r['Romaji']}\n{r['English']}\n\n"
         output_comment += f"Season: {r['Season']}\n\n"
         output_comment += f"Episode: {r['Episode']}\n\n"
@@ -22,7 +21,7 @@ def build_comment(dic):
         output_comment += f"Info:"
         output_comment += f"{r['Info']}"
         if dic.get('anidb_link'):
-            output_comment += f"[AniDB]({dic.get('anidb_link')})"
+            output_comment += f"\n[AniDB]({dic.get('anidb_link')})"
         vid_url = dic.get('url')
         info.update({
             'limit': dic.get('limit'),
@@ -33,14 +32,13 @@ def build_comment(dic):
         if not output_comment:
             return dic
         return {'reply': output_comment,
+                'similarity': r['Similarity'],
                 'image_url': dic.get('image_url'),
                 'vid_url': vid_url,
                 'info': info,
                 'source': 'trace'}
 
     # Saucenao
-    output_comment += f"Similarity: {dic.get('similarity')}%\n\n"
-
     # Skip anidb for special handling.
     if not (dic.get('type') == 'anidb' or dic.get('type') == 'fakku'):
         if dic.get('title'):
@@ -161,8 +159,11 @@ def build_comment(dic):
 
     return {'source': "sauce",
             'image_url': dic.get('image_url'),
+            'similarity': dic.get('similarity'),
             'reply': output_comment,
-            'info': info}
+            'info': info,
+            'code': dic.get('code')
+            }
 
 
 def generate_seperator_bar(link_comment):

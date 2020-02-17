@@ -130,7 +130,7 @@ def handle_message(event):
 
                     reply = [VideoSendMessage(original_content_url=m["vid_url"],
                                               preview_image_url=m["image_url"]),
-                             TextSendMessage(text=m["reply"])]
+                             TextSendMessage(text="Similarity: " + str(m['similarity']) + '%\n\n' + m["reply"])]
                 elif m.get("code"):
                     handlers.sn_inc()
                     handlers.handle_sleep(30, 'sauce')
@@ -146,7 +146,7 @@ def handle_message(event):
                     reply = [
                         ImageSendMessage(original_content_url=m["image_url"],
                                          preview_image_url=m["image_url"]),
-                        TextSendMessage(text=m["reply"])]
+                        TextSendMessage(text="Similarity: " + str(m['similarity']) + '%\n\n' + m["reply"])]
                 else:
                     reply = TextSendMessage(text=m["reply"])
             except Exception as err:

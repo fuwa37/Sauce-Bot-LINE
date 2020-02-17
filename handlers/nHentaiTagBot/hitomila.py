@@ -14,7 +14,7 @@ import handlers.logger
 
 API_URL_HITOMILA = 'https://hitomi.la/galleries/'  # needs .html appended
 
-logger = handlers.logger.setup_logger('hitomila_log', 'hitomila_log.log', level=logging.INFO)
+logger = handlers.logger.setup_logger('hitomila_log', 'log/hitomila_log.log', level=logging.INFO)
 cache = HentaiCache('hitomila')
 
 

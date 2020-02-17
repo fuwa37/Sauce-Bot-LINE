@@ -3,13 +3,13 @@ import handlers.model as model
 from datetime import datetime
 from string import capwords
 
-line_db = TinyDB('line_db.db')
+line_db = TinyDB('db/line_db.db')
 user_ref = line_db.table('users')
 group_ref = line_db.table('groups')
 
-hentai_db = TinyDB('hentai.db')
+hentai_db = TinyDB('db/hentai.db')
 
-ani_db = TinyDB('ani.db')
+ani_db = TinyDB('db/ani.db')
 
 Search = Query()
 

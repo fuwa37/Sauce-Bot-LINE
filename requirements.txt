@@ -1,3 +1,4 @@
+apscheduler
 pyquery
 cloudinary
 flask

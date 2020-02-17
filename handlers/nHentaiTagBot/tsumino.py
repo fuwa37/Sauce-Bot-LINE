@@ -17,7 +17,7 @@ API_URL_EHENTAI = "https://api.e-hentai.org/api.php"
 LINK_URL_NHENTAI = "https://nhentai.net/g/"
 LINK_URL_EHENTAI = "https://e-hentai.org/g/"
 
-logger = handlers.logger.setup_logger('tsumino_log', 'tsumino_log.log', level=logging.INFO)
+logger = handlers.logger.setup_logger('tsumino_log', 'log/tsumino_log.log', level=logging.INFO)
 cache = HentaiCache('tsumino')
 
 

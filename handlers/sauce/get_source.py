@@ -1,10 +1,13 @@
 from bs4 import BeautifulSoup
 import re
 import handlers.sauce.trace as trace2
+from PIL import Image
+from io import BytesIO
 import requests
+from handlers.reqeuesthandler import reqhandler
 
 
-def create_link_dictionary(soup, force, trace):
+def create_link_dictionary(soup, force):
     MINIMUM_SIMILARITY_PERCENTAGE = 65
     MAX_DELTA = 20
     dic = {}
@@ -65,24 +68,20 @@ def create_link_dictionary(soup, force, trace):
                 dic.update(({'similarity': similarity_percentage}))
                 dic.update(({'image_url': image_url}))
                 dic.update({'type': 'anidb'})
-
-            if not trace:
-                title_candidate = result.find('div', class_='resulttitle')
-                # TODO fix supplemental info
-                title = title_candidate.strong.text
-                if title and not dic.get('title'):
-                    dic.update({'title': title})
-                supplemental_info = re.sub(r'\<strong\>.*?\<\/strong\>', '',
-                                           title_candidate.text.replace('<small>', '').replace('</small>', ''))
-                if supplemental_info and not dic.get('supplemental_info'):
-                    dic.update({'supplemental_info': supplemental_info})
-
-                japanese_title = re.search(r'(?<=<strong>Title: </strong>).*?(?=<)', str(result))
-                if japanese_title and not dic.get('japanese_title'):
-                    dic.update({'japanese_title': japanese_title.group(0)})
-                time_code = re.search(r'(?<=<strong>Est Time: </strong>).*?(?=<)', str(result))
-                if time_code and not dic.get('time_code'):
-                    dic.update({'time_code': time_code.group(0)})
+            title_candidate = result.find('div', class_='resulttitle')
+            title = title_candidate.strong.text
+            if title and not dic.get('title'):
+                dic.update({'title': title})
+            supplemental_info = re.sub(r'\<strong\>.*?\<\/strong\>', '',
+                                       title_candidate.text.replace('<small>', '').replace('</small>', ''))
+            if supplemental_info and not dic.get('supplemental_info'):
+                dic.update({'supplemental_info': supplemental_info})
+            japanese_title = re.search(r'(?<=<strong>Title: </strong>).*?(?=<)', str(result))
+            if japanese_title and not dic.get('japanese_title'):
+                dic.update({'japanese_title': japanese_title.group(0)})
+            time_code = re.search(r'(?<=<strong>Est Time: </strong>).*?(?=<)', str(result))
+            if time_code and not dic.get('time_code'):
+                dic.update({'time_code': time_code.group(0)})
             episode = re.search(r'(?<=<strong>Name: </strong>).*?(?=<)', str(result))
             if episode and not dic.get('episode'):
                 dic.update({'episode': episode.group(0)})
@@ -260,19 +259,27 @@ def create_link_dictionary(soup, force, trace):
     return dic
 
 
-def get_source_data(picture_url, force, trace):
+def get_source_data(picture, force, trace):
     dic = {}
     try:
-        resp = requests.get('https://saucenao.com/search.php?db=999&url=' + picture_url)
-        if resp.status_code == 429:
-            raise Exception('Code 429')
+        resp = ''
+        if type(picture) is str and picture.startswith('http'):
+            resp = reqhandler(method='get', url='http://saucenao.com/search.php?db=999&url=' + picture)
+            if resp.status_code == 429:
+                raise Exception('Code 429')
+        else:
+            image = Image.open(picture.stream)
+            buffered = BytesIO()
+            image.save(buffered, format='JPEG')
+            files = {'file': ("image.png", buffered.getvalue())}
+            resp = reqhandler(url='http://saucenao.com/search.php?output_type=0', method='post', files=files)
         soup = BeautifulSoup(resp.content, features='lxml')
-        dic.update(create_link_dictionary(soup, force, trace))
+        dic.update(create_link_dictionary(soup, force))
     except Exception as x:
         temp = {}
         print("Error: " + str(x))
         if trace:
-            temp.update(trace2.res(picture_url, force))
+            temp.update(trace2.res(picture, force))
             if temp:
                 dic.update(temp)
             return dic
@@ -281,5 +288,5 @@ def get_source_data(picture_url, force, trace):
     else:
         if trace:
             if dic.get('type') == 'anidb' or not dic:
-                dic.update(trace2.res(picture_url, force))
+                dic.update(trace2.res(picture, force))
         return dic
