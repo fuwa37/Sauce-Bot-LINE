@@ -1,0 +1,22 @@
+[build-system]
+build-backend = "poetry.masonry.api"
+requires = ["poetry>=0.12"]
+
+[tool]
+[tool.poetry]
+authors = ["irs37 <irfanreynaldi37@gmail.com>"]
+description = ""
+name = "sauce-bot-private"
+version = "0.1.0"
+[tool.poetry.dependencies]
+apscheduler = "^3.6"
+bs4 = "^0.0.1"
+cloudinary = "^1.20"
+flask = "^1.1"
+imagehash = "^4.0"
+line-bot-sdk = "^1.15"
+opencv-python = "^4.2"
+pyquery = "^1.4"
+python = "^3.8"
+tinydb = "^3.15"
+[tool.poetry.dev-dependencies]

@@ -138,6 +138,7 @@ def buildAnimeReply(searchText, isExpanded, trace):
         if entry and (datetime.now() - cache.string_to_date(entry['last_update'])).days < 7:
             logger.info('Cache HIT ' + searchText + ' ' + entry['last_update'])
             return entry['info']
+            
 
         kit = {'search_function': Kitsu.search_anime,
                'synonym_function': Kitsu.get_synonyms,

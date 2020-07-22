@@ -41,15 +41,13 @@ session.headers = {
 
 def search(endpoint, search_term, parser, use_first_result=False):
     results = ''
-    for i in range(0, 5):
-        try:
-            response = session.get(BASE_URL + endpoint + search_term, timeout=10)
-            response.raise_for_status()
+    try:
+        response = session.get(BASE_URL + endpoint + search_term, timeout=5)
+        response.raise_for_status()
 
-            results = parser(response.json()['data'])
-            break
-        except Exception as e:
-            print(traceback.format_exc())
+        results = parser(response.json()['data'])
+    except Exception as e:
+        print(e)
 
     try:
         if not results:

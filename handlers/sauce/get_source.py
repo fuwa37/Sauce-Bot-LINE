@@ -4,8 +4,6 @@ import handlers.sauce.trace as trace2
 from PIL import Image
 from io import BytesIO
 import requests
-from handlers.reqeuesthandler import reqhandler
-
 
 def create_link_dictionary(soup, force):
     MINIMUM_SIMILARITY_PERCENTAGE = 65
@@ -259,20 +257,25 @@ def create_link_dictionary(soup, force):
     return dic
 
 
-def get_source_data(picture, force, trace):
+def get_source_data(picture, force = False, trace=False):
     dic = {}
     try:
         resp = ''
         if type(picture) is str and picture.startswith('http'):
-            resp = reqhandler(method='get', url='http://saucenao.com/search.php?db=999&url=' + picture)
+            resp = requests.get('https://saucenao.com/search.php?db=999&url=' + picture)
             if resp.status_code == 429:
                 raise Exception('Code 429')
         else:
             image = Image.open(picture.stream)
             buffered = BytesIO()
-            image.save(buffered, format='JPEG')
-            files = {'file': ("image.png", buffered.getvalue())}
-            resp = reqhandler(url='http://saucenao.com/search.php?output_type=0', method='post', files=files)
+            try:
+                image.save(buffered, format='JPEG')
+                files = {'file': ("image.jpg", buffered.getvalue())}
+            except Exception as x:
+                print("Error: " + str(x))
+                image.save(buffered, format='PNG')
+                files = {'file': ("image.png", buffered.getvalue())}
+            resp = requests.post('https://saucenao.com/search.php?output_type=0', data=files)
         soup = BeautifulSoup(resp.content, features='lxml')
         dic.update(create_link_dictionary(soup, force))
     except Exception as x:
@@ -285,7 +288,7 @@ def get_source_data(picture, force, trace):
             return dic
         else:
             return dic.update({'code': 429})
-    else:
+    finally:
         if trace:
             if dic.get('type') == 'anidb' or not dic:
                 dic.update(trace2.res(picture, force))

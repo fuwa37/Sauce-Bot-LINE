@@ -7,7 +7,6 @@ import handlers.Roboragi.AnimeBot as aBot
 import imagehash
 from PIL import Image
 from io import BytesIO
-from handlers.reqeuesthandler import reqhandler
 
 traceurl = "https://trace.moe/api/search"
 
@@ -25,11 +24,15 @@ def saucetrace(picture):
         image = Image.open(data.raw)
     else:
         image = Image.open(picture.stream)
-    image.save(buffered, format="JPEG")
+    try:
+        image.save(buffered, format='JPEG')
+    except Exception as x:
+        print("Error: " + str(x))
+        image.save(buffered, format='PNG')
     img_str = base64.b64encode(buffered.getvalue())
 
     body = json.dumps({'image': img_str.decode('utf-8')})
-    r = reqhandler(url=traceurl, method='post', headers=header, data=body)
+    r = requests.post(url=traceurl, headers=header, data=body)
     try:
         temp = json.loads(r.text)
     except Exception as e:
@@ -83,6 +86,8 @@ def res(url, force):
         data['anilist_id']) + '&file=' + urlparse.quote(data['filename']) + '&t=' + str(
         data['at']) + '&token=' + data['tokenthumb']
 
+    print(data)
+
     dic.update({'Title': data['title_native'],
                 'Romaji': data['title_romaji'],
                 'English': data['title_english'],
@@ -91,7 +96,7 @@ def res(url, force):
                 'Time': str(chop_microseconds(datetime.timedelta(seconds=data['at']))) + '\n',
                 'Similarity': float("%.2f" % (similarity*100)),
                 'Info': aBot.process_comment('{' + data['title_romaji'] + '}', is_expanded=True,
-                                             trace=True)['reply']})
+                                             trace=True).get('reply')})
 
     return {'url': url_prev2,
             'image_url': url_prev,

@@ -7,7 +7,8 @@ def build_comment(dic):
     is_redacted = False
 
     if not dic:
-        return {'reply' : "NO SAUCE\n\nMake sure to use full/clear/properly cropped media"}
+        return {'reply' : "NO SAUCE\n\nMake sure to use full image or properly cropped media",
+        'sauce_status': False}
 
     # Trace
     if dic.get('reply'):
@@ -29,14 +30,19 @@ def build_comment(dic):
             'quota': dic.get('quota'),
             'quota_ttl': dic.get('quota_ttl'),
         })
+
+        title = r['Romaji']
+
         if not output_comment:
             return dic
         return {'reply': output_comment,
+                'title': title,
                 'similarity': r['Similarity'],
                 'image_url': dic.get('image_url'),
                 'vid_url': vid_url,
                 'info': info,
-                'source': 'trace'}
+                'source': 'trace',
+                'sauce_status': True}
 
     # Saucenao
     # Skip anidb for special handling.
@@ -153,6 +159,8 @@ def build_comment(dic):
     if lesser_links:
         output_comment += f"Additional results: {lesser_links}\n"
 
+    title = dic.get('title') or dic.get('creator')
+
     # Handle no results
     if not output_comment:
         return dic
@@ -162,7 +170,9 @@ def build_comment(dic):
             'similarity': dic.get('similarity'),
             'reply': output_comment,
             'info': info,
-            'code': dic.get('code')
+            'title': title,
+            'code': dic.get('code'),
+            'sauce_status': True
             }
 
 

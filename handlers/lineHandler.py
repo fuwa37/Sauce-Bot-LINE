@@ -15,7 +15,8 @@ from linebot.exceptions import (
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, VideoSendMessage, FollowEvent,
-    VideoMessage, JoinEvent, QuickReply, QuickReplyButton, MessageAction
+    VideoMessage, JoinEvent, QuickReply, QuickReplyButton, MessageAction, TemplateSendMessage, ButtonsTemplate,
+    URIAction
 )
 
 config = json.loads(os.environ.get('cloudinary_config', None))
@@ -30,7 +31,7 @@ line = Blueprint('line', __name__)
 
 config = json.loads(os.environ.get('line_config', None))
 
-line_bot_api = LineBotApi(config['token'], timeout=15)
+line_bot_api = LineBotApi(config['token'], "http://localhost:8080", timeout=15)
 handler = WebhookHandler(config['secret'])
 
 quick_reply_sauce = QuickReply(
@@ -87,6 +88,8 @@ def proc_message(iid, event):
         reply = handlers.help_sauce + '\n\n' + handlers.help_robo
         if handlers.is_sukebei(iid):
             reply += '\n\n' + handlers.help_sukebei
+        reply += '\n\nSource code:\nhttps://github.com/irs37/Sauce-Bot'
+        reply += '\n\nSauce in app:\nhttps://github.com/irs37/Need-for-Sauce/releases/latest'
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
         return
 
@@ -212,26 +215,35 @@ def handle_video(event):
         image_uploader_user(iid, proc_video(iid, event))
 
 
-@handler.add(FollowEvent)
-def handle_follow(event):
-    iid = lid(event)
-
-    line_bot_api.reply_message(
-        event.reply_token,
-        [ImageSendMessage(original_content_url=handlers.sauce_img,
-                          preview_image_url=handlers.sauce_img),
-         TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
-
-    handlers.LineProfile.set_user(iid["uid"])
-
-
 @handler.add(JoinEvent)
 def handle_join(event):
     iid = lid(event)
 
+    button = TemplateSendMessage(
+        alt_text='Sauce App',
+        template=ButtonsTemplate(
+            thumbnail_image_url='https://res.cloudinary.com/fuwa/image/upload/assets/app_icon_circle.png',
+            image_aspect_ratio='square',
+            image_size='contain',
+            title='Need for Sauce',
+            text='Search for source of anime, manga, artwork and many more.',
+            actions=[
+                URIAction(
+                    label='Download',
+                    uri='https://github.com/irs37/Need-for-Sauce/releases/latest'
+                ),
+                URIAction(
+                    label='Source Code',
+                    uri='hhttps://github.com/irs37/Need-for-Sauce'
+                )
+            ]
+        )
+    )
+
     line_bot_api.reply_message(
         event.reply_token,
-        [ImageSendMessage(original_content_url=handlers.sauce_img,
+        [button,
+         ImageSendMessage(original_content_url=handlers.sauce_img,
                           preview_image_url=handlers.sauce_img),
          TextSendMessage(text="[Sauce Bot]\n\nRead bot's TIMELINE\nor\nType '!help' for help")])
 
